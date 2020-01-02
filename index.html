@@ -1,133 +1,116 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <title>avaje jvm libraries and utilities</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" href="/images/favicon.ico" >
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" href="/css/site.css">
-    <link rel="stylesheet" href="/css/pygments.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amaranth&display=swap">
-  </head>
-  <body data-spy="scroll" data-target="#navbar1" data-offset="60">
-<nav class="navbar navbar-dark bg-primary navbar-expand-md bd-navbar" role="navigation">
-  <div class="container">
-    <a class="navbar-brand py-3" href="./">
-      <a href="/" id="home-nav-link">avaje</a>
-    </a>
-    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target=".navbar-collapse">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse">
-      <ul class="navbar-nav ml-md-auto">
-        <li class="nav-item"><a class="page-scroll nav-link pr-3" title="Learn Bootstrap 4" href="http://bootstrap.themes.guide/how-to.html" target="new">How-to</a></li>
-        <li class="nav-item"><a class="page-scroll nav-link pr-3" title="Maker of great themes" href="http://themes.guide" target="new">Themes.guide</a></li>
-        <li class="nav-item"><a class="page-scroll nav-link pr-3" title="Bootstrap 4 themes collection" href="https://github.com/themesguide/top-hat" target="new">GitHub</a></li>
+<head>
+  <title>avaje jvm libraries and utilities</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Amaranth&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+
+<div id="main">
+  
+<nav class="banner">
+  <header>
+    <div id="x-nav">
+      <div class="breadcrumb"></div>
+      <ul>
+        <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+        <li><a href="https://github.com/avaje" title="github source"><i class="fab fa-github"></i></a></li>
+        <li><a href="#" id="toggleTheme" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
       </ul>
     </div>
-  </div>
+  </header>
 </nav>
-  <!--    <header class="mb-auto">-->
-<!--      <nav class="nav justify-content-center float-right">-->
-<!--        <a class="nav-link active" href="/">Home</a>-->
-<!--        <a class="nav-link" href="/" target="_blank">GitHub</a>-->
-<!--        <div class="nav-link">-->
-<!--          <div class="custom-control custom-switch">-->
-<!--            <input type="checkbox" class="custom-control-input" id="darkSwitch">-->
-<!--            <label class="custom-control-label" for="darkSwitch">Dark Mode</label>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </nav>-->
-<!--    </header>-->
-    <div id="main">
-     
-<div class="container">
+
+<div id="jumbo">
   <div class="hero">
     <h1>avaje jvm libraries</h1>
   </div>
-
-
-
-  <p>&nbsp;</p>
-  <div class="row head-section">
-    <div class="col col-4">
+</div>
+<div class="c-narrow">
+  <section>
+    <div class="col">
       <h3><a href="/config">Config</a></h3>
     </div>
-    <div class="col col-6">
+    <div class="col">
       <p>
-    Provides external configuration for applications. Loads <em>yaml</em> and <em>properties</em> files,
-    supports dynamic configuration
+        Provides external configuration for applications. Loads <em>yaml</em> and <em>properties</em> files,
+        supports dynamic configuration
       </p>
     </div>
-  </div>
+  </section>
 
-  <div class="row head-section">
-    <div class="col col-4">
+  <section>
+    <div class="col">
       <h3><a href="https://avaje-metrics.github.io">Metrics</a></h3>
     </div>
-    <div class="col col-6">
+    <div class="col">
       <p>
     APM style metrics for JVM with fast and light timing metrics with <code>@Timed</code>, gauges,
     counters with built in JVM and CGroup metrics.
       </p>
     </div>
-  </div>
+  </section>
 
-  <div class="row head-section">
-    <div class="col col-4">
+  <section>
+    <div class="col">
       <h3><a href="https://dinject.io">DInject</a></h3>
     </div>
-    <div class="col col-6">
+    <div class="col">
       <p>
     <a href="https://dinject.io">Dependency injection</a> via code generation for server side developers. Similar feature set to
     Spring DI but uses APT code generation (like Dagger2).
       </p>
     </div>
-  </div>
+  </section>
 
-  <div class="row head-section">
-    <div class="col col-4">
-      <h3><a href="https://dinject.io/docs/javalin/">Javalin controllers</a></h3>
+  <section>
+    <div class="col">
+      <h3><a href="https://dinject.io/docs/javalin/">Javalin<br/>controllers</a></h3>
     </div>
-    <div class="col col-6">
+    <div class="col">
       <p>
     Code generation for Javalin controllers such that we can have JAX-RS style controllers with
     <code>@Path, @Get etc</code> but extremely light and fast.
       </p>
     </div>
-  </div>
+  </section>
 
-  <div class="row head-section">
-    <div class="col col-4">
+  <section>
+    <div class="col">
       <h3><a href="/kotlin-kapt">Kotlin KAPT</a></h3>
     </div>
-    <div class="col col-6">
+    <div class="col">
       <p>
     Maven tiles to make it easier to use Kotlin KAPT with maven.
       </p>
     </div>
-  </div>
+  </section>
 
-  <div class="row head-section">
-    <div class="col col-4">
+  <section>
+    <div class="col">
       <h3><a href="/maven-tiles">Maven tiles</a></h3>
     </div>
-    <div class="col col-6">
+    <div class="col">
       <p>
     Useful maven tiles to drive reuse in maven build definitions.
       </p>
     </div>
-  </div>
+  </section>
 
 </div>
 
-    </div>
-    <!-- jQuery, Popper.js, Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script src="/js/site.js"></script>
-    <script src="/js/dark-mode-switch.min.js"></script>
-  </body>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+
+</body>
 </html>

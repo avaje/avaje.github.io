@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <title>avaje config</title>
+  <title>avaje kotlin kapt maven tiles</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="shortcut icon" href="/images/favicon.ico">
@@ -19,38 +19,34 @@
 <nav class="banner">
   <header>
     <div id="x-nav">
-      <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">config</span></div>
+      <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">kotlin kapt</span></div>
       <ul>
         <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
-        <li><a href="https://github.com/avaje/config" title="github source"><i class="fab fa-github"></i></a></li>
+        <li><a href="https://github.com/avaje/kotlin-kapt" title="github source"><i class="fab fa-github"></i></a></li>
         <li><a href="#" id="toggleTheme" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
       </ul>
     </div>
   </header>
 </nav>
 
-<div id="jumbo" class="hero">
-  <h1>config</h1>
-  <h3>External configuration for JVM apps</h3>
-</div>
 <div class="grid">
-  <article>
-    <h2 id="about">About</h2>
-    <p>
-      External configuration for JVM applications.
-    </p>
-    <ul>
-      <li>Reads <a href="#main">application.yaml</a> & <a href="#main">.properties</a></li>
-      <li>Specify properties files via <a href="#command-line">command line</a></li>
-      <li>For testing reads <a href="#test">application-test.yaml</a> and <a href="#test">.properties</a></li>
-      <li>For <a href="#local-dev">local development</a> reads configuration from <code>~/.localdev</code></li>
-      <li><A href="#k8s">Kubernetes</a> Env variables</li>
-      <li><a href="#plugins">Plugin API</a> for loading from other sources</li>
-    </ul>
+<article>
+  <h2 id="about">About</h2>
+  <p>
+    External configuration for JVM applications.
+  </p>
+  <ul>
+    <li>Reads <a href="#main">application.yaml</a> & <a href="#main">.properties</a></li>
+    <li>Specify properties files via <a href="#command-line">command line</a></li>
+    <li>For testing reads <a href="#test">application-test.yaml</a> and <a href="#test">.properties</a></li>
+    <li>For <a href="#local-dev">local development</a> reads configuration from <code>~/.localdev</code></li>
+    <li><A href="#k8s">Kubernetes</a> Env variables</li>
+    <li><a href="#plugins">Plugin API</a> for loading from other sources</li>
+  </ul>
 
-    <h2 id="start">Getting started</h2>
+  <h2 id="start">Getting started</h2>
 
-    <h5>1. Add dependency</h5>
+  <h5>1. Add dependency</h5>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>config<span class="nt">&lt;/artifactId&gt;</span>
@@ -58,61 +54,61 @@
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
-    <p>
-      Add the dependency to your project.
-    </p>
+  <p>
+    Add the dependency to your project.
+  </p>
 
-    <h5 id="test">2. For <em>Test</em> configuration</h5>
-    <p>
-      For configuration used when running local tests add into <code>src/test/resources</code> either:
-    </p>
-    <ul>
-      <li><code>application-test.yaml</code> or <code>application-test.properties</code></li>
-    </ul>
+  <h5 id="test">2. For <em>Test</em> configuration</h5>
+  <p>
+    For configuration used when running local tests add into <code>src/test/resources</code> either:
+  </p>
+  <ul>
+    <li><code>application-test.yaml</code> or <code>application-test.properties</code></li>
+  </ul>
 
 
-    <h5>3. For <em>Main</em> configuration</h5>
-    <h6 id="main">3a. Resources</h6>
-    <p>
-      Optionally provide "default" configuration by adding to <code>src/main/resources</code> either:
-    </p>
-    <ul>
-      <li><code>application.yaml</code> or <code>application.properties</code></li>
-    </ul>
-    <p>
-      Configuration specified by these files will be overridden by other configuration sources
-      (load.properties, command line args or plugins).
-    </p>
-    <h6>3b. load.properties</h6>
-    <p>
-      Optionally specify a <code>load.properties</code> property to define locations to
-      load external configuration from. For example:
-    </p>
-    <div class="syntax yml"><div class="highlight"><pre><span></span><span class="c1">## in application.yaml</span>
+  <h5>3. For <em>Main</em> configuration</h5>
+  <h6 id="main">3a. Resources</h6>
+  <p>
+    Optionally provide "default" configuration by adding to <code>src/main/resources</code> either:
+  </p>
+  <ul>
+    <li><code>application.yaml</code> or <code>application.properties</code></li>
+  </ul>
+  <p>
+    Configuration specified by these files will be overridden by other configuration sources
+    (load.properties, command line args or plugins).
+  </p>
+  <h6>3b. load.properties</h6>
+  <p>
+    Optionally specify a <code>load.properties</code> property to define locations to
+    load external configuration from. For example:
+  </p>
+  <div class="syntax yml"><div class="highlight"><pre><span></span><span class="c1">## in application.yaml</span>
 <span class="nt">load.properties</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/etc/config/myapp.properties /etc/other.yaml</span>
 </pre></div>
 </div>
-    <p>
-      After default configuration files are loaded the <em>load.properties</em> property is read to see
-      if it specifies other properties/yaml configuration files to load.
-    </p>
-    <h6 id="command-line">3c. Command line arguments</h6>
-    <p>
-      Command line arguments proceeded by <code>-P</code> are considered potential configuration files.
-      For example:
-    </p>
-    <div class="syntax sh"><div class="highlight"><pre><span></span>java -jar myapp.jar -P/etc/config/myapp.yaml -P/etc/other.yaml
+  <p>
+    After default configuration files are loaded the <em>load.properties</em> property is read to see
+    if it specifies other properties/yaml configuration files to load.
+  </p>
+  <h6 id="command-line">3c. Command line arguments</h6>
+  <p>
+    Command line arguments proceeded by <code>-P</code> are considered potential configuration files.
+    For example:
+  </p>
+  <div class="syntax sh"><div class="highlight"><pre><span></span>java -jar myapp.jar -P/etc/config/myapp.yaml -P/etc/other.yaml
 </pre></div>
 </div>
 
 
-    <h2 id="config">Using Config</h2>
-    <p>
-      We use <code>Config</code> to access the global configuration. <em>Config</em> can be used
-      anywhere in application code - static initialisers, constructors etc. There is no limitation
-      on where we can use Config.
-    </p>
-    <h6>Example reading properties</h6>
+  <h2 id="config">Using Config</h2>
+  <p>
+    We use <code>Config</code> to access the global configuration. <em>Config</em> can be used
+    anywhere in application code - static initialisers, constructors etc. There is no limitation
+    on where we can use Config.
+  </p>
+  <h6>Example reading properties</h6>
 <ul class="code nav nav-tabs">
   <li role="presentation" class="javaActive active"><a onclick="setLang('java');">java</a></li>
   <li role="presentation" class="kotlinActive"><a onclick="setLang('kt');">kotlin</a></li>
@@ -143,12 +139,12 @@
 </pre></div>
 </div>
 </div>
-    <h6>Optional properties</h6>
-    <p>
-      If a property is not defined then Config will fail fast
-      and throw an IllegalStateException unless a default value
-      is supplied or getOptional() is used.
-    </p>
+  <h6>Optional properties</h6>
+  <p>
+    If a property is not defined then Config will fail fast
+    and throw an IllegalStateException unless a default value
+    is supplied or getOptional() is used.
+  </p>
 <div class="code-java">
  <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// if myapp.foo is not defined</span>
 <span class="c1">// ... throws IllegalStateException</span>
@@ -175,71 +171,71 @@
 </pre></div>
 </div>
 </div>
-    <p>
-      Config will load configuration and provides API to read, change and listen to changes to configuration.
-    </p>
+  <p>
+    Config will load configuration and provides API to read, change and listen to changes to configuration.
+  </p>
 
 
-    <h2 id="local-dev">Local development</h2>
-    <p>
-      Sometimes we want configuration for when we run our application locally (via main).
-      For example, we want to provide configuration that points our application to a local database.
-    </p>
-    <p>
-      To do this we need to:
-    </p>
-    <h6>1. Specify <em>app.name</em> property</h6>
-    <p>
-      Specify <code>app.name</code> as a configuration property (in application.yaml or similarly loaded
-      configuration).
-    </p>
-    <h6>2. Add <em>~/.localdev/${app.name}.yaml</em></h6>
-    <p>
-      Add a file into <code>~/.localdev</code> called either <em>${app.name}.yaml</em> or
-      <wm>${app.name}.properties</wm>
-    </p>
-    <p>
-      For example, if the app.name was myapp then we have either:
-    </p>
+  <h2 id="local-dev">Local development</h2>
+  <p>
+    Sometimes we want configuration for when we run our application locally (via main).
+    For example, we want to provide configuration that points our application to a local database.
+  </p>
+  <p>
+    To do this we need to:
+  </p>
+  <h6>1. Specify <em>app.name</em> property</h6>
+  <p>
+    Specify <code>app.name</code> as a configuration property (in application.yaml or similarly loaded
+    configuration).
+  </p>
+  <h6>2. Add <em>~/.localdev/${app.name}.yaml</em></h6>
+  <p>
+    Add a file into <code>~/.localdev</code> called either <em>${app.name}.yaml</em> or
+    <wm>${app.name}.properties</wm>
+  </p>
+  <p>
+    For example, if the app.name was myapp then we have either:
+  </p>
+  <ul>
+    <li><em>~/.localdev/myapp.yaml</em> or <em>~/.localdev/myapp.properties</em></li>
+  </ul>
+  <p>
+    Note that the local development configuration is not loaded if the test configuration is loaded.
+  </p>
+
+  <h2 id="k8s">Kubernetes Env variables</h2>
+  <p>
+    Config will use the following environment variables if they are set.
+  </p>
+  <ul>
+    <li><em>POD_NAME</em> - to set <code>app.name</code> & <code>app.instanceId</code></li>
+    <li><em>POD_ENVIRONMENT</em> - to set <code>app.environment</code></li>
+  </ul>
+  <p>
+    Config will check if those environment variables are set and if so translate them into
+    <em>app.name</em> and <em>app.environment</em> if those properties have not already
+    been set.
+  </p>
+
+  <h2 id="plugins">Plugins</h2>
+  <p>
+    TODO: Plugins to load extra configuration (like URL)
+  </p>
+</article>
+
+<aside class="sidebar-right">
+  <nav class="side-nav">
     <ul>
-      <li><em>~/.localdev/myapp.yaml</em> or <em>~/.localdev/myapp.properties</em></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#start">Getting started</a></li>
+      <li><a href="#config">Using config</a></li>
+      <li><a href="#local-dev">Local development</a></li>
+      <li><a href="#k8s">Kubernetes env vars</a></li>
+      <li><a href="#plugins">Plugins</a></li>
     </ul>
-    <p>
-      Note that the local development configuration is not loaded if the test configuration is loaded.
-    </p>
-
-    <h2 id="k8s">Kubernetes Env variables</h2>
-    <p>
-      Config will use the following environment variables if they are set.
-    </p>
-    <ul>
-      <li><em>POD_NAME</em> - to set <code>app.name</code> & <code>app.instanceId</code></li>
-      <li><em>POD_ENVIRONMENT</em> - to set <code>app.environment</code></li>
-    </ul>
-    <p>
-      Config will check if those environment variables are set and if so translate them into
-      <em>app.name</em> and <em>app.environment</em> if those properties have not already
-      been set.
-    </p>
-
-    <h2 id="plugins">Plugins</h2>
-    <p>
-      TODO: Plugins to load extra configuration (like URL)
-    </p>
-  </article>
-
-  <aside class="sidebar-right">
-    <nav class="side-nav">
-      <ul>
-        <li><a href="#about">About</a></li>
-        <li><a href="#start">Getting started</a></li>
-        <li><a href="#config">Using config</a></li>
-        <li><a href="#local-dev">Local development</a></li>
-        <li><a href="#k8s">Kubernetes env vars</a></li>
-        <li><a href="#plugins">Plugins</a></li>
-      </ul>
-    </nav>
-  </aside>
+  </nav>
+</aside>
 </div>
 
 
