@@ -52,6 +52,9 @@ article>h2[id]::before, article>h3[id]::before, article>h4[id]::before {
   display: grid;
   grid-template-columns: auto 20rem;
 }
+.g2 {
+  grid-template-columns: 35em 35rem;
+}
 .col {
   padding: 1rem;
 }
@@ -123,7 +126,7 @@ div.syntax div.highlight pre {
   border: 1px solid var(--bg-code-border);
 }
 code {
-  color: var(--cd-fg);
+  /*color: var(--cd-fg);*/
   background: var(--cd-bg);
   font-size: 0.8rem;
   padding: 0.2rem;

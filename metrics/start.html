@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>avaje kotlin kapt maven tiles</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div id="main">
+  
+<div id="banner">
+  <header>
+    <nav id="top">
+      <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><a href="/metrics">metrics</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">start</span></div>
+      <ul>
+        <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+        <li><a href="https://github.com/avaje-metrics/metrics" title="github source"><i class="fab fa-github"></i></a></li>
+        <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+      </ul>
+    </nav>
+  </header>
+</div>
+
+<div class="grid">
+<article>
+  <h2 id="dependency">Add dependency</h2>
+  <p>
+    Add the following dependency to the project.
+  </p>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje.metrics<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>metrics<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>8.3<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+  <h2 id="maven">Maven tile</h2>
+  <p>
+    When using maven add the following maven tile into the <code>build / plugins</code>
+    section. This plugin performs build time enhancement of <code>@Timed</code> methods.
+  </p>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.repaint.maven<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>tiles-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>2.16<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;extensions&gt;</span>true<span class="nt">&lt;/extensions&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;tiles&gt;</span>
+      <span class="nt">&lt;tile&gt;</span>io.avaje.tile:metrics-enhance:8.3<span class="nt">&lt;/tile&gt;</span>
+      <span class="c">&lt;!-- other tiles ... --&gt;</span>
+    <span class="nt">&lt;/tiles&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</pre></div>
+</div>
+
+  <h2 id="gradle">Gradle plugin</h2>
+  <p>
+    When using Gradle add the following plugin (TODO).
+  </p>
+
+  <h2 id="jvm-metrics">Register JVM metrics</h2>
+  <p>
+    Via <code>MetricManager.jvmMetrics()</code> specify if we want:
+  </p>
+  <ul>
+    <li>Standard JVM metrics (GC, Threads, Memory)</li>
+    <li>CGroup metrics</li>
+    <li>Logback or Log4J counters for errors and warnings</li>
+  </ul>
+  <p>
+    Below is typical configuration code that additionally specifies
+    a reporter to report metrics to a local CSV file every 10 seconds.
+  </p>
+  <div class="code-java">
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
+<span class="kd">class</span> <span class="nc">Configuration</span> <span class="o">{</span>
+
+  <span class="nd">@Bean</span>
+  <span class="n">MetricReportManager</span> <span class="nf">metrics</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="n">MetricManager</span><span class="o">.</span><span class="na">jvmMetrics</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">registerJvmMetrics</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">registerCGroupMetrics</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">registerLogbackMetrics</span><span class="o">();</span>
+
+    <span class="c1">// simple csv reporter</span>
+    <span class="n">MetricReportConfig</span> <span class="n">config</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MetricReportConfig</span><span class="o">();</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">setFreqInSeconds</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">MetricReportManager</span><span class="o">(</span><span class="n">config</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  </div>
+
+  <h2 id="timed">Add @Timed</h2>
+  <p>
+    Add <code>@Timed</code> to classes that we want methods to be timed. By default
+    all public methods will have timing added to them.
+  </p>
+  <div>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Timed</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">IngestQueueConsumer</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  </div>
+  <ul>
+    <li>Add <code>@Timed</code> on additional private methods that we want timing on</li>
+    <li>Add <code>@NotTimed</code> on public methods that we do not want timing on</li>
+  </ul>
+  <p>
+    Note that DInject controllers automatically have timing added.
+  </p>
+
+</article>
+
+<aside class="sidebar-right">
+  <nav class="side">
+    <ul>
+      <li><a href="#a">a</a></li>
+      <li><a href="#b">b</a></li>
+      <li><a href="#c">c</a></li>
+    </ul>
+  </nav>
+</aside>
+</div>
+
+
+</div>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+
+</body>
+</html>
