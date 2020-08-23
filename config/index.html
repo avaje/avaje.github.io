@@ -330,6 +330,10 @@
 </div>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="kt">boolean</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getBool</span><span class="o">(</span><span class="s">&quot;feature.cleanup&quot;</span><span class="o">);</span>
 <span class="kt">boolean</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getBool</span><span class="o">(</span><span class="s">&quot;feature.cleanup&quot;</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+
+<span class="c1">// Config.enabled() is an alias for Config.getBool()</span>
+<span class="kt">boolean</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">enabled</span><span class="o">(</span><span class="s">&quot;feature.cleanup&quot;</span><span class="o">);</span>
+<span class="kt">boolean</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">enabled</span><span class="o">(</span><span class="s">&quot;feature.cleanup&quot;</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
 </pre></div>
 </div>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">BigDecimal</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getDecimal</span><span class="o">(</span><span class="s">&quot;myapp.tax.rate&quot;</span><span class="o">);</span>
