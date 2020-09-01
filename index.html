@@ -31,75 +31,42 @@
   <h1>avaje jvm libraries</h1>
 </div>
 <div class="c-narrow">
-  <section>
-    <div class="col">
-      <h3><a href="/config">Config</a></h3>
-    </div>
-    <div class="col">
-      <p>
-        Provides external configuration for applications. Loads <em>yaml</em> and <em>properties</em> files,
-        supports dynamic configuration
-      </p>
-    </div>
-  </section>
 
-  <section>
-    <div class="col">
-      <h3><a href="/metrics/">Metrics</a></h3>
-    </div>
-    <div class="col">
-      <p>
-    APM style metrics for JVM with fast and light timing metrics with <code>@Timed</code>, gauges,
-    counters with built in JVM and CGroup metrics.
-      </p>
-    </div>
-  </section>
+  <table class="index-toc">
+    <tr>
+      <th><a href="/config">config</a></th>
+      <td>
+        <p>
+          Provides external configuration for applications. Loads <em>yaml</em> and
+          <em>properties</em> files, supports dynamic configuration.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th><a href="/inject">inject</a></th>
+      <td>
+        <p>
+          Cloud native and kubernetes friendly <a href="/inject">dependency injection</a>
+          by generating source code using Java annotation processing.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th><a href="/http">http</a></th>
+      <td>
+        <p>
+          Light weight jax-rs style http servers using <a href="https://javalin.io">Javalin</a>
+          and <a href="https://helidon.io">Helidon SE</a>. Use annotations
+          like <code>@Path</code>, <code>@Get</code> etc to define a rest api.
+        </p>
+      </td>
+    </tr>
+    <tr>
+      <th></th>
+      <td></td>
+    </tr>
+  </table>
 
-  <section>
-    <div class="col">
-      <h3><a href="https://dinject.io">DInject</a></h3>
-    </div>
-    <div class="col">
-      <p>
-    <a href="https://dinject.io">Dependency injection</a> via code generation for server side developers. Similar feature set to
-    Spring DI but uses APT code generation (like Dagger2).
-      </p>
-    </div>
-  </section>
-
-  <section>
-    <div class="col">
-      <h3><a href="https://dinject.io/docs/javalin/">Javalin<br/>controllers</a></h3>
-    </div>
-    <div class="col">
-      <p>
-    Code generation for Javalin controllers such that we can have JAX-RS style controllers with
-    <code>@Path, @Get etc</code> but extremely light and fast.
-      </p>
-    </div>
-  </section>
-
-  <section>
-    <div class="col">
-      <h3><a href="/kotlin-kapt">Kotlin KAPT</a></h3>
-    </div>
-    <div class="col">
-      <p>
-    Maven tiles to make it easier to use Kotlin KAPT with maven.
-      </p>
-    </div>
-  </section>
-
-  <section>
-    <div class="col">
-      <h3><a href="/maven-tiles">Maven tiles</a></h3>
-    </div>
-    <div class="col">
-      <p>
-    Useful maven tiles to drive reuse in maven build definitions.
-      </p>
-    </div>
-  </section>
 
 </div>
 

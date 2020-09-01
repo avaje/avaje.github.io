@@ -97,7 +97,7 @@
     </div>
     <ul>
       <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
-      <li><a href="https://github.com/avaje/inject" title="github source"><i class="fab fa-github"></i></a></li>
+      <li><a href="https://github.com/avaje/avaje-inject" title="github source"><i class="fab fa-github"></i></a></li>
       <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
     </ul>
   </nav>
@@ -112,13 +112,14 @@
   That means there is no use of reflection or classpath scanning.
 </p>
 <p>
-  For a <a href="#why">background on why</a> <em>avaje inject</em> exists and a quick comparison
-  with other DI libraries such as Dagger2, Micronaut, Quarkus and Spring.
+  For a <a href="#why">background on why</a> <em>avaje inject</em> exists and a
+  <a href="#why-comparison">quick comparison</a> with other DI libraries such as
+  Dagger2, Micronaut, Quarkus and Spring goto - <a href="#why">Why</a>.
 </p>
 
 <h3 id="jsr-330">Based on JSR-330</h3>
 <p>
-  Avaje inject is based on <a href="http://javax-inject.github.io/javax-inject/api/index.html">JSR-330: Dependency Injection for Java</a>
+  avaje inject is based on <a href="http://javax-inject.github.io/javax-inject/api/index.html">JSR-330: Dependency Injection for Java</a>
   - <em>javax.inject</em> with some extensions similar to Spring DI.
 </p>
 <p>
@@ -132,11 +133,12 @@
   <li><code><a href="#pre-destroy">@PreDestroy</a></code></li>
 </ul>
 
-<h3 id="extensions">Spring DI like extensions</h3>
+<h3 id="extensions">Spring DI like extensions to JSR-330</h3>
 <h4>@Factory + @Bean</h4>
 <p>
-  DInject has <a href="#factory">@Factory</a> + <a href="#bean">@Bean</a> which work the same as
-  Spring DI's <em>@Configuration + @Bean</em> and also Micronaut's <em>@Factory + @Bean</em>.
+  In addition to the standard we use <a href="#factory">@Factory</a> + <a href="#bean">@Bean</a>
+  which work the same as Spring DI's <em>@Configuration + @Bean</em> and also Micronaut's
+  <em>@Factory + @Bean</em>.
 </p>
 <p>
   This provides a more convenient alternative to the JSR-330
@@ -146,13 +148,10 @@
 
 <h4>@Primary @Secondary</h4>
 <p>
-  DInject has <a href="#primary">@Primary</a> <a href="#secondary">@Secondary</a> annotations which
-  work the same as Spring DI's <em>@Primary @Secondary</em> and also Micronaut DI's
-  <em>@Primary @Secondary</em>.
-</p>
-<p>
-  These provide injection precedence in the case of injecting an implementation when multiple
-  injection candidates are available.
+  Additionally we use <a href="#primary">@Primary</a> <a href="#secondary">@Secondary</a> annotations
+  which work the same as Spring DI's <em>@Primary @Secondary</em> and also Micronaut DI's
+  <em>@Primary @Secondary</em>. These provide injection precedence in the case of injecting an
+  implementation when multiple injection candidates are available.
 </p>
 <h2 id="dependency">Dependencies</h2>
 
@@ -1240,7 +1239,6 @@ The classic use case for this is registering controllers or routes to
     <td><a href="https://avaje.io/metrics/">Avaje Metrics</a></td>
   </tr>
 </table>
-
 
   </article>
 </div>
