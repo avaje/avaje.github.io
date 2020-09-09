@@ -35,6 +35,7 @@
     <li><a href="#inject">@Inject</a></li>
     <li><a href="#constructor">Constructor injection</a></li>
     <li><a href="#field">Field injection</a></li>
+    <li><a href="#circular">Circular dependencies</a></li>
     <li><a href="#optional">Optional</a></li>
     <li><a href="#list">List and Set</a></li>
     <li><a href="#provider">Provider</a></li>
@@ -76,16 +77,18 @@
     <li><a href="#why-comparison">Comparison to other DI</a></li>
   </ul>
 </li>
-
+<li><a href="#http">http servers</a>
+  <ul>
+    <li><a href="#http-javalin">Javalin</a></li>
+    <li><a href="#http-helidon">Helidon SE</a></li>
+  </ul>
+</li>
 <li><a href="#spring">Spring DI</a>
 </li>
 <li><a href="#aop">AOP</a>
 </li>
-<li><a href="#javalin">Javalin</a>
-</li>
-<li><a href="#history">DI History</a>
-</li>
 </ul>
+<p>&nbsp;</p>
     </nav>
   </aside>
   <article id="main-content">
@@ -393,10 +396,29 @@
   With field injection the <code>@Inject</code> is placed on the field and the field must not be <code>private</code>
   and it must not be <code>final</code>.
 </p>
+<h4>Constructor injection preferred</h4>
+<p>
+  Generally there is a preference to use constructor injection over field injection as constructor
+  injection:
+</p>
+<ul>
+  <li>Promotes immutability / use of final fields / proper initialisation</li>
+  <li>Communicates required dependencies at compile time. Helps when dependencies
+    change to keep test code in line.</li>
+  <li>Helps identify when there are too many dependencies. Too many constructor
+    arguments is a more obvious code smell compared to field injection.
+    Promotes single responsibility principal.</li>
+</ul>
+
+<h4>Field injection for circular dependencies</h4>
+<p>
+  We use field injection to handle <a href="#circular">circular dependencies</a>.
+  See <a href="#circular">below</a> for more details.
+</p>
 
 <h4>Kotlin field injection</h4>
 <p>
-  For Kotlin we can consider using <em>lateinit</em> on the property.
+  For Kotlin we can consider using <em>lateinit</em> on the property with field injection.
 </p>
 <div class="syntax kotlin"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="k">class</span> <span class="nc">Grinder</span> <span class="p">{</span>
@@ -430,6 +452,82 @@
   <span class="o">}</span>
 </pre></div>
 </div>
+
+<h3 id="circular">Circular dependencies</h3>
+<p>
+  When we have a circular dependency then we need to use <a href="#field">field injection</a>
+  on one of the dependencies.
+</p>
+<p>
+  For example, lets say we have A and B where A depends on B and B depends on A. In this case
+  we can't use constructor injection for both A and B like:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+  <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+  <span class="n">A</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span>       <span class="c1">// constructor for A depends on B</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+  <span class="n">A</span> <span class="n">a</span><span class="o">;</span>
+  <span class="n">B</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>       <span class="c1">// constructor for B depends on A</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  With the above circular dependencies for A and B constructor injection <em>inject</em>
+  can not determine the order in which to construct the beans. <em>avaje-inject</em> will
+  detect this and product a compilation error outlining the beans involved and ask us
+  to change to use field injection for one of the dependencies.
+</p>
+<p>
+  We can not use constructor injection for both A and B and instead we must use
+  field injection on either A or B like:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+  <span class="nd">@Inject</span>   <span class="c1">// use field injection</span>
+  <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+  <span class="n">A</span> <span class="n">a</span><span class="o">;</span>
+  <span class="n">B</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The reason this works is that field injection occurs later after all the
+  dependencies are constructed. <em>avaje-inject</em> uses 2 phases to
+  "wire" the beans and then a 3rd phase to execute the <code>@PostConstruct</code>
+  lifecycle methods:
+</p>
+<ul>
+  <li>Phase 1: Construct all the beans in order based on constructor dependencies</li>
+  <li>Phase 2: Apply field injection on all beans</li>
+  <li>Phase 3: Execute all <code>@PostConstruct</code> lifecycle methods</li>
+</ul>
+<p>
+  Circular dependencies more commonly occur with more than 2 beans. For example,
+  lets say we have A, B and C where:
+</p>
+<ul>
+  <li>A depends on B</li>
+  <li>B depends on C</li>
+  <li>C depends on A</li>
+</ul>
+<p>
+  With A, B, C above they combine to create a circular dependency. To handle this
+  we need to use <a href="#field">field injection</a> on one of the dependencies.
+</p>
 
 <h3 id="optional">Optional</h3>
 <p>
@@ -607,10 +705,11 @@
   The CoffeeMaker has the appropriate methods that are executed as part of the lifecycle.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
-  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="o">{</span>
+
+  <span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="o">{</span>
     <span class="c1">// lifecycle executed on start/PostConstruct</span>
   <span class="o">}</span>
-  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">close</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">close</span><span class="o">()</span> <span class="o">{</span>
     <span class="c1">// lifecycle executed on shutdown/PreDestroy</span>
   <span class="o">}</span>
   <span class="o">...</span>
@@ -777,10 +876,8 @@
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
 
-  <span class="o">...</span>
-
   <span class="nd">@PostConstruct</span>
-  <span class="kd">public</span> <span class="nf">onStartup</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">onStartup</span><span class="o">()</span> <span class="o">{</span>
     <span class="c1">// connect to remote resource ...</span>
     <span class="o">...</span>
   <span class="o">}</span>
@@ -798,10 +895,8 @@
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
 
-  <span class="o">...</span>
-
   <span class="nd">@PreDestroy</span>
-  <span class="kd">public</span> <span class="nf">onShutdown</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">onShutdown</span><span class="o">()</span> <span class="o">{</span>
     <span class="c1">// close resources</span>
     <span class="o">...</span>
   <span class="o">}</span>
@@ -817,13 +912,13 @@
   underlying BeanContext.
 </p>
 <h5>example</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get a bean from the context and use it</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get a bean from the context</span>
 <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">SystemContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">brew</span><span class="o">();</span>
 </pre></div>
 </div>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get all the webroutes</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get all the beans that implement an interface</span>
 <span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoutes</span><span class="o">&gt;</span> <span class="n">webRoutes</span> <span class="o">=</span> <span class="n">SystemContext</span><span class="o">.</span><span class="na">getBeans</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
 <span class="c1">// register them with Javalin</span>
@@ -852,7 +947,7 @@
   The methods on BeanContext that we use to obtain beans out of the context are:
 </p>
 
-<h5>getBean(&lt; type &gt;)</h5>
+<h5>getBean(<em>type</em>)</h5>
 <p>
   Return a single bean given the type.
 </p>
@@ -861,7 +956,7 @@
 </pre></div>
 </div>
 
-<h5>getBean(&lt; type &gt;, &lt; qualifier &gt;) with qualifier</h5>
+<h5>getBean(<em>type</em>, <em>qualifier</em>)</h5>
 <p>
   Return a single bean given the type and name.
 </p>
@@ -870,7 +965,7 @@
 </pre></div>
 </div>
 
-<h5>getBeans(&lt; type &gt;)</h5>
+<h5>getBeans(<em>type</em>)</h5>
 <p>
   Return the list of beans that implement the interface.
 </p>
@@ -880,7 +975,7 @@
 </pre></div>
 </div>
 
-<h5>getBeansWithAnnotation(&lt; annotation type &gt;)</h5>
+<h5>getBeansWithAnnotation(<em>annotation type</em>)</h5>
 <p>
   Return the list of beans that have an annotation.
 </p>
@@ -895,7 +990,7 @@ The classic use case for this is registering controllers or routes to
  web frameworks like Sparkjava, Javlin, Rapidoid etc.
 </p>
 
-<h5>getBeansByPriority(&lt; type &gt;)</h5>
+<h5>getBeansByPriority(<em>type</em>)</h5>
 <p>
   Return the list of beans that implement the interface sorting by priority.
 </p>
@@ -927,7 +1022,7 @@ The classic use case for this is registering controllers or routes to
       <span class="c1">// setup the mock</span>
       <span class="n">when</span><span class="o">(</span><span class="n">grinder</span><span class="o">.</span><span class="na">grindBeans</span><span class="o">()).</span><span class="na">thenReturn</span><span class="o">(</span><span class="s">&quot;stub response&quot;</span><span class="o">);</span>
     <span class="o">})</span>
-    <span class="o">.</span><span class="na">load</span><span class="o">())</span> <span class="o">{</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
     <span class="c1">// Act</span>
     <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -956,7 +1051,7 @@ The classic use case for this is registering controllers or routes to
       <span class="c1">// setup the spy, only stub out pumpWater()</span>
       <span class="n">doNothing</span><span class="o">().</span><span class="na">when</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpWater</span><span class="o">();</span>
     <span class="o">})</span>
-    <span class="o">.</span><span class="na">load</span><span class="o">())</span> <span class="o">{</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
     <span class="c1">// or setup here ...</span>
     <span class="n">Pump</span> <span class="n">pump</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -987,7 +1082,7 @@ The classic use case for this is registering controllers or routes to
 
   <span class="k">try</span> <span class="o">(</span><span class="n">BeanContext</span> <span class="n">context</span> <span class="o">=</span> <span class="k">new</span> <span class="n">BeanContextBuilder</span><span class="o">()</span>
     <span class="o">.</span><span class="na">withBeans</span><span class="o">(</span><span class="n">pump</span><span class="o">,</span> <span class="n">grinder</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">load</span><span class="o">())</span> <span class="o">{</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
     <span class="c1">// act</span>
     <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -1087,14 +1182,21 @@ The classic use case for this is registering controllers or routes to
   creation of Guice which is released in 2009.
 </p>
 <p>
-  In 2009 developers from Spring, Guice and some others got together to define JSR-330
-  - dependency injection for Java.
+  In 2009 developers from Spring, Guice, Redhat and some others got together to
+  define JSR-330 - dependency injection for Java.
 </p>
 <p>
   Some Guice developers went on to develop Dagger which I believe was the first
   dependency injection library that used Java annotation processing to generate code
-  for DI. This made Dagger significantly faster and lighter than Guice and Dagger has
-  become heavily adopted for Android applications.
+  for DI. This moves work that was previously done at runtime to build time and made
+  Dagger significantly faster and lighter than Guice. Dagger becomes heavily
+  adopted for Android applications.
+</p>
+<p>
+  <em>
+  Using Java annotation processing to move dependency injection work from run time
+  to build time is common approach by Dagger, Micronaut, avaje-inject and Quarkus.
+  </em>
 </p>
 <p>
   Around 2018 the pain points of using Spring DI with Kubernetes and resource limited
@@ -1107,9 +1209,10 @@ The classic use case for this is registering controllers or routes to
   Android space for some years].
 </p>
 <p>
-  In 2018 Micronaut and this library are released which use Java annotation processing
-  to perform most of DI at build time rather than runtime. In 2019 Quarkus is released
-  which similarly uses Java annotation processing but is based on CDI.
+  In 2018 Micronaut and <em>avaje-inject</em> (this library) are released which use
+  Java annotation processing to perform most of DI at build time rather than runtime.
+  In 2019 Quarkus is released which similarly uses Java annotation processing but is
+  based on CDI.
 </p>
 
 <h3 id="why-comparison">Quick comparison to other DI libraries</h3>
@@ -1121,17 +1224,52 @@ The classic use case for this is registering controllers or routes to
 </p>
 <h5>Why not use Quarkus?</h5>
 <p>
-  Quarkus comes with a DI library that implements CDI. If that is your thing you'd look
+  Quarkus comes with a DI implementation based on CDI. If CDI is your thing you'd look
   at Quarkus.
 </p>
 <h5>Why not Micronaut?</h5>
 <p>
-  Micronaut DI is similar in feature set but also includes AOP and was relatively strongly
-  linked to the rest of the Micronaut framework which is quite large. <em>Avaje inject</em>
-  is relatively small library in comparison and is focused on DI alone.
+  Micronaut DI and <em>avaje-inject</em> are both heavily influenced by Spring ID and
+  look very similar in feature set.
+</p>
+<p>
+  Micronaut DI was relatively strongly linked to the rest of the Micronaut framework
+  where as <em>avaje-inject</em> is relatively small in comparison and focused on DI alone.
+  Micronaut generates bytecode where as <em>avaje-inject</em> generates source code
+  making the functionality of DI fully transparent to developers.
+</p>
+<h2 id="http">http servers</h2>
+<p>
+  <em>avaje-inject</em> is a lightweight DI library that is especially suited to
+  building http based services using <a href="https://javalin.io">Javalin</a>
+  and <a href="https://helidon.io">Helidon SE</a>.
+</p>
+<p>
+  We can build rest controllers and target either Javalin or Helidon SE using
+  as little or as much of either Javalin or Helidon as we like.
 </p>
 
-<h2 id="spring-di">Spring DI</h2>
+<h3 id="javalin">Javalin</h3>
+<p>
+  Create JAX-RS style controllers targeting <a href="https://javalin.io">Javalin</a>.
+  Write controller methods that take the Javalin context as a method argument or
+  have it injected as a request scoped bean.
+</p>
+<p>
+  See <a href="/http">here</a> for more details.
+</p>
+
+<h3 id="helidon">Helidon SE</h3>
+<p>
+  Create JAX-RS style controllers targeting <a href="https://helidon.io">Helidon SE</a>.
+  Write controller methods that take the Helidon server request and/or response as
+  method arguments or have them injected into the controller as request scoped beans.
+</p>
+<p>
+  See <a href="/http">here</a> for more details.
+</p>
+
+<h2 id="spring">Spring DI</h2>
 
 <h4>@Factory + @Bean</h4>
 <p>
@@ -1154,7 +1292,7 @@ The classic use case for this is registering controllers or routes to
 <table class="table">
   <tr>
     <th width="45%">Spring</th>
-    <th width="45%">DInject</th>
+    <th width="45%">avaje-inject</th>
     <th width="10%">JSR-330</th>
   </tr>
   <tr>
@@ -1209,13 +1347,14 @@ The classic use case for this is registering controllers or routes to
 
 <h3 id="aop">AOP</h3>
 <p>
-  Using libraries that provide their own AOP/enhancement makes DInject simpler and lighter.
+  <em>avaje-inject</em> does not include AOP as other libraries provide build time AOP
+  for <code><a href="https://ebean.io/docs/transactions/">@Transactional</a></code>,
+  Metrics <code><a href="https://avaje.io/metrics/">@Timed</a></code>
+  and configuration injection via <a href="https://avaje.io/config/">avaje-config</a>.
 </p>
 <p>
-  Currently DInject does not include AOP and the expectation is that AOP functionality comes
-  with other libraries. For example Ebean ORM has
-  <code><a href="https://ebean.io/docs/transactions/">@Transactional</a></code> and Metrics
-  libraries have their own <code><a href="https://avaje.io/metrics/">@Timed</a></code>.
+  Performing AOP at build time is important as it removes the runtime cost at startup
+  of using dynamic proxies.
 </p>
 <p>
   The following are library recommendations for @Transactional, @Value and @Timed.
@@ -1239,6 +1378,8 @@ The classic use case for this is registering controllers or routes to
     <td><a href="https://avaje.io/metrics/">Avaje Metrics</a></td>
   </tr>
 </table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
 
   </article>
 </div>
