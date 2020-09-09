@@ -1,0 +1,180 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">package io.avaje.inject;</a>
+<span class="sourceLineNo">002</span><a id="line.2"></a>
+<span class="sourceLineNo">003</span><a id="line.3">/**</a>
+<span class="sourceLineNo">004</span><a id="line.4"> * Used to explicitly name a bean context and optionally specify if it depends on other bean contexts.</a>
+<span class="sourceLineNo">005</span><a id="line.5"> * &lt;p&gt;</a>
+<span class="sourceLineNo">006</span><a id="line.6"> * If this annotation is not present then the name will be derived as the "top level package name"</a>
+<span class="sourceLineNo">007</span><a id="line.7"> * e.g. "org.example.featuretoggle"</a>
+<span class="sourceLineNo">008</span><a id="line.8"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">009</span><a id="line.9"> *</a>
+<span class="sourceLineNo">010</span><a id="line.10"> * &lt;p&gt;</a>
+<span class="sourceLineNo">011</span><a id="line.11"> * Typically there is a single bean context per Jar (module). In that sense the name is the "module name" and</a>
+<span class="sourceLineNo">012</span><a id="line.12"> * the dependsOn specifies the names of modules that this depends on (provide beans that are used to wire this module).</a>
+<span class="sourceLineNo">013</span><a id="line.13"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">014</span><a id="line.14"> *</a>
+<span class="sourceLineNo">015</span><a id="line.15"> * &lt;p&gt;</a>
+<span class="sourceLineNo">016</span><a id="line.16"> * This annotation is typically placed on a top level interface or package-info in the module.</a>
+<span class="sourceLineNo">017</span><a id="line.17"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">018</span><a id="line.18"> *</a>
+<span class="sourceLineNo">019</span><a id="line.19"> * &lt;pre&gt;{@code</a>
+<span class="sourceLineNo">020</span><a id="line.20"> *</a>
+<span class="sourceLineNo">021</span><a id="line.21"> * package org.example.featuretoggle;</a>
+<span class="sourceLineNo">022</span><a id="line.22"> *</a>
+<span class="sourceLineNo">023</span><a id="line.23"> * import io.dinject.ContextModule;</a>
+<span class="sourceLineNo">024</span><a id="line.24"> *</a>
+<span class="sourceLineNo">025</span><a id="line.25"> * ＠ContextModule(name = "feature-toggle")</a>
+<span class="sourceLineNo">026</span><a id="line.26"> * public interface FeatureToggle {</a>
+<span class="sourceLineNo">027</span><a id="line.27"> *</a>
+<span class="sourceLineNo">028</span><a id="line.28"> *   boolean isEnabled(String key);</a>
+<span class="sourceLineNo">029</span><a id="line.29"> * }</a>
+<span class="sourceLineNo">030</span><a id="line.30"> *</a>
+<span class="sourceLineNo">031</span><a id="line.31"> * }&lt;/pre&gt;</a>
+<span class="sourceLineNo">032</span><a id="line.32"> *</a>
+<span class="sourceLineNo">033</span><a id="line.33"> * &lt;h2&gt;dependsOn&lt;/h2&gt;</a>
+<span class="sourceLineNo">034</span><a id="line.34"> * &lt;p&gt;</a>
+<span class="sourceLineNo">035</span><a id="line.35"> * We specify &lt;code&gt;dependsOn&lt;/code&gt; when we have a module that depends on beans that</a>
+<span class="sourceLineNo">036</span><a id="line.36"> * will be supplied by another module (jar).</a>
+<span class="sourceLineNo">037</span><a id="line.37"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">038</span><a id="line.38"> * &lt;p&gt;</a>
+<span class="sourceLineNo">039</span><a id="line.39"> * In the example below we have the "Job System" which depends on the common "Feature Toggle" module.</a>
+<span class="sourceLineNo">040</span><a id="line.40"> * When wiring the Job system module we expect some beans to be provided by the feature toggle module (jar).</a>
+<span class="sourceLineNo">041</span><a id="line.41"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">042</span><a id="line.42"> *</a>
+<span class="sourceLineNo">043</span><a id="line.43"> * &lt;pre&gt;{@code</a>
+<span class="sourceLineNo">044</span><a id="line.44"> *</a>
+<span class="sourceLineNo">045</span><a id="line.45"> * package org.example.jobsystem;</a>
+<span class="sourceLineNo">046</span><a id="line.46"> *</a>
+<span class="sourceLineNo">047</span><a id="line.47"> * import io.dinject.ContextModule;</a>
+<span class="sourceLineNo">048</span><a id="line.48"> *</a>
+<span class="sourceLineNo">049</span><a id="line.49"> * ＠ContextModule(name = "job-system", dependsOn = {"feature-toggle"})</a>
+<span class="sourceLineNo">050</span><a id="line.50"> * public interface JobSystem {</a>
+<span class="sourceLineNo">051</span><a id="line.51"> *</a>
+<span class="sourceLineNo">052</span><a id="line.52"> *   ...</a>
+<span class="sourceLineNo">053</span><a id="line.53"> * }</a>
+<span class="sourceLineNo">054</span><a id="line.54"> *</a>
+<span class="sourceLineNo">055</span><a id="line.55"> * }&lt;/pre&gt;</a>
+<span class="sourceLineNo">056</span><a id="line.56"> */</a>
+<span class="sourceLineNo">057</span><a id="line.57">public @interface ContextModule {</a>
+<span class="sourceLineNo">058</span><a id="line.58"></a>
+<span class="sourceLineNo">059</span><a id="line.59">  /**</a>
+<span class="sourceLineNo">060</span><a id="line.60">   * The name of this context/module.</a>
+<span class="sourceLineNo">061</span><a id="line.61">   * &lt;p&gt;</a>
+<span class="sourceLineNo">062</span><a id="line.62">   * Other modules can then depend on this name and when they do they should wire after than module.</a>
+<span class="sourceLineNo">063</span><a id="line.63">   * &lt;/p&gt;</a>
+<span class="sourceLineNo">064</span><a id="line.64">   */</a>
+<span class="sourceLineNo">065</span><a id="line.65">  String name() default "";</a>
+<span class="sourceLineNo">066</span><a id="line.66"></a>
+<span class="sourceLineNo">067</span><a id="line.67">  /**</a>
+<span class="sourceLineNo">068</span><a id="line.68">   * Additional module features that is provided by this module.</a>
+<span class="sourceLineNo">069</span><a id="line.69">   * &lt;p&gt;</a>
+<span class="sourceLineNo">070</span><a id="line.70">   * These names are an addition to the module name and can be used in the &lt;code&gt;dependsOn&lt;/code&gt; of other modules.</a>
+<span class="sourceLineNo">071</span><a id="line.71">   * &lt;/p&gt;</a>
+<span class="sourceLineNo">072</span><a id="line.72">   *</a>
+<span class="sourceLineNo">073</span><a id="line.73">   * &lt;pre&gt;{@code</a>
+<span class="sourceLineNo">074</span><a id="line.74">   *</a>
+<span class="sourceLineNo">075</span><a id="line.75">   * // A module that provides 'email-service' and also 'health-check'.</a>
+<span class="sourceLineNo">076</span><a id="line.76">   * // ie. it has bean(s) that implement a health check interface</a>
+<span class="sourceLineNo">077</span><a id="line.77">   * ＠ContextModule(name="email-service", provides={"health-checks"})</a>
+<span class="sourceLineNo">078</span><a id="line.78">   *</a>
+<span class="sourceLineNo">079</span><a id="line.79">   * // provides beans that implement a health check interface</a>
+<span class="sourceLineNo">080</span><a id="line.80">   * // ... wires after 'email-service'</a>
+<span class="sourceLineNo">081</span><a id="line.81">   * ＠ContextModule(name="main", provides={"health-checks"}, dependsOn={"email-service"})</a>
+<span class="sourceLineNo">082</span><a id="line.82">   *</a>
+<span class="sourceLineNo">083</span><a id="line.83">   * // wire this after all modules that provide 'health-checks'</a>
+<span class="sourceLineNo">084</span><a id="line.84">   * ＠ContextModule(name="health-check-service", dependsOn={"health-checks"})</a>
+<span class="sourceLineNo">085</span><a id="line.85">   *</a>
+<span class="sourceLineNo">086</span><a id="line.86">   * }&lt;/pre&gt;</a>
+<span class="sourceLineNo">087</span><a id="line.87">   */</a>
+<span class="sourceLineNo">088</span><a id="line.88">  String[] provides() default {};</a>
+<span class="sourceLineNo">089</span><a id="line.89"></a>
+<span class="sourceLineNo">090</span><a id="line.90">  /**</a>
+<span class="sourceLineNo">091</span><a id="line.91">   * The list of modules this context depends on.</a>
+<span class="sourceLineNo">092</span><a id="line.92">   * &lt;p&gt;</a>
+<span class="sourceLineNo">093</span><a id="line.93">   * Effectively dependsOn specifies the modules that must wire before this module.</a>
+<span class="sourceLineNo">094</span><a id="line.94">   * &lt;/p&gt;</a>
+<span class="sourceLineNo">095</span><a id="line.95">   * &lt;pre&gt;{@code</a>
+<span class="sourceLineNo">096</span><a id="line.96">   *</a>
+<span class="sourceLineNo">097</span><a id="line.97">   * // wire after a module that is called 'email-service'</a>
+<span class="sourceLineNo">098</span><a id="line.98">   * // ... or any module that provides 'email-service'</a>
+<span class="sourceLineNo">099</span><a id="line.99">   *</a>
+<span class="sourceLineNo">100</span><a id="line.100">   * ＠ContextModule(name="...", dependsOn={"email-service"})</a>
+<span class="sourceLineNo">101</span><a id="line.101">   *</a>
+<span class="sourceLineNo">102</span><a id="line.102">   * }&lt;/pre&gt;</a>
+<span class="sourceLineNo">103</span><a id="line.103">   */</a>
+<span class="sourceLineNo">104</span><a id="line.104">  String[] dependsOn() default {};</a>
+<span class="sourceLineNo">105</span><a id="line.105"></a>
+<span class="sourceLineNo">106</span><a id="line.106">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
