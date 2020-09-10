@@ -199,10 +199,9 @@
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
-
-<h4>Java APT - dinject-generator</h4>
 <p>
-  Add <em>avaje-inject-generator</em> as a dependency with <em>provided scope</em>.
+  Add <em>avaje-inject-generator</em> annotation processor as a dependency with
+  <em>provided scope</em>.
 </p>
 
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Annotation processor --&gt;</span>
@@ -214,7 +213,29 @@
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
-
+<p>
+  Note that if there are other annotation processors and they are specified via
+  <em>maven-compiler-plugin</em> <em>annotationProcessorPaths</em>
+  then we add <em>avaje-inject-generator</em> there instead.
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;annotationProcessorPaths&gt;</span> <span class="c">&lt;!-- All annotation processors specified here --&gt;</span>
+      <span class="nt">&lt;path&gt;</span>
+          <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+          <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
+          <span class="nt">&lt;version&gt;</span>1.1<span class="nt">&lt;/version&gt;</span>
+      <span class="nt">&lt;/path&gt;</span>
+      <span class="nt">&lt;path&gt;</span>
+          ... other annotation processor ...
+      <span class="nt">&lt;/path&gt;</span>
+    <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</pre></div>
+</div>
 
 
 <h3 id="gradle">Gradle</h3>
@@ -240,9 +261,7 @@
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
   <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:1.1&#39;</span><span class="o">)</span>
-
   <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:1.1&#39;</span><span class="o">)</span>
-  <span class="o">...</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -256,9 +275,9 @@
   to the Kotlin compiler rather than <em>annotationProcessor</em>.
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
-    <span class="o">...</span>
-    <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:1.1&#39;</span><span class="o">)</span>
-    <span class="o">...</span>
+  <span class="o">...</span>
+  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:1.1&#39;</span><span class="o">)</span>
+  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:1.1&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -428,7 +447,9 @@
   For example, lets say we have A and B where A depends on B and B depends on A. In this case
   we can't use constructor injection for both A and B like:
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// circular dependency with constructor injection, this will not work !!</span>
+
+<span class="nd">@Singleton</span>
 <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
   <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
   <span class="n">A</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span>       <span class="c1">// constructor for A depends on B</span>
@@ -446,7 +467,7 @@
 </pre></div>
 </div>
 <p>
-  With the above circular dependencies for A and B constructor injection <em>inject</em>
+  With the above circular dependencies for A and B constructor injection <em>avaje-inject</em>
   can not determine the order in which to construct the beans. <em>avaje-inject</em> will
   detect this and product a compilation error outlining the beans involved and ask us
   to change to use field injection for one of the dependencies.
@@ -525,7 +546,7 @@
 <h5>Spring DI Note</h5>
 <p>
   Spring users will be familiar with the use of <code>@Autowired(required=false)</code>
-  for wiring optional dependencies. With DInject we instead use <code>Optional</code>
+  for wiring optional dependencies. With <em>avaje-inject</em> we instead use <code>Optional</code>
   to inject optional dependencies.
 </p>
 
@@ -687,15 +708,22 @@
 <h2 id="primary">@Primary</h2>
 <p>
   A bean with <code>@Primary</code> is deemed to be highest priority and will be injected and used
-  when it is available.
+  when it is available. This is functionally the same as Spring and Micronaut <em>@Primary</em>.
 </p>
 <p>
   There should only ever be <b>one</b> bean implementation marked as <em>@Primary</em> for
   a given dependency.
 </p>
-<p>
-  This is functionally the same as Spring and Micronaut <em>@Primary</em>.
-</p>
+
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Highest priority EmailServer</span>
+<span class="c1">// Used when available (e.g. module in the class path)</span>
+<span class="nd">@Primary</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PreferredEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
 
 <h2 id="secondary">@Secondary</h2>
 <p>
@@ -706,6 +734,15 @@
 <p>
   This is functionally the same as Spring and Micronaut <em>@Secondary</em>.
 </p>
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Lowest priority EmailServer</span>
+<span class="c1">// Only used if no other EmailServer is available</span>
+<span class="nd">@Secondary</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DefaultEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
 
 <h3 id="primary-usage">Use of @Primary and @Secondary</h3>
 <p>
@@ -719,7 +756,7 @@
   building multi-module applications. We have multiple modules (jars) that provide implementations.
   We use <em>@Secondary</em> to indicate a "default" or "fallback" implementation to use
   and we use <em>@Primary</em> to indicate the best implementation to use when it is available.
-  DInject DI will then wire depending on which modules (jars) are included in the classpath.
+  <em>avaje-inject</em> DI will then wire depending on which modules (jars) are included in the classpath.
 </p>
 <h2 id="qualifiers">Qualifiers</h2>
 
@@ -1119,8 +1156,8 @@ The classic use case for this is registering controllers or routes to
   available for injecting into it's bean graph.
 </p>
 <p>
-  For DInject internally this defines the order in which the bean contexts in each of the modules are created.
-  DInject finds all the modules in the classpath (via Service loader) and then orders the modules based on the
+  For <em>avaje-inject</em> internally this defines the order in which the bean contexts in each of the modules are created.
+  <em>avaje-inject</em> finds all the modules in the classpath (via Service loader) and then orders the modules based on the
   dependsOn values. In the example above the "feature-toggle" bean context must be built first, and then the
   beans it contains are available when building the "job-system" bean context.
 </p>
@@ -1346,6 +1383,8 @@ The classic use case for this is registering controllers or routes to
 </table>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
+
+
 
 
   </article>
