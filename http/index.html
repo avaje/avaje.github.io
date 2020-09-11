@@ -44,6 +44,14 @@
       <li><a href="#patch">@Patch</a></li>
     </ul>
 </li>
+<li><a href="#context">Context</a>
+    <ul>
+      <li><a href="#javalin-context">Javalin Context</a></li>
+      <li><a href="#helidon-request">Helidon request</a></li>
+      <li><a href="#helidon-request">Helidon response</a></li>
+      <li><a href="#request-scoped">Request scope</a></li>
+    </ul>
+</li>
 <li><a href="#type-conversions">Type conversions</a>
 </li>
 <li><a href="#bean-validation">Bean validation</a>
@@ -52,8 +60,6 @@
 </li>
 <li><a href="#jaxrs">JAX-RS comparison</a>
 </li>
-
-
 </ul>
 <p>&nbsp;</p>
     </nav>
@@ -392,77 +398,8 @@
 <p>
   By default controllers are singleton scoped. If the controllers have a dependency
   on Javalin context, Helidon ServerRequest or ServerResponse then they automatically
-  become request scoped.
+  become <a href="#request-scoped">request scoped</a>.
 </p>
-
-<h3 id="controller-request">Request scoped controllers</h3>
-<p>
-  If the controllers have a dependency on Javalin context, Helidon ServerRequest
-  or ServerResponse then automatically they become request scoped. <em>avaje-inject</em>
-  detects this and automatically makes the controller request scoped.
-</p>
-
-<h5>Example</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Automatically becomes request scoped</span>
-<span class="c1">//  ... because Javalin Context is a dependency</span>
-<span class="nd">@Controller</span>
-<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
-<span class="kd">class</span> <span class="nc">ContactController</span> <span class="o">{</span>
-
-  <span class="kd">private</span> <span class="kd">final</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">;</span>
-  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Context</span> <span class="n">context</span><span class="o">;</span> <span class="c1">// Javalin Context</span>
-
-  <span class="c1">// Inject Javalin context via constructor</span>
-  <span class="nd">@Inject</span>
-  <span class="n">ContactController</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">context</span> <span class="o">=</span> <span class="n">context</span><span class="o">;</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">contactService</span> <span class="o">=</span> <span class="n">contactService</span><span class="o">;</span>
-  <span class="o">}</span>
-
-  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
-  <span class="n">Contact</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-    <span class="c1">// use the javalin context ...</span>
-    <span class="k">var</span> <span class="n">fooCookie</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">cookieStore</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">);</span>
-    <span class="o">...</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-<h5>Example</h5>
-<p>
-  In this next example ProductController automatically becomes request scoped
-  because we have dependencies on the Helidon ServerRequest and ServerResponse.
-  They are injected using field injection rather than constructor injection.
-  When using field injection they can NOT be final and can NOT be private.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Automatically becomes request scoped</span>
-<span class="c1">//  ... because Helidon request and response are a dependency</span>
-<span class="nd">@Controller</span>
-<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/products&quot;</span><span class="o">)</span>
-<span class="kd">class</span> <span class="nc">ProductController</span> <span class="o">{</span>
-
-  <span class="kd">private</span> <span class="kd">final</span> <span class="n">MyService</span> <span class="n">myService</span><span class="o">;</span>
-
-  <span class="nd">@Inject</span>
-  <span class="n">ServerRequest</span> <span class="n">request</span><span class="o">;</span> <span class="c1">// Helidon request field injected</span>
-
-  <span class="nd">@Inject</span>
-  <span class="n">ServerRequest</span> <span class="n">response</span><span class="o">;</span> <span class="c1">// Helidon response field injected</span>
-
-  <span class="nd">@Inject</span>
-  <span class="n">ProductController</span><span class="o">(</span><span class="n">MyService</span> <span class="n">myService</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">myService</span> <span class="o">=</span> <span class="n">myService</span><span class="o">;</span>
-  <span class="o">}</span>
-
-  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
-  <span class="n">Contact</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-    <span class="c1">// use the helidon request ...</span>
-    <span class="k">var</span> <span class="n">fooCookie</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">cookies</span><span class="o">().</span><span class="na">first</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">);</span>
-    <span class="o">...</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</pre></div>
-</div>
 
 <h2 id="path">@Path</h2>
 <p>
@@ -485,11 +422,13 @@ GET /foo
 <span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">RootController</span> <span class="o">{</span>
 
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">MediaType</span><span class="o">.</span><span class="na">TEXT_PLAIN</span><span class="o">)</span>
   <span class="nd">@Get</span>
   <span class="n">String</span> <span class="nf">hello</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="s">&quot;Hello world&quot;</span><span class="o">;</span>
   <span class="o">}</span>
 
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">MediaType</span><span class="o">.</span><span class="na">TEXT_PLAIN</span><span class="o">)</span>
   <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">)</span>
   <span class="n">String</span> <span class="nf">helloFoo</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="s">&quot;Hello Foo&quot;</span><span class="o">;</span>
@@ -656,7 +595,7 @@ GET /customer/active/{customerType}
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// orderBy defaults to &quot;age&quot;</span>
 
 <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;{bornAfter}&quot;</span><span class="o">)</span>
-<span class="kd">public</span> <span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">findCats</span><span class="o">(</span><span class="nx">LocalDate</span> <span class="nx">bornAfter</span><span class="o">,</span> <span class="nd">@Default</span><span class="o">(</span><span class="s">&quot;age&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">orderBy</span><span class="o">)</span> <span class="o">{</span>
+<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">findCats</span><span class="o">(</span><span class="nx">LocalDate</span> <span class="nx">bornAfter</span><span class="o">,</span> <span class="nd">@Default</span><span class="o">(</span><span class="s">&quot;age&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">orderBy</span><span class="o">)</span> <span class="o">{</span>
   <span class="o">...</span>
 <span class="o">}</span>
 </pre></div>
@@ -1060,7 +999,130 @@ The generated Javalin code for the above is.
 <p>
   Annotate methods with <code>@Patch</code> for HTTP PUT web routes.
 </p>
+<h2 id="context">Context</h2>
 
+<h3 id="javalin-context">Javalin Context</h3>
+<p>
+  The Javalin <code>Context</code> can be passed as a method argument or injected
+  as a dependency of the controller.
+</p>
+
+<h4>Context as method argument</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span>
+<span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// use Javalin context as desired</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+
+<h3 id="helidon-request">Helidon request/response</h3>
+<p>
+  Helidon has <code>ServerRequest</code> and <code>ServerResponse</code> and these can
+  be passed as a method argument of injected as a dependency of the controller.
+</p>
+<h4>ServerRequest/ServerResponse as method argument</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span>
+<span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">ServerRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// use Helidon server request or response as desired</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+
+<h3>Controllers are singleton scoped by default</h3>
+<p>
+  By default controllers are singleton scoped. When we pass context objects like
+  <em>Javalin Context</em> or <em>Helidon ServerRequest</em> as method arguments
+  then the controllers remain singleton scoped.
+</p>
+
+<h3 id="request-scoped">Request scoped controllers</h3>
+<p>
+  We can define the Javalin context, Helidon ServerRequest
+  or ServerResponse as a dependency to be injected using constructor injection
+  or field injection (rather than passed as a method argument).
+</p>
+<p>
+  <a href="/inject">avaje-inject</a> knows that these types need to be injected
+  per request and automatically makes the controller request scoped.
+</p>
+<p>
+  Request scoped means that a new instance of the controller will be instantiated
+  for each request.
+</p>
+
+<h5>Example</h5>
+<p>
+  The following ContactController has the Javalin Context as a constructor injected
+  dependency. The controller is request scoped and instantiated per request.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Automatically becomes request scoped</span>
+<span class="c1">//  ... because Javalin Context is a dependency</span>
+<span class="c1">//  ... controller instantiated per request</span>
+
+<span class="nd">@Controller</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">ContactController</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Context</span> <span class="n">context</span><span class="o">;</span> <span class="c1">// Javalin Context</span>
+
+  <span class="c1">// Inject Javalin context via constructor</span>
+  <span class="nd">@Inject</span>
+  <span class="n">ContactController</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">context</span> <span class="o">=</span> <span class="n">context</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">contactService</span> <span class="o">=</span> <span class="n">contactService</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+  <span class="n">Contact</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// use the javalin context ...</span>
+    <span class="k">var</span> <span class="n">fooCookie</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">cookieStore</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">);</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<h5>Example</h5>
+<p>
+  In this example ProductController has the Helidon ServerRequest and ServerResponse
+  injected using field injection rather than constructor injection.
+  Note that when using field injection they can <em>not</em> be final and can <em>not</em> be private.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Automatically becomes request scoped</span>
+<span class="c1">//  ... because Helidon request and response are a dependency</span>
+<span class="c1">//  ... controller instantiated per request</span>
+
+<span class="nd">@Controller</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/products&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">ProductController</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">MyService</span> <span class="n">myService</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">ServerRequest</span> <span class="n">request</span><span class="o">;</span> <span class="c1">// Helidon request field injected</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">ServerRequest</span> <span class="n">response</span><span class="o">;</span> <span class="c1">// Helidon response field injected</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">ProductController</span><span class="o">(</span><span class="n">MyService</span> <span class="n">myService</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">myService</span> <span class="o">=</span> <span class="n">myService</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+  <span class="n">Contact</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// use the helidon request ...</span>
+    <span class="k">var</span> <span class="n">fooCookie</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">cookies</span><span class="o">().</span><span class="na">first</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">);</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 <h2 id="type-conversions">Type conversions</h2>
 <p>
   There are built in type conversions for the following types:
@@ -1080,7 +1142,8 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 <p>
-The generated code includes the type conversion with <code>toLocalDate()</code> and <code>toBoolean()</code>.
+  For example, the Javalin generated code below includes the type conversion
+  with <code>toLocalDate()</code> and <code>toBoolean()</code>.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">ApiBuilder</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/hello/:id/:name&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
@@ -1463,7 +1526,6 @@ The generated code includes the type conversion with <code>toLocalDate()</code> 
 
   </tbody>
 </table>
-
 
 
 
