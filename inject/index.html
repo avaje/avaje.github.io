@@ -27,6 +27,7 @@
   <ul>
     <li><a href="#maven">Maven</a></li>
     <li><a href="#gradle">Gradle</a></li>
+    <li><a href="#jpms">JPMS Module system</a></li>
   </ul>
 </li>
 <li><a href="#injection">Injection</a>
@@ -306,6 +307,25 @@
 
 <img src="/images/gradle-idea-build.png" width="100%">
 
+
+<h3 id="jpms">JPMS - Java module system</h3>
+<p>
+  <em>avaje-inject</em> supports the java module system. Add a <em>requires</em> clause and
+  <em>provides</em> clause like the following:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
+
+  <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">inject</span><span class="o">;</span>
+
+  <span class="c1">// register org.example._di&#36;Factory from generated sources</span>
+  <span class="n">provides</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">BeanContextFactory</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">_di&#36;BeanContextFactory</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  With JPMS we need to explicitly specify the generated <code>BeanContextFactory</code>
+  in a <code>provides</code> clause.
+</p>
 <h2 id="injection">Injection</h2>
 
 <h3 id="singleton">@Singleton</h3>
@@ -1383,8 +1403,6 @@ The classic use case for this is registering controllers or routes to
 </table>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
-
-
 
 
   </article>
