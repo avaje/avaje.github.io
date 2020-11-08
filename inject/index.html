@@ -196,7 +196,7 @@
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>2.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>3.0<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -209,7 +209,7 @@
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>2.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>3.0<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
@@ -227,7 +227,7 @@
       <span class="nt">&lt;path&gt;</span>
           <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
           <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
-          <span class="nt">&lt;version&gt;</span>2.0<span class="nt">&lt;/version&gt;</span>
+          <span class="nt">&lt;version&gt;</span>3.0<span class="nt">&lt;/version&gt;</span>
       <span class="nt">&lt;/path&gt;</span>
       <span class="nt">&lt;path&gt;</span>
           ... other annotation processor ...
@@ -317,7 +317,7 @@
 
   <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">inject</span><span class="o">;</span>
 
-  <span class="c1">// register org.example._di&#36;Factory from generated sources</span>
+  <span class="c1">// explicitly register the generated BeanContextFactory</span>
   <span class="n">provides</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">BeanContextFactory</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">_di&#36;BeanContextFactory</span><span class="o">;</span>
 <span class="o">}</span>
 </pre></div>
