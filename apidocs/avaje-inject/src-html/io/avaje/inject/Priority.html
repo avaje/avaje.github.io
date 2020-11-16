@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">package io.avaje.inject;</a>
+<span class="sourceLineNo">002</span><a id="line.2"></a>
+<span class="sourceLineNo">003</span><a id="line.3">import java.lang.annotation.Documented;</a>
+<span class="sourceLineNo">004</span><a id="line.4">import java.lang.annotation.Retention;</a>
+<span class="sourceLineNo">005</span><a id="line.5">import java.lang.annotation.Target;</a>
+<span class="sourceLineNo">006</span><a id="line.6">import java.util.List;</a>
+<span class="sourceLineNo">007</span><a id="line.7"></a>
+<span class="sourceLineNo">008</span><a id="line.8">import static java.lang.annotation.ElementType.TYPE;</a>
+<span class="sourceLineNo">009</span><a id="line.9">import static java.lang.annotation.RetentionPolicy.RUNTIME;</a>
+<span class="sourceLineNo">010</span><a id="line.10"></a>
+<span class="sourceLineNo">011</span><a id="line.11">/**</a>
+<span class="sourceLineNo">012</span><a id="line.12"> * The &lt;code&gt;Priority&lt;/code&gt; annotation can be applied to classes to indicate</a>
+<span class="sourceLineNo">013</span><a id="line.13"> * in what order they should be returned via @{@link SystemContext#getBeansByPriority(Class)}.</a>
+<span class="sourceLineNo">014</span><a id="line.14"> * &lt;p&gt;</a>
+<span class="sourceLineNo">015</span><a id="line.15"> * Beans can be returned using other Priority annotation such as &lt;code&gt;javax.annotation.Priority&lt;/code&gt;</a>
+<span class="sourceLineNo">016</span><a id="line.16"> * or any custom priority annotation that has an &lt;code&gt;int value()&lt;/code&gt; attribute.</a>
+<span class="sourceLineNo">017</span><a id="line.17"> * &lt;/p&gt;</a>
+<span class="sourceLineNo">018</span><a id="line.18"> *</a>
+<span class="sourceLineNo">019</span><a id="line.19"> * @see BeanContext#getBeansByPriority(Class)</a>
+<span class="sourceLineNo">020</span><a id="line.20"> * @see BeanContext#getBeansByPriority(Class, Class)</a>
+<span class="sourceLineNo">021</span><a id="line.21"> * @see BeanContext#sortByPriority(List, Class)</a>
+<span class="sourceLineNo">022</span><a id="line.22"> */</a>
+<span class="sourceLineNo">023</span><a id="line.23">@Documented</a>
+<span class="sourceLineNo">024</span><a id="line.24">@Retention(RUNTIME)</a>
+<span class="sourceLineNo">025</span><a id="line.25">@Target(TYPE)</a>
+<span class="sourceLineNo">026</span><a id="line.26">public @interface Priority {</a>
+<span class="sourceLineNo">027</span><a id="line.27">  int value();</a>
+<span class="sourceLineNo">028</span><a id="line.28">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>

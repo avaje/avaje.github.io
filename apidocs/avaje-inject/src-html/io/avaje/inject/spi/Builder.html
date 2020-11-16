@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<main role="main">
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span><a id="line.1">package io.avaje.inject.spi;</a>
+<span class="sourceLineNo">002</span><a id="line.2"></a>
+<span class="sourceLineNo">003</span><a id="line.3">import io.avaje.inject.BeanContext;</a>
+<span class="sourceLineNo">004</span><a id="line.4">import io.avaje.inject.BeanEntry;</a>
+<span class="sourceLineNo">005</span><a id="line.5"></a>
+<span class="sourceLineNo">006</span><a id="line.6">import java.util.List;</a>
+<span class="sourceLineNo">007</span><a id="line.7">import java.util.Optional;</a>
+<span class="sourceLineNo">008</span><a id="line.8">import java.util.Set;</a>
+<span class="sourceLineNo">009</span><a id="line.9">import java.util.function.Consumer;</a>
+<span class="sourceLineNo">010</span><a id="line.10"></a>
+<span class="sourceLineNo">011</span><a id="line.11">/**</a>
+<span class="sourceLineNo">012</span><a id="line.12"> * Mutable builder object used when building a bean context.</a>
+<span class="sourceLineNo">013</span><a id="line.13"> */</a>
+<span class="sourceLineNo">014</span><a id="line.14">public interface Builder {</a>
+<span class="sourceLineNo">015</span><a id="line.15"></a>
+<span class="sourceLineNo">016</span><a id="line.16">  /**</a>
+<span class="sourceLineNo">017</span><a id="line.17">   * Create the root level Builder.</a>
+<span class="sourceLineNo">018</span><a id="line.18">   *</a>
+<span class="sourceLineNo">019</span><a id="line.19">   * @param suppliedBeans The list of beans (typically test doubles) supplied when building the context.</a>
+<span class="sourceLineNo">020</span><a id="line.20">   * @param enrichBeans   The list of classes we want to have with mockito spy enhancement</a>
+<span class="sourceLineNo">021</span><a id="line.21">   */</a>
+<span class="sourceLineNo">022</span><a id="line.22">  @SuppressWarnings("rawtypes")</a>
+<span class="sourceLineNo">023</span><a id="line.23">  static Builder newRootBuilder(List&lt;SuppliedBean&gt; suppliedBeans, List&lt;EnrichBean&gt; enrichBeans) {</a>
+<span class="sourceLineNo">024</span><a id="line.24">    if (suppliedBeans.isEmpty() &amp;&amp; enrichBeans.isEmpty()) {</a>
+<span class="sourceLineNo">025</span><a id="line.25">      // simple case, no mocks or spies</a>
+<span class="sourceLineNo">026</span><a id="line.26">      return new DBuilder();</a>
+<span class="sourceLineNo">027</span><a id="line.27">    }</a>
+<span class="sourceLineNo">028</span><a id="line.28">    return new DBuilderExtn(suppliedBeans, enrichBeans);</a>
+<span class="sourceLineNo">029</span><a id="line.29">  }</a>
+<span class="sourceLineNo">030</span><a id="line.30"></a>
+<span class="sourceLineNo">031</span><a id="line.31">  /**</a>
+<span class="sourceLineNo">032</span><a id="line.32">   * Create a Builder for the named context (module).</a>
+<span class="sourceLineNo">033</span><a id="line.33">   *</a>
+<span class="sourceLineNo">034</span><a id="line.34">   * @param name      the name of the module / bean context</a>
+<span class="sourceLineNo">035</span><a id="line.35">   * @param provides  the module features this module provides</a>
+<span class="sourceLineNo">036</span><a id="line.36">   * @param dependsOn the names of modules this module is depends on.</a>
+<span class="sourceLineNo">037</span><a id="line.37">   */</a>
+<span class="sourceLineNo">038</span><a id="line.38">  static Builder newBuilder(String name, String[] provides, String[] dependsOn) {</a>
+<span class="sourceLineNo">039</span><a id="line.39">    return new DBuilder(name, provides, dependsOn);</a>
+<span class="sourceLineNo">040</span><a id="line.40">  }</a>
+<span class="sourceLineNo">041</span><a id="line.41"></a>
+<span class="sourceLineNo">042</span><a id="line.42">  /**</a>
+<span class="sourceLineNo">043</span><a id="line.43">   * Return the name of the (module) context this builder is creating.</a>
+<span class="sourceLineNo">044</span><a id="line.44">   */</a>
+<span class="sourceLineNo">045</span><a id="line.45">  String getName();</a>
+<span class="sourceLineNo">046</span><a id="line.46"></a>
+<span class="sourceLineNo">047</span><a id="line.47">  /**</a>
+<span class="sourceLineNo">048</span><a id="line.48">   * Return the names of module features that this module provides.</a>
+<span class="sourceLineNo">049</span><a id="line.49">   */</a>
+<span class="sourceLineNo">050</span><a id="line.50">  String[] getProvides();</a>
+<span class="sourceLineNo">051</span><a id="line.51"></a>
+<span class="sourceLineNo">052</span><a id="line.52">  /**</a>
+<span class="sourceLineNo">053</span><a id="line.53">   * Return the names of modules that this module depends on.</a>
+<span class="sourceLineNo">054</span><a id="line.54">   */</a>
+<span class="sourceLineNo">055</span><a id="line.55">  String[] getDependsOn();</a>
+<span class="sourceLineNo">056</span><a id="line.56"></a>
+<span class="sourceLineNo">057</span><a id="line.57">  /**</a>
+<span class="sourceLineNo">058</span><a id="line.58">   * Set a parent builder that can provide cross-module dependencies.</a>
+<span class="sourceLineNo">059</span><a id="line.59">   */</a>
+<span class="sourceLineNo">060</span><a id="line.60">  void setParent(Builder parent);</a>
+<span class="sourceLineNo">061</span><a id="line.61"></a>
+<span class="sourceLineNo">062</span><a id="line.62">  /**</a>
+<span class="sourceLineNo">063</span><a id="line.63">   * Return true if the bean should be created and registered with the context.</a>
+<span class="sourceLineNo">064</span><a id="line.64">   * &lt;p/&gt;</a>
+<span class="sourceLineNo">065</span><a id="line.65">   * Returning false means there has been a (test double) bean already registered and</a>
+<span class="sourceLineNo">066</span><a id="line.66">   * that we should skip the creation and registration for this bean.</a>
+<span class="sourceLineNo">067</span><a id="line.67">   *</a>
+<span class="sourceLineNo">068</span><a id="line.68">   * @param addForType   The interface that the bean implements and provides</a>
+<span class="sourceLineNo">069</span><a id="line.69">   * @param injectTarget The actual bean type we are looking to create and register</a>
+<span class="sourceLineNo">070</span><a id="line.70">   */</a>
+<span class="sourceLineNo">071</span><a id="line.71">  boolean isAddBeanFor(Class&lt;?&gt; addForType, Class&lt;?&gt; injectTarget);</a>
+<span class="sourceLineNo">072</span><a id="line.72"></a>
+<span class="sourceLineNo">073</span><a id="line.73">  /**</a>
+<span class="sourceLineNo">074</span><a id="line.74">   * Return true if the bean should be created and registered with the context.</a>
+<span class="sourceLineNo">075</span><a id="line.75">   * &lt;p/&gt;</a>
+<span class="sourceLineNo">076</span><a id="line.76">   * Returning false means there has been a (test double) bean already registered and</a>
+<span class="sourceLineNo">077</span><a id="line.77">   * that we should skip the creation and registration for this bean.</a>
+<span class="sourceLineNo">078</span><a id="line.78">   *</a>
+<span class="sourceLineNo">079</span><a id="line.79">   * @param injectTarget The actual bean type we are looking to create and register</a>
+<span class="sourceLineNo">080</span><a id="line.80">   */</a>
+<span class="sourceLineNo">081</span><a id="line.81">  boolean isAddBeanFor(Class&lt;?&gt; injectTarget);</a>
+<span class="sourceLineNo">082</span><a id="line.82"></a>
+<span class="sourceLineNo">083</span><a id="line.83">  /**</a>
+<span class="sourceLineNo">084</span><a id="line.84">   * Register the bean instance into the context.</a>
+<span class="sourceLineNo">085</span><a id="line.85">   * &lt;p&gt;</a>
+<span class="sourceLineNo">086</span><a id="line.86">   * Beans are added in an appropriate order to satisfy dependencies.</a>
+<span class="sourceLineNo">087</span><a id="line.87">   * &lt;/p&gt;</a>
+<span class="sourceLineNo">088</span><a id="line.88">   *</a>
+<span class="sourceLineNo">089</span><a id="line.89">   * @param bean  The bean instance that has been created.</a>
+<span class="sourceLineNo">090</span><a id="line.90">   * @param name  The (optional) name of the instance.</a>
+<span class="sourceLineNo">091</span><a id="line.91">   * @param types Interfaces and class level annotations this bean provides or associates to.</a>
+<span class="sourceLineNo">092</span><a id="line.92">   */</a>
+<span class="sourceLineNo">093</span><a id="line.93">  &lt;T&gt; T register(T bean, String name, Class&lt;?&gt;... types);</a>
+<span class="sourceLineNo">094</span><a id="line.94"></a>
+<span class="sourceLineNo">095</span><a id="line.95">  /**</a>
+<span class="sourceLineNo">096</span><a id="line.96">   * Register the bean as a Primary bean.</a>
+<span class="sourceLineNo">097</span><a id="line.97">   */</a>
+<span class="sourceLineNo">098</span><a id="line.98">  &lt;T&gt; T registerPrimary(T bean, String name, Class&lt;?&gt;... types);</a>
+<span class="sourceLineNo">099</span><a id="line.99"></a>
+<span class="sourceLineNo">100</span><a id="line.100">  /**</a>
+<span class="sourceLineNo">101</span><a id="line.101">   * Register the bean as a secondary bean.</a>
+<span class="sourceLineNo">102</span><a id="line.102">   */</a>
+<span class="sourceLineNo">103</span><a id="line.103">  &lt;T&gt; T registerSecondary(T bean, String name, Class&lt;?&gt;... types);</a>
+<span class="sourceLineNo">104</span><a id="line.104"></a>
+<span class="sourceLineNo">105</span><a id="line.105">  /**</a>
+<span class="sourceLineNo">106</span><a id="line.106">   * Add a lifecycle bean.</a>
+<span class="sourceLineNo">107</span><a id="line.107">   */</a>
+<span class="sourceLineNo">108</span><a id="line.108">  void addLifecycle(BeanLifecycle bean);</a>
+<span class="sourceLineNo">109</span><a id="line.109"></a>
+<span class="sourceLineNo">110</span><a id="line.110">  /**</a>
+<span class="sourceLineNo">111</span><a id="line.111">   * Add field and method injection.</a>
+<span class="sourceLineNo">112</span><a id="line.112">   */</a>
+<span class="sourceLineNo">113</span><a id="line.113">  void addInjector(Consumer&lt;Builder&gt; injector);</a>
+<span class="sourceLineNo">114</span><a id="line.114"></a>
+<span class="sourceLineNo">115</span><a id="line.115">  /**</a>
+<span class="sourceLineNo">116</span><a id="line.116">   * Add a child context.</a>
+<span class="sourceLineNo">117</span><a id="line.117">   */</a>
+<span class="sourceLineNo">118</span><a id="line.118">  void addChild(BeanContextFactory factory);</a>
+<span class="sourceLineNo">119</span><a id="line.119"></a>
+<span class="sourceLineNo">120</span><a id="line.120">  /**</a>
+<span class="sourceLineNo">121</span><a id="line.121">   * Get an optional dependency.</a>
+<span class="sourceLineNo">122</span><a id="line.122">   */</a>
+<span class="sourceLineNo">123</span><a id="line.123">  &lt;T&gt; Optional&lt;T&gt; getOptional(Class&lt;T&gt; cls);</a>
+<span class="sourceLineNo">124</span><a id="line.124"></a>
+<span class="sourceLineNo">125</span><a id="line.125">  /**</a>
+<span class="sourceLineNo">126</span><a id="line.126">   * Get an optional named dependency.</a>
+<span class="sourceLineNo">127</span><a id="line.127">   */</a>
+<span class="sourceLineNo">128</span><a id="line.128">  &lt;T&gt; Optional&lt;T&gt; getOptional(Class&lt;T&gt; cls, String name);</a>
+<span class="sourceLineNo">129</span><a id="line.129"></a>
+<span class="sourceLineNo">130</span><a id="line.130">  /**</a>
+<span class="sourceLineNo">131</span><a id="line.131">   * Get a dependency.</a>
+<span class="sourceLineNo">132</span><a id="line.132">   */</a>
+<span class="sourceLineNo">133</span><a id="line.133">  &lt;T&gt; T get(Class&lt;T&gt; cls);</a>
+<span class="sourceLineNo">134</span><a id="line.134"></a>
+<span class="sourceLineNo">135</span><a id="line.135">  /**</a>
+<span class="sourceLineNo">136</span><a id="line.136">   * Get a named dependency.</a>
+<span class="sourceLineNo">137</span><a id="line.137">   */</a>
+<span class="sourceLineNo">138</span><a id="line.138">  &lt;T&gt; T get(Class&lt;T&gt; cls, String name);</a>
+<span class="sourceLineNo">139</span><a id="line.139"></a>
+<span class="sourceLineNo">140</span><a id="line.140">  /**</a>
+<span class="sourceLineNo">141</span><a id="line.141">   * Get a list of dependencies for the interface type .</a>
+<span class="sourceLineNo">142</span><a id="line.142">   */</a>
+<span class="sourceLineNo">143</span><a id="line.143">  &lt;T&gt; List&lt;T&gt; getList(Class&lt;T&gt; interfaceType);</a>
+<span class="sourceLineNo">144</span><a id="line.144"></a>
+<span class="sourceLineNo">145</span><a id="line.145">  /**</a>
+<span class="sourceLineNo">146</span><a id="line.146">   * Get a set of dependencies for the interface type .</a>
+<span class="sourceLineNo">147</span><a id="line.147">   */</a>
+<span class="sourceLineNo">148</span><a id="line.148">  &lt;T&gt; Set&lt;T&gt; getSet(Class&lt;T&gt; interfaceType);</a>
+<span class="sourceLineNo">149</span><a id="line.149"></a>
+<span class="sourceLineNo">150</span><a id="line.150">  /**</a>
+<span class="sourceLineNo">151</span><a id="line.151">   * Get a candidate dependency allowing it to be null.</a>
+<span class="sourceLineNo">152</span><a id="line.152">   */</a>
+<span class="sourceLineNo">153</span><a id="line.153">  &lt;T&gt; BeanEntry&lt;T&gt; candidate(Class&lt;T&gt; cls, String name);</a>
+<span class="sourceLineNo">154</span><a id="line.154"></a>
+<span class="sourceLineNo">155</span><a id="line.155">  /**</a>
+<span class="sourceLineNo">156</span><a id="line.156">   * Return a potentially enriched bean for registration into the context.</a>
+<span class="sourceLineNo">157</span><a id="line.157">   * Typically for use with mockito spy.</a>
+<span class="sourceLineNo">158</span><a id="line.158">   *</a>
+<span class="sourceLineNo">159</span><a id="line.159">   * @param bean  The bean with dependencies injected</a>
+<span class="sourceLineNo">160</span><a id="line.160">   * @param types The types this bean registers for</a>
+<span class="sourceLineNo">161</span><a id="line.161">   * @return Either the bean or the enriched bean to register into the context.</a>
+<span class="sourceLineNo">162</span><a id="line.162">   */</a>
+<span class="sourceLineNo">163</span><a id="line.163">  &lt;T&gt; T enrich(T bean, Class&lt;?&gt;[] types);</a>
+<span class="sourceLineNo">164</span><a id="line.164"></a>
+<span class="sourceLineNo">165</span><a id="line.165">  /**</a>
+<span class="sourceLineNo">166</span><a id="line.166">   * Build and return the bean context.</a>
+<span class="sourceLineNo">167</span><a id="line.167">   */</a>
+<span class="sourceLineNo">168</span><a id="line.168">  BeanContext build();</a>
+<span class="sourceLineNo">169</span><a id="line.169">}</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</main>
+</body>
+</html>
