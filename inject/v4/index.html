@@ -1,0 +1,1567 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+<li><a href="#overview">Overview</a>
+  <ul>
+    <li><a href="#jsr-330">JSR-330</a></li>
+    <li><a href="#extensions">Extensions</a></li>
+  </ul>
+</li>
+<li><a href="#dependency">Dependencies</a>
+  <ul>
+    <li><a href="#maven">Maven</a></li>
+    <li><a href="#gradle">Gradle</a></li>
+    <li><a href="#jpms">JPMS Module system</a></li>
+  </ul>
+</li>
+<li><a href="#injection">Injection</a>
+  <ul>
+    <li><a href="#singleton">@Singleton</a></li>
+    <li><a href="#inject">@Inject</a></li>
+    <li><a href="#constructor">Constructor injection</a></li>
+    <li><a href="#field">Field injection</a></li>
+    <li><a href="#method">Method injection</a></li>
+    <li><a href="#circular">Circular dependencies</a></li>
+    <li><a href="#optional">Optional</a></li>
+    <li><a href="#nullable">Nullable</a></li>
+    <li><a href="#list">List and Set</a></li>
+    <li><a href="#provider">Provider</a></li>
+    <li><a href="#factory">@Factory</a></li>
+    <li><a href="#bean">@Bean</a></li>
+    <li><a href="#primary">@Primary</a></li>
+    <li><a href="#secondary">@Secondary</a></li>
+  </ul>
+</li>
+<li><a href="#qualifiers">Qualifiers</a>
+  <ul>
+    <li><a href="#named">@Named</a></li>
+    <li><a href="#qualifier">@Qualifier</a></li>
+  </ul>
+</li>
+<li><a href="#lifecycle">Lifecycle</a>
+  <ul>
+    <li><a href="#post-construct">@PostConstruct</a></li>
+    <li><a href="#pre-destroy">@PreDestroy</a></li>
+  </ul>
+</li>
+<li><a href="#context">Context</a>
+  <ul>
+    <li><a href="#system-context">SystemContext</a></li>
+    <li><a href="#bean-context">BeanContext</a></li>
+    <li><a href="#context-builder">BeanContext.newBuilder()</a></li>
+  </ul>
+</li>
+<li><a href="#modules">Modules</a>
+  <ul>
+    <li><a href="#single-module">Single module</a></li>
+    <li><a href="#multi-module">Multi-module</a></li>
+    <li><a href="#context-module">@ContextModule</a></li>
+  </ul>
+</li>
+<li><a href="#why">Why avaje-inject exists?</a>
+  <ul>
+    <li><a href="#why-history">Short history of DI</a></li>
+    <li><a href="#why-comparison">Comparison to other DI</a></li>
+  </ul>
+</li>
+<li><a href="#http">http servers</a>
+  <ul>
+    <li><a href="#http-javalin">Javalin</a></li>
+    <li><a href="#http-helidon">Helidon SE</a></li>
+  </ul>
+</li>
+<li><a href="#spring">Spring DI</a>
+</li>
+<li><a href="#aop">AOP</a>
+</li>
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    
+<header>
+  <nav id="top">
+    <div class="breadcrumb">
+      <a href="/" title="home">avaje</a> &nbsp;&nbsp;/&nbsp;&nbsp;inject
+    </div>
+    <ul>
+      <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+      <li><a href="https://github.com/avaje/avaje-inject" title="github source"><i class="fab fa-github"></i></a></li>
+      <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+    </ul>
+  </nav>
+</header>
+
+<h1 id="overview">Avaje Inject - v4 docs</h1>
+<p>
+  Fast and light dependency injection library for Java and Kotlin developers.
+</p>
+<table width="100%">
+  <tr>
+    <th>License</th>
+    <th>Source</th>
+    <th>API Docs</th>
+    <th>Issues</th>
+    <th>Releases</th>
+  </tr>
+  <tr>
+    <td><a target="_blank" href="https://github.com/avaje/avaje-inject/blob/master/LICENSE">Apache2</a></td>
+    <td><a target="_blank" href="https://github.com/avaje/avaje-inject">Github</a></td>
+    <td><a target="_blank" href="/apidocs/avaje-inject">Javadoc</a></td>
+    <td><a target="_blank" href="https://github.com/avaje/avaje-inject/issues">Github</a></td>
+    <td><a target="_blank" href="https://github.com/avaje/avaje-inject/releases">Latest 4.4</a></td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+
+<p>
+  Uses Java annotation processing generating source code for dependency injection.
+  That puts the work of performing dependency injection to build time rather than
+  runtime increasing the speed of application start. There is no use of reflection
+  or classpath scanning.
+</p>
+<p>
+  DI is generated source code allowing developers to see how it works and we can use
+  existing IDE tools to search where code is called such as constructors and lifecycle
+  methods. We can add debug breakpoints into the DI code as desired and step through
+  it just like it was manually written code.
+</p>
+<p>
+  For a <a href="#why">background on why</a> <em>avaje inject</em> exists and a
+  <a href="#why-comparison">quick comparison</a> with other DI libraries such as
+  Dagger2, Micronaut, Quarkus and Spring goto - <a href="#why">Why</a>.
+</p>
+
+<h3 id="size">DI Library size</h3>
+<table class="basic">
+  <tr>
+    <td>
+      <p>
+        Do we care about the size of a DI library? Why is dagger and avaje-inject so much
+        smaller?
+      </p>
+      <p>
+        <em>avaje-inject</em> exists with the view that it can be <em>really</em> small and
+        provide JSR-330 dependency injection using source code generation. It does not include
+        AOP (which can be done separately), it does not include external configuration / properties
+        (we can use avaje-config or something else). It just does DI.
+      </p>
+    </td>
+    <td>
+      <img src="/images/di-lib-size.png" alt="DI library size comparison">
+    </td>
+  </tr>
+</table>
+
+<h3 id="releases">Releases for javax and jakarta</h3>
+<p>
+  The move of JEE to the eclipse foundation meant a change in package from <code>javax</code>
+  to <code>jakarta</code> for various APIs including JSR-330 dependency injection API.
+</p>
+<p>
+  Today we have the choice of using the <code>javax.inject</code> dependency or using the new
+  <code>jakarta.inject</code> dependency.
+</p>
+
+<h4>Want to use javax.inject?</h4>
+<p>
+  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-parent-3.4">version 3.4</a> of
+  avaje-inject with the dependency on <code>javax.inject</code> (maintained on master branch).
+</p>
+<h4>Want to use jakarta.inject?</h4>
+<p>
+  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-4.4">version 4.4</a> of
+  avaje-inject with the dependency on <code>jakarta.inject</code> (maintained on jakarta-master branch).
+</p>
+
+<h3 id="jsr-330">Based on JSR-330</h3>
+<p>
+  avaje inject is based on <a href="http://javax-inject.github.io/javax-inject/api/index.html">JSR-330: Dependency Injection for Java</a>
+  - <em>javax.inject / jakarta.inject</em> with some extensions similar to Spring DI.
+</p>
+<p>
+  JSR-330 provides:
+</p>
+<ul>
+  <li><code><a href="#singleton">@Singleton</a></code></li>
+  <li><code><a href="#inject">@Inject</a></code></li>
+  <li><code><a href="#named">@Named</a> and <a href="#named">@Qualifier</a></code></li>
+  <li><code><a href="#post-construct">@PostConstruct</a></code></li>
+  <li><code><a href="#pre-destroy">@PreDestroy</a></code></li>
+</ul>
+
+<h3 id="extensions">Spring DI like extensions to JSR-330</h3>
+<h4>@Factory + @Bean</h4>
+<p>
+  In addition to the JSR-330 standard we use <a href="#factory">@Factory</a> + <a href="#bean">@Bean</a>
+  which work the same as Spring DI's <em>@Configuration + @Bean</em> and also Micronaut's
+  <em>@Factory + @Bean</em>.
+</p>
+<p>
+  Teams will often use <code>@Factory/@Bean</code> to provide dependencies that
+  are best created programmatically - typically depending on external configuration,
+  environment settings etc.
+</p>
+<p>
+  Factory provides a more convenient alternative to the JSR-330
+  <a href="#provider">javax.inject.Provider&lt;T&gt;</a> interface and is also more natural
+  for people who familiar with Spring DI or Micronaut DI.
+</p>
+
+<h4>@Primary @Secondary</h4>
+<p>
+  Additionally we use <a href="#primary">@Primary</a> <a href="#secondary">@Secondary</a> annotations
+  which work the same as Spring DI's <em>@Primary @Secondary</em> and also Micronaut DI's
+  <em>@Primary @Secondary</em>. These provide injection priority in the case of injecting
+  when multiple injection candidates are available.
+</p>
+<h2 id="dependency">Dependencies</h2>
+
+<h3 id="maven">Maven</h3>
+<p>
+  See the basic example at:
+  <a href="https://github.com/dinject/examples/blob/master/basic-di/pom.xml">examples/basic-di/pom.xml</a>
+</p>
+<p>
+  Add <em>avaje-inject</em> as a dependency.
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-inject<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>4.4<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<p>
+  Add <em>avaje-inject-generator</em> annotation processor as a dependency with
+  <em>provided scope</em>.
+</p>
+
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Annotation processor --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>4.4<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<p>
+  Note that if there are other annotation processors and they are specified via
+  <em>maven-compiler-plugin</em> <em>annotationProcessorPaths</em>
+  then we add <em>avaje-inject-generator</em> there instead.
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;annotationProcessorPaths&gt;</span> <span class="c">&lt;!-- All annotation processors specified here --&gt;</span>
+      <span class="nt">&lt;path&gt;</span>
+          <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+          <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
+          <span class="nt">&lt;version&gt;</span>4.4<span class="nt">&lt;/version&gt;</span>
+      <span class="nt">&lt;/path&gt;</span>
+      <span class="nt">&lt;path&gt;</span>
+          ... other annotation processor ...
+      <span class="nt">&lt;/path&gt;</span>
+    <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</pre></div>
+</div>
+
+
+<h3 id="gradle">Gradle</h3>
+<p>
+  See the example at:
+  <a href="https://github.com/dinject/examples/blob/master/javalin-gradle-java-basic/build.gradle">examples/javalin-gradle-java-basic/build.gradle</a>
+</p>
+
+<h4>Gradle 5.2+</h4>
+<p>
+  Use Gradle version 5.2 or greater which has better support for annotation processing.
+</p>
+<p>
+  Also review the IntelliJ IDEA Gradle settings - see below.
+</p>
+
+<h4>Dependencies</h4>
+<p>
+  Add <em>avaje-inject</em> as a compile dependency and <em>avaje-inject-generator</em> as
+  an annotation processor.
+</p>
+
+<div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
+  <span class="o">...</span>
+  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:4.4&#39;</span><span class="o">)</span>
+  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:4.4&#39;</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h4>Kotlin KAPT</h4>
+<p>
+  See example at: https://github.com/dinject/examples/blob/master/basic-di-kotlin-maven/pom.xml
+</p>
+<p>
+  For use with Kotlin we register <em>avaje-inject-generator</em> as a <code>kapt</code> processor
+  to the Kotlin compiler rather than <em>annotationProcessor</em>.
+</p>
+<div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
+  <span class="o">...</span>
+  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:4.4&#39;</span><span class="o">)</span>
+  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:4.4&#39;</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="idea">IntelliJ IDEA with Gradle</h3>
+<p>
+  We want to delegate the <code>build</code> to Gradle (to properly include the annotation processing)
+  so check our IDEA settings.
+</p>
+
+<h4>Settings / Build / Compiler / Annotation processors</h4>
+<p>
+  Ensure that <code>Enable annotation processing</code> is disabled so
+  that the build is delegated to Gradle (including the annotation processing):
+</p>
+
+<img src="/images/gradle-idea-disable-apt.png" width="100%">
+
+<h5>Settings / Build / Build tools / Gradle</h5>
+<p>
+  Make sure <code>Build and run</code> is delegated to Gradle.
+</p>
+<p>
+  Optionally set <em>Run tests using</em> to <code>Gradle</code> but leaving it to IntelliJ IDEA should be ok.
+</p>
+
+<img src="/images/gradle-idea-build.png" width="100%">
+
+
+<h3 id="jpms">JPMS - Java module system</h3>
+<p>
+  <em>avaje-inject</em> supports the java module system. Add a <em>requires</em> clause and
+  <em>provides</em> clause like the following:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
+
+  <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">inject</span><span class="o">;</span>
+
+  <span class="c1">// explicitly register the generated BeanContextFactory</span>
+  <span class="n">provides</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">BeanContextFactory</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">_DI&#36;BeanContextFactory</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  With JPMS we need to explicitly specify the generated <code>BeanContextFactory</code>
+  in a <code>provides</code> clause.
+</p>
+<h2 id="injection">Injection</h2>
+
+<h3 id="singleton">@Singleton</h3>
+<p>
+  Put <code>@Singleton</code> on beans that we want dependency injection on.
+  These are beans that are created ("wired") by dependency injection and put into the context.
+  They are then available to be injected into other beans.
+</p>
+
+<h3 id="inject">@Inject</h3>
+<p>
+  Put <code>@Inject</code> on the constructor that should be used for constructor dependency injection.
+  Note that if there is <code>only one constructor</code> we don't need to put the <code>@Inject</code> on it.
+</p>
+<p>
+  If we want to use field injection put the <code>@Inject</code> on the field. Note that the field must not
+  be <code>private</code> and must not be <code>final</code> for field injection.
+</p>
+
+<h3 id="constructor">Constructor injection</h3>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Pump</span> <span class="n">pump</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Grinder</span> <span class="n">grinder</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="kd">public</span> <span class="nf">CoffeeMaker</span><span class="o">(</span><span class="n">Pump</span> <span class="n">pump</span><span class="o">,</span> <span class="n">Grinder</span> <span class="n">grinder</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">pump</span> <span class="o">=</span> <span class="n">pump</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">grinder</span> <span class="o">=</span> <span class="n">grinder</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<p>
+  The above CoffeeMaker is using constructor injection. Both a Pump and Ginder will be injected into the
+  constructor when the DI creates (or "wires") the CoffeeMaker.
+</p>
+<p>
+  If there is only 1 constructor it is used for dependency injection and we don't need
+  to specify <code>@Inject</code>.
+</p>
+<p>
+  In general we do not expect to see logic in constructors as this typically makes it
+  more difficult to write tests. If we see logic in a constructor then it is likely that we
+  should try and move that logic to a <a href="#factory">Factory</a> method instead.
+</p>
+
+<h4>Kotlin constructor</h4>
+<p>
+  With Kotlin we frequently will not specify <em>@Inject</em> with only one constructor.
+  The CoffeeMaker constructor injection then looks like:
+</p>
+<div class="syntax kotlin"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="k">class</span> <span class="nc">CoffeeMaker</span><span class="p">(</span><span class="k">private</span> <span class="k">val</span> <span class="py">pump</span><span class="p">:</span> <span class="n">Pump</span> <span class="p">,</span> <span class="k">private</span> <span class="k">val</span> <span class="py">grinder</span><span class="p">:</span> <span class="n">Grinder</span><span class="p">)</span>  <span class="p">{</span>
+
+  <span class="k">fun</span> <span class="nf">makeCoffee</span><span class="p">()</span> <span class="p">{</span>
+    <span class="p">...</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<h3 id="field">Field injection</h3>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">Pump</span> <span class="n">pump</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">Grinder</span> <span class="n">grinder</span><span class="o">;</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<p>
+  With field injection the <code>@Inject</code> is placed on the field and the field must not be <code>private</code>
+  and it must not be <code>final</code>.
+</p>
+<h4>Constructor injection preferred</h4>
+<p>
+  Generally there is a preference to use constructor injection over field injection as constructor
+  injection:
+</p>
+<ul>
+  <li>Promotes immutability / use of final fields / proper initialisation</li>
+  <li>Communicates required dependencies at compile time. Helps when dependencies
+    change to keep test code in line.</li>
+  <li>Helps identify when there are too many dependencies. Too many constructor
+    arguments is a more obvious code smell compared to field injection.
+    Promotes single responsibility principal.</li>
+</ul>
+
+<h4>Field injection for circular dependencies</h4>
+<p>
+  We use field injection to handle <a href="#circular">circular dependencies</a>.
+  See <a href="#circular">below</a> for more details.
+</p>
+
+<h4>Kotlin field injection</h4>
+<p>
+  For Kotlin we can consider using <em>lateinit</em> on the property with field injection.
+</p>
+<div class="syntax kotlin"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="k">class</span> <span class="nc">Grinder</span> <span class="p">{</span>
+
+  <span class="nd">@Inject</span>
+  <span class="k">lateinit</span> <span class="k">var</span> <span class="py">pump</span><span class="p">:</span> <span class="n">Pump</span>
+
+  <span class="k">fun</span> <span class="nf">grind</span><span class="p">():</span> <span class="n">String</span> <span class="p">{</span>
+    <span class="p">...</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+
+<h3 id="method">Method injection</h3>
+<p>
+  For method injection annotate the method with <code>@Inject</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
+
+  <span class="n">Grinder</span> <span class="n">grinder</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="kt">void</span> <span class="nf">setGrinder</span><span class="o">(</span><span class="n">Grinder</span> <span class="n">grinder</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">grinder</span> <span class="o">=</span> <span class="n">grinder</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+
+<h3 id="mixed">Mixed constructor, field and method injection</h3>
+<p>
+  We are allowed to mix constructor, field and method injection. In the below example the Grinder
+  is injected into the constructor and the Pump is injected by field injection.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">Pump</span> <span class="n">pump</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Grinder</span> <span class="n">grinder</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">CoffeeMaker</span><span class="o">(</span><span class="n">Grinder</span> <span class="n">grinder</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">grinder</span> <span class="o">=</span> <span class="n">grinder</span><span class="o">;</span>
+  <span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="circular">Circular dependencies</h3>
+<p>
+  When we have a circular dependency then we need to use <a href="#field">field injection</a>
+  on one of the dependencies.
+</p>
+<p>
+  For example, lets say we have A and B where A depends on B and B depends on A. In this case
+  we can't use constructor injection for both A and B like:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// circular dependency with constructor injection, this will not work !!</span>
+
+<span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+  <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+  <span class="n">A</span><span class="o">(</span><span class="n">B</span> <span class="n">b</span><span class="o">)</span> <span class="o">{</span>       <span class="c1">// constructor for A depends on B</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+  <span class="n">A</span> <span class="n">a</span><span class="o">;</span>
+  <span class="n">B</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>       <span class="c1">// constructor for B depends on A</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  With the above circular dependencies for A and B constructor injection <em>avaje-inject</em>
+  can not determine the order in which to construct the beans. <em>avaje-inject</em> will
+  detect this and product a compilation error outlining the beans involved and ask us
+  to change to use field injection for one of the dependencies.
+</p>
+<p>
+  We can not use constructor injection for both A and B and instead we must use
+  field injection on either A or B like:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
+  <span class="nd">@Inject</span>   <span class="c1">// use field injection</span>
+  <span class="n">B</span> <span class="n">b</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">B</span> <span class="o">{</span>
+  <span class="n">A</span> <span class="n">a</span><span class="o">;</span>
+  <span class="n">B</span><span class="o">(</span><span class="n">A</span> <span class="n">a</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The reason this works is that field injection occurs later after all the
+  dependencies are constructed. <em>avaje-inject</em> uses 2 phases to
+  "wire" the beans and then a 3rd phase to execute the <code>@PostConstruct</code>
+  lifecycle methods:
+</p>
+<ul>
+  <li>Phase 1: Construct all the beans in order based on constructor dependencies</li>
+  <li>Phase 2: Apply field injection on all beans</li>
+  <li>Phase 3: Execute all <code>@PostConstruct</code> lifecycle methods</li>
+</ul>
+<p>
+  Circular dependencies more commonly occur with more than 2 beans. For example,
+  lets say we have A, B and C where:
+</p>
+<ul>
+  <li>A depends on B</li>
+  <li>B depends on C</li>
+  <li>C depends on A</li>
+</ul>
+<p>
+  With A, B, C above they combine to create a circular dependency. To handle this
+  we need to use <a href="#field">field injection</a> on one of the dependencies.
+</p>
+
+<h3 id="optional">Optional</h3>
+<p>
+  We can use <code>java.util.Optional&lt;T&gt;</code> to inject optional dependencies.
+  These are dependencies that might not be provided / might not have an available implementation
+  / might only be provided based on configuration (a bit like a feature toggle).
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">Pump</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Heater</span> <span class="n">heater</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;</span> <span class="n">widget</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">Pump</span><span class="o">(</span><span class="n">Heater</span> <span class="n">heater</span><span class="o">,</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;</span> <span class="n">widget</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">heater</span> <span class="o">=</span> <span class="n">heater</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">widget</span> <span class="o">=</span> <span class="n">widget</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">pump</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">widget</span><span class="o">.</span><span class="na">isPresent</span><span class="o">())</span> <span class="o">{</span>
+      <span class="n">widget</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">doStuff</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<h5>Spring DI Note</h5>
+<p>
+  Spring users will be familiar with the use of <code>@Autowired(required=false)</code>
+  for wiring optional dependencies. With <em>avaje-inject</em> we instead use <code>Optional</code>
+  to inject optional dependencies.
+</p>
+
+<h3 id="nullable">@Nullable</h3>
+<p>
+  As an alternative to Optional we can use <code>@Nullable</code> to indicate that a dependency
+  is optional / can be null. Any <code>@Nullable</code> annotation can be used, it does not
+  matter which package the annotation is in.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">Pump</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Heater</span> <span class="n">heater</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Widget</span> <span class="n">widget</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="nx">Pump</span><span class="o">(</span><span class="nx">Heater</span> <span class="nx">heater</span><span class="o">,</span> <span class="nd">@Nullable</span> <span class="nx">widget</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">heater</span> <span class="o">=</span> <span class="n">heater</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">widget</span> <span class="o">=</span> <span class="n">widget</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">pump</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">widget</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">widget</span><span class="o">.</span><span class="na">doStuff</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="list">List</h3>
+<p>
+  We can inject a <code>java.util.List&lt;T&gt;</code> of beans that implement an interface.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CombinedBars</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Bar</span><span class="o">&gt;</span> <span class="n">bars</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="kd">public</span> <span class="nf">CombinedBars</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Bar</span><span class="o">&gt;</span> <span class="n">bars</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">bars</span> <span class="o">=</span> <span class="n">bars</span><span class="o">;</span>
+  <span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="set">Set</h3>
+<p>
+  We can inject a <code>java.util.Set&lt;T&gt;</code> of beans that implement an interface.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CombinedBars</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">Bar</span><span class="o">&gt;</span> <span class="n">bars</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="kd">public</span> <span class="nf">CombinedBars</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;</span><span class="n">Bar</span><span class="o">&gt;</span> <span class="n">bars</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">bars</span> <span class="o">=</span> <span class="n">bars</span><span class="o">;</span>
+  <span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="provider">Provider</h3>
+<p>
+  A Singleton bean can implement <code>javax.inject.Provider&lt;T&gt;</code> to create a bean to
+  be used in injection.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">FooProvider</span> <span class="kd">implements</span> <span class="n">Provider</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Bazz</span> <span class="n">bazz</span><span class="o">;</span>
+
+  <span class="n">FooProvider</span><span class="o">(</span><span class="n">Bazz</span> <span class="n">bazz</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">bazz</span> <span class="o">=</span> <span class="n">bazz</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">Foo</span> <span class="nf">get</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// maybe do interesting logic, read environment variables ...</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">BasicFoo</span><span class="o">(</span><span class="n">bazz</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  Note that the alternative to using the <code>javax.inject.Provider&lt;T&gt;</code> interface is
+  to instead use <code><a href="#factory">@Factory</a></code> and <code><a href="#bean">@Bean</a></code>
+  as it is more flexible and convenient than the the provider interface.
+</p>
+<h5>Spring DI Note</h5>
+<p>
+  The JSR 330 <code>javax.inject.Provider&lt;T&gt;</code> interface is functionally the same
+  as Spring DI <code>FactoryBean&lt;T&gt;</code>.
+</p>
+
+
+<h3 id="factory">@Factory</h3>
+<p>
+  Factory beans allow us to programmatically creating a bean. Often the logic is based
+  on external configuration, environment variables, system properties etc.
+</p>
+<p>
+  We annotate a class with <code>@Factory</code> to tell us that it contains methods
+  that create beans. The factory class can itself have dependencies and the methods
+  can also have dependencies.
+</p>
+<p>
+  <em>@Factory</em> <em>@Bean</em> are equivalent to Spring DI <em>@Configuration</em> <em>@Bean</em>
+  and Micronaut <em>@Factory</em> <em>@Bean</em>.
+</p>
+
+<h3 id="bean">@Bean</h3>
+<p>
+  We annotate methods on the factory class that create a bean with <code>@Bean</code>.
+  These methods can have dependencies and will execute in the appropriate order
+  depending on the dependencies they require.
+</p>
+
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
+<span class="kd">class</span> <span class="nc">Configuration</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">StartConfig</span> <span class="n">startConfig</span><span class="o">;</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Factory can have dependencies.</span>
+<span class="cm">   */</span>
+  <span class="nd">@Inject</span>
+  <span class="n">Configuration</span><span class="o">(</span><span class="n">StartConfig</span> <span class="n">startConfig</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">startConfig</span> <span class="o">=</span> <span class="n">startConfig</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Bean</span>
+  <span class="n">Pump</span> <span class="nf">buildPump</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// maybe read System properties or environment variables</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">FastPump</span><span class="o">(...);</span>
+  <span class="o">}</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Method with dependencies as method parameters.</span>
+<span class="cm">   */</span>
+  <span class="nd">@Bean</span>
+  <span class="n">CoffeeMaker</span> <span class="nf">buildBar</span><span class="o">(</span><span class="n">Pump</span> <span class="n">pump</span><span class="o">,</span> <span class="n">Grinder</span> <span class="n">grinder</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// maybe read System properties or environment variables</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">CoffeeMaker</span><span class="o">(...);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="initMethod">@Bean initMethod & destroyMethod</h3>
+<p>
+  With <code>@Bean</code> we can specify an <code>initMethod</code>
+  which will be executed on startup like <code>@PostConstruct</code>.
+  Similarly a <code>destroyMethod</code> which execute on shutdown like <code>@PreDestroy</code>.
+</p>
+
+
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
+<span class="kd">class</span> <span class="nc">Configuration</span> <span class="o">{</span>
+  <span class="o">...</span>
+  <span class="nd">@Bean</span><span class="o">(</span><span class="nx">initMethod</span> <span class="o">=</span> <span class="s">&quot;init&quot;</span><span class="o">,</span> <span class="nx">destroyMethod</span> <span class="o">=</span> <span class="s">&quot;close&quot;</span><span class="o">)</span>
+  <span class="n">CoffeeMaker</span> <span class="nf">buildCoffeeMaker</span><span class="o">(</span><span class="n">Pump</span> <span class="n">pump</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">CoffeeMaker</span><span class="o">(</span><span class="n">pump</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The CoffeeMaker has the appropriate methods that are executed as part of the lifecycle.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
+
+  <span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// lifecycle executed on start/PostConstruct</span>
+  <span class="o">}</span>
+  <span class="kt">void</span> <span class="nf">close</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// lifecycle executed on shutdown/PreDestroy</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<h3 id="optionalBean">Optional @Bean</h3>
+<p>
+  We can use <code>Optional&lt;T&gt;</code> to indicate that the method produces
+  an optional dependency.
+</p>
+<p>
+  Often the dependency is only provided based on external configuration
+  a bit like a feature toggle / config toggle. For example, we might do
+  this in a CI/CD environment until such time that the dependency is
+  always "ON" in all environments and then we change to make the dependency
+  not optional.
+</p>
+
+<h4>Example - Optional dependency</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
+<span class="kd">class</span> <span class="nc">Configuration</span> <span class="o">{</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Optionally provide MessageQueue.</span>
+<span class="cm">   */</span>
+  <span class="nd">@Bean</span>
+  <span class="n">Optional</span><span class="o">&lt;</span><span class="n">MessageQueue</span><span class="o">&gt;</span> <span class="nf">buildQueue</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(...)</span> <span class="o">{</span> <span class="c1">// maybe read external config etc</span>
+      <span class="c1">// Not providing the dependency (kind of like feature toggle)</span>
+      <span class="k">return</span> <span class="n">Optional</span><span class="o">.</span><span class="na">empty</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="k">return</span> <span class="n">Optional</span><span class="o">.</span><span class="na">of</span><span class="o">(...);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+<h3 id="useOfFactory">Use of @Factory @Bean</h3>
+<p>
+  It is good to use <code>@Factory</code> for all the dependencies we want to
+  create programmatically. Many teams will have a standard location/package they use to
+  put a "configuration factory bean" where all programmatically created dependencies are
+  defined as a general approach.
+</p>
+<p>
+  If we see logic in constructors then we typically would try to move that logic to a
+  factory bean method and keep the constructors simple. Logic in constructors typically
+  makes it harder from a testing perspective.
+</p>
+
+<h2 id="primary">@Primary</h2>
+<p>
+  A bean with <code>@Primary</code> is deemed to be highest priority and will be injected and used
+  when it is available. This is functionally the same as Spring and Micronaut <em>@Primary</em>.
+</p>
+<p>
+  There should only ever be <b>one</b> bean implementation marked as <em>@Primary</em> for
+  a given dependency.
+</p>
+
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Highest priority EmailServer</span>
+<span class="c1">// Used when available (e.g. module in the class path)</span>
+<span class="nd">@Primary</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PreferredEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+<h2 id="secondary">@Secondary</h2>
+<p>
+  A bean with <code>@Secondary</code> is deemed to be lowest priority and will only be injected
+  if there are no other candidates to inject. We use <code>@Secondary</code> to indicate a
+  "default" or "fallback" implementation that will be superseded by any other available implementation.
+</p>
+<p>
+  This is functionally the same as Spring and Micronaut <em>@Secondary</em>.
+</p>
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Lowest priority EmailServer</span>
+<span class="c1">// Only used if no other EmailServer is available</span>
+<span class="nd">@Secondary</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DefaultEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+<h3 id="primary-usage">Use of @Primary and @Secondary</h3>
+<p>
+  <code>@Primary</code> and <code>@Secondary</code> are used when there are
+  multiple candidates to inject. They provide a "priority" to determine which dependency to
+  inject and use when injecting a single implementation and multiple candidates are available
+  to inject.
+</p>
+<p>
+  We typically use <em>@Primary</em> and <em>@Secondary</em> when we are
+  building multi-module applications. We have multiple modules (jars) that provide implementations.
+  We use <em>@Secondary</em> to indicate a "default" or "fallback" implementation to use
+  and we use <em>@Primary</em> to indicate the best implementation to use when it is available.
+  <em>avaje-inject</em> DI will then wire depending on which modules (jars) are included in the classpath.
+</p>
+<h2 id="qualifiers">Qualifiers</h2>
+
+<h3 id="named">@Named</h3>
+<p>
+  When we have multiple beans that implement a common interface and we can qualify
+  which instance is used by specifying <code>@Named</code> on the beans and where
+  they are injected.
+</p>
+<p>
+  Lets say we have a Store interface with multiple implementations. We can have
+  multiple implementations with <em>@Named</em> qualifier like the example below.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;blue&quot;</span><span class="o">)</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BlueStore</span> <span class="kd">implements</span> <span class="n">Store</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+
+
+<span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RedStore</span> <span class="kd">implements</span> <span class="n">Store</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  Alternatively if we are creating the instances using <em>@Factory</em> <em>@Bean</em> methods
+  we can similarly put <em>@Named</em> on the <em>@Bean</em> methods.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">StoreFactory</span> <span class="o">{</span>
+
+  <span class="nd">@Bean</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">Store</span> <span class="nf">createRedStore</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">RedStore</span><span class="o">(...);</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Bean</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;blue&quot;</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">Store</span> <span class="nf">createBlueStore</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">BlueStore</span><span class="o">(...);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  We can then specify which <em>@Named</em> instance to inject by specifying the qualifier.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">OrderProcessor</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Store</span> <span class="n">store</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">OrderProcessor</span><span class="o">(</span><span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span> <span class="nx">Store</span> <span class="nx">store</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">store</span> <span class="o">=</span> <span class="n">store</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">OrderProcessor</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span>  <span class="c1">// field injection</span>
+  <span class="n">Store</span> <span class="n">store</span><span class="o">;</span>
+
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+<h3 id="qualifier">@Qualifier</h3>
+<p>
+  Instead of using <em>@Named</em> we can create our own annotations using <code>@Qualifier</code>.
+  This gives a strongly typed approach to qualifying the beans rather than using string literals in
+  <em>@Named</em> so could be better when there is a lot of named/qualified beans.
+</p>
+<h5>example</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">javax.inject.Qualifier</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.annotation.Retention</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.lang.annotation.RetentionPolicy</span><span class="o">;</span>
+
+<span class="nd">@Qualifier</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="nx">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">Blue</span> <span class="o">{}</span>
+</pre></div>
+</div>
+<p>
+  Then we can use our <em>@Blue</em> annotation.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Blue</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BlueStore</span> <span class="kd">implements</span> <span class="n">Store</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">StoreManager</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Store</span> <span class="n">store</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">StoreManager</span><span class="o">(</span><span class="nd">@Blue</span> <span class="nx">Store</span> <span class="nx">store</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">store</span> <span class="o">=</span> <span class="n">store</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<h2 id="lifecycle">Lifecycle</h2>
+
+<h3 id="post-construct">@PostConstruct</h3>
+<p>
+  Put <code>@PostConstruct</code> on a method that we want to run on startup just after all the
+  beans have been wired.
+</p>
+<p>
+  Typically we open a resource like network connections to a remote resource (cache, queue, database etc).
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
+
+  <span class="nd">@PostConstruct</span>
+  <span class="kt">void</span> <span class="nf">onStartup</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// connect to remote resource ...</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+<h3 id="pre-destroy">@PreDestroy</h3>
+<p>
+  Put <code>@PreDestroy</code> on a method that we want to run on shutdown.
+</p>
+<p>
+  Typically we want this method to close resources.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
+
+  <span class="nd">@PreDestroy</span>
+  <span class="kt">void</span> <span class="nf">onShutdown</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// close resources</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<h2 id="context">Context</h2>
+
+<h3 id="system-context">SystemContext</h3>
+<p>
+  <code>SystemContext</code> provides application scope to an underlying
+  <em>BeanContext</em> and convenience methods to access the beans from that
+  underlying BeanContext.
+</p>
+<h5>example</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get a bean from the context</span>
+<span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">SystemContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">coffeeMaker</span><span class="o">.</span><span class="na">brew</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get all the beans that implement an interface</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoutes</span><span class="o">&gt;</span> <span class="n">webRoutes</span> <span class="o">=</span> <span class="n">SystemContext</span><span class="o">.</span><span class="na">getBeans</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+<span class="c1">// register them with Javalin</span>
+<span class="n">Javalin</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+<span class="n">app</span><span class="o">.</span><span class="na">routes</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">webRoutes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">::</span><span class="n">registerRoutes</span><span class="o">));</span>
+<span class="n">app</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="mi">8080</span><span class="o">);</span>
+</pre></div>
+</div>
+
+<h4>SystemContext.context()</h4>
+<p>
+  We use <em>SystemContext.context()</em> to get the underlying <code>BeanContext</code>.
+</p>
+<h5>example</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get the underlying context</span>
+<span class="n">BeanContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">SystemContext</span><span class="o">.</span><span class="na">context</span><span class="o">();</span>
+
+<span class="c1">// Get a bean from the context</span>
+<span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">coffeeMaker</span><span class="o">.</span><span class="na">brew</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<h3 id="bean-context">BeanContext</h3>
+<p>
+  The methods on BeanContext that we use to obtain beans out of the context are:
+</p>
+
+<h5>getBean(<em>type</em>)</h5>
+<p>
+  Return a single bean given the type.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">StoreManager</span> <span class="n">storeManager</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">StoreManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">StoreManager</span><span class="o">.</span><span class="na">processOrders</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<h5>getBean(<em>type</em>, <em>qualifier</em>)</h5>
+<p>
+  Return a single bean given the type and name.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Store</span> <span class="n">blueStore</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">Store</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;blue&quot;</span><span class="o">);</span>
+<span class="n">blueStore</span><span class="o">.</span><span class="na">checkOrders</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<h5>getBeans(<em>type</em>)</h5>
+<p>
+  Return the list of beans that implement the interface.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. register all routes for a web framework</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoute</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBeans</span><span class="o">(</span><span class="n">WebRoute</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</pre></div>
+</div>
+
+<h5>getBeansWithAnnotation(<em>annotation type</em>)</h5>
+<p>
+  Return the list of beans that have an annotation.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. register all controllers with web a framework</span>
+<span class="c1">// .. where Controller is an annotation on the beans</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">controllers</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBeansWithAnnotation</span><span class="o">(</span><span class="n">Controller</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+The classic use case for this is registering controllers or routes to
+ web frameworks like Sparkjava, Javlin, Rapidoid etc.
+</p>
+
+<h5>getBeansByPriority(<em>type</em>)</h5>
+<p>
+  Return the list of beans that implement the interface sorting by priority.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. filters that should be applied in @Priority order</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Filter</span><span class="o">&gt;</span> <span class="n">filters</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBeansByPriority</span><span class="o">(</span><span class="n">Filter</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</pre></div>
+</div>
+
+<h3 id="context-builder">BeanContext.newBuilder()</h3>
+<p>
+  For testing purposes we sometimes want to wire the beans but provide
+  test doubles, mocks, spies for some of the dependencies. We do this
+  using BeanContext builder.
+</p>
+
+<h4 id="withMock">withMock()</h4>
+<p>
+  We can use <code>withMock()</code> to have <a href="https://site.mockito.org/">Mockito mocks</a>
+  injected in place of the normal behaviour.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
+
+  <span class="k">try</span> <span class="o">(</span><span class="n">BeanContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">BeanContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Heater</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">grinder</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="c1">// setup the mock</span>
+      <span class="n">when</span><span class="o">(</span><span class="n">grinder</span><span class="o">.</span><span class="na">grindBeans</span><span class="o">()).</span><span class="na">thenReturn</span><span class="o">(</span><span class="s">&quot;stub response&quot;</span><span class="o">);</span>
+    <span class="o">})</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+
+    <span class="c1">// Act</span>
+    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
+
+    <span class="n">Grinder</span> <span class="n">grinder</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">verify</span><span class="o">(</span><span class="n">grinder</span><span class="o">).</span><span class="na">grindBeans</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+
+<h4 id="withSpy">withSpy()</h4>
+<p>
+  We can use <code>withSpy()</code> to get the beans to be enhanced with <a href="https://www.baeldung.com/mockito-spy">Mockito Spy</a>.
+</p>
+<p>
+  We typically want to do this when we want the bean to have most or all of it's behaviour and
+  only stub out some of it's behaviour and track it's interactions.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
+
+  <span class="k">try</span> <span class="o">(</span><span class="n">BeanContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">BeanContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">withSpy</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">pump</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="c1">// setup the spy, only stub out pumpWater()</span>
+      <span class="n">doNothing</span><span class="o">().</span><span class="na">when</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpWater</span><span class="o">();</span>
+    <span class="o">})</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+
+    <span class="c1">// or setup here ...</span>
+    <span class="n">Pump</span> <span class="n">pump</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">doNothing</span><span class="o">().</span><span class="na">when</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpSteam</span><span class="o">();</span>
+
+    <span class="c1">// act</span>
+    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
+
+    <span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpWater</span><span class="o">();</span>
+    <span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpSteam</span><span class="o">();</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h4 id="withBeans">withBeans()</h4>
+<p>
+  We can use <code>withBeans()</code> to supply our own test doubles.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
+
+  <span class="c1">// create our test doubles to use</span>
+  <span class="n">Pump</span> <span class="n">pump</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="n">Grinder</span> <span class="n">grinder</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="k">try</span> <span class="o">(</span><span class="n">BeanContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">BeanContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">withBeans</span><span class="o">(</span><span class="n">pump</span><span class="o">,</span> <span class="n">grinder</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+
+    <span class="c1">// act</span>
+    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
+
+    <span class="c1">// assert</span>
+    <span class="n">assertThat</span><span class="o">(...)</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h2 id="modules">Modules</h2>
+
+<h3 id="single-module">Single module apps</h3>
+<p>
+  When we are wiring dependencies that are all part of a single jar/module then we don't
+  really care about modules. All the dependencies that are being injected are known and
+  provided by the same jar/module.
+</p>
+<p>
+  In a single module app there is only 1 BeanContext.
+</p>
+
+<h3 id="multi-module">Multi-module apps</h3>
+<p>
+  When we are wiring dependencies that span multiple jars/modules then we to provide more
+  control over the order in which each modules dependencies are wired. We provide this control
+  by using <code>@ContextModule</code>.
+</p>
+<p>
+  In a multi-module app there is 1 BeanContext per module and <em>avaje-inject</em> needs to
+  determine the order in which the modules are wired. It does this using the module <em>provides</em>
+  and <em>dependsOn</em>.
+</p>
+
+<h3 id="unnamed-module">Unnamed modules</h3>
+<p>
+  When we don't specify <em>@ContextModule</em> on a module it is an <em>unnamed module</em>.
+  In effect a module name is derived from the top most package and that module has no
+  <em>provides</em> or <em>dependsOn</em> specified.
+</p>
+
+<h3 id="context-module">@ContextModule</h3>
+<p>
+  Use <code>@ContextModule</code> to explicitly name a module and define the features it <em>provides</em>
+  and the features it <em>dependsOn</em>. The <em>provides</em> and <em>dependsOn</em> effectively control
+  the order in which modules are wired.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ContextModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;feature-toggle&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>
+  We use the <code>@ContextModule</code> annotation to give a module an explicit name.
+</p>
+
+<h3 id="module-dependsOn">Module dependsOn</h3>
+<p>
+  Modules that depend on functionality / beans from other modules specify in <code>dependsOn</code>
+  the modules that should provide beans they want to inject.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ContextModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;job-system&quot;</span><span class="o">,</span> <span class="nx">dependsOn</span> <span class="o">=</span> <span class="o">{</span><span class="s">&quot;feature-toggle&quot;</span><span class="o">})</span>
+</pre></div>
+</div>
+<p>
+  With the above example the "job-system" module expects bean(s) from the "feature-toggle" module to be
+  available for injecting into it's bean graph.
+</p>
+<p>
+  For <em>avaje-inject</em> internally this defines the order in which the bean contexts in each of the modules are created.
+  <em>avaje-inject</em> finds all the modules in the classpath (via Service loader) and then orders the modules based on the
+  dependsOn values. In the example above the "feature-toggle" bean context must be built first, and then the
+  beans it contains are available when building the "job-system" bean context.
+</p>
+
+
+<h2 id="why">Why avaje inject exists</h2>
+
+<h3 id="why-history">Short History of DI on the JVM</h3>
+<p>
+  For a short history of DI on the JVM see below and refer to
+  <a target="_blank" href="http://picocontainer.com/inversion-of-control-history.html">PicoContainer - inversion of control history</a>
+</p>
+<ul>
+  <li>1998 - Avalon</li>
+  <li>2003 - Spring and PicoContainer</li>
+  <li>2005 - Guice</li>
+  <li>2009 - JSR 330 javax.inject</li>
+  <li>2013 - Dagger1</li>
+  <li>2015 - Dagger2</li>
+  <li>2018 - Micronaut</li>
+  <li>2018 - Avaje-Inject (dinject)</li>
+  <li>2019 - Quarkus</li>
+</ul>
+<p>
+  Stefano Mazzocchi popularises the term, Inversion of Control and the Apache
+  <a target="_blank" href="http://picocontainer.com/inversion-of-control-history.html#avalon">Avalon</a>
+  project starts.
+</p>
+<p>
+  Spring and PicoContainer lead the initial adoption of DI. Java 5 came out with
+  new language features which included annotations and generics which lead to the
+  creation of Guice.
+</p>
+<p>
+  In 2009 developers from Spring, Guice, Redhat and some others got together to
+  define JSR-330 - dependency injection for Java.
+</p>
+<p>
+  Some Guice developers went on to develop Dagger which I believe was the first
+  dependency injection library that used Java annotation processing to generate code
+  for DI. This moves work that was previously done at runtime to build time and made
+  Dagger significantly faster and lighter than Guice. Dagger becomes heavily
+  adopted for Android applications.
+</p>
+<p>
+  <em>
+  Using Java annotation processing to move dependency injection work from run time
+  to build time is common approach by Dagger, Micronaut, avaje-inject and Quarkus.
+  </em>
+</p>
+<p>
+  Around 2018 the pain points of using Spring DI with Kubernetes and resource limited
+  containers becomes more obvious. The way Spring DI works means that at startup time it
+  performs a lot of work that includes classpath scanning, heavy use of reflection and
+  defining dynamic proxies.  This makes it relatively slow and hungry for both CPU and
+  memory resources. With cloud deployment where we pay for CPU and memory some developers
+  start looking for another approach to DI which puts more (or virtually all) of that
+  work to build time using Java annotation processing [as Dagger2 had been doing in the
+  Android space for some years].
+</p>
+<p>
+  In 2018 Micronaut and <em>avaje-inject</em> (this library) are released which use
+  Java annotation processing to perform most of DI at build time rather than runtime.
+  In 2019 Quarkus is released which similarly uses Java annotation processing but is
+  based on CDI.
+</p>
+
+<h3 id="why-comparison">Quick comparison to other DI libraries</h3>
+<h5>Why not use Dagger2?</h5>
+<p>
+  Dagger2 is not particularly orientated for server side developers with no lifecycle
+  support (@PostConstruct/@PreDestroy) and does not have some features that we like from
+  Spring DI (@Factory/@Bean + @Primary/@Secondary).
+</p>
+<h5>Why not use Quarkus?</h5>
+<p>
+  Quarkus comes with a DI implementation based on CDI. If CDI is your thing you'd look
+  at Quarkus.
+</p>
+<h5>Why not Micronaut?</h5>
+<p>
+  Micronaut DI and <em>avaje-inject</em> are both heavily influenced by Spring ID and
+  look very similar in feature set.
+</p>
+<p>
+  Micronaut DI was relatively strongly linked to the rest of the Micronaut framework
+  where as <em>avaje-inject</em> is relatively small in comparison and focused on DI alone.
+  Micronaut generates bytecode where as <em>avaje-inject</em> generates source code
+  making the functionality of DI fully transparent to developers.
+</p>
+<h2 id="http">http servers</h2>
+<p>
+  <em>avaje-inject</em> is a lightweight DI library that is especially suited to
+  building http based services using <a href="https://javalin.io">Javalin</a>
+  and <a href="https://helidon.io">Helidon SE</a>.
+</p>
+<p>
+  We can build rest controllers and target either Javalin or Helidon SE using
+  as little or as much of either Javalin or Helidon as we like.
+</p>
+
+<h3 id="javalin">Javalin</h3>
+<p>
+  Create JAX-RS style controllers targeting <a href="https://javalin.io">Javalin</a>.
+  Write controller methods that take the Javalin context as a method argument or
+  have it injected as a request scoped bean.
+</p>
+<p>
+  See <a href="/http">here</a> for more details.
+</p>
+
+<h3 id="helidon">Helidon SE</h3>
+<p>
+  Create JAX-RS style controllers targeting <a href="https://helidon.io">Helidon SE</a>.
+  Write controller methods that take the Helidon server request and/or response as
+  method arguments or have them injected into the controller as request scoped beans.
+</p>
+<p>
+  See <a href="/http">here</a> for more details.
+</p>
+
+<h2 id="spring">Spring DI</h2>
+
+<h4>@Factory + @Bean</h4>
+<p>
+  <em>avaje-inject</em> has <a href="#factory">@Factory</a> + <a href="#bean">@Bean</a> which work the
+  same as Spring DI's <em>@Configuration + @Bean</em> and also Micronaut's <em>@Factory + @Bean</em>.
+</p>
+
+<h4>@Primary @Secondary</h4>
+<p>
+  <em>avaje-inject</em> has <a href="#primary">@Primary</a> and <a href="#secondary">@Secondary</a>
+  annotations which work the same as Spring DI's <em>@Primary @Secondary</em> and also Micronaut
+  DI's <em>@Primary @Secondary</em>.
+</p>
+<p>
+  These provide injection precedence in the case of injecting an implementation when multiple
+  injection candidates are available.
+</p>
+
+<h4 id="spring-translation">Spring DI translation</h4>
+<table class="table">
+  <tr>
+    <th width="45%">Spring</th>
+    <th width="45%">avaje-inject</th>
+    <th width="10%">JSR-330</th>
+  </tr>
+  <tr>
+    <td>@Component, @Service, @Controller, @Repository</td>
+    <td><a href="#singleton">@Singleton</a></td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td>FactoryBean&lt;T&gt;</td>
+    <td><a href="#provider">Provider&lt;T&gt;</a></td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td>@Inject, @Autowired</td>
+    <td><a href="#inject">@Inject</a></td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td>@Autowired(required=false)</td>
+    <td><a href="#optional">@Inject Optional&lt;T&gt;</a></td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td>@PostConstruct</td>
+    <td><a href="#post-construct">@PostConstruct</a></td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td>@PreDestroy</td>
+    <td><a href="#pre-destroy">@PreDestroy</a></td>
+    <td>Yes</td>
+  </tr>
+  <tr>
+    <td colspan="3" align="center" style="padding-top:2em;"><i>Non standard extensions to JSR-330</i></td>
+  </tr>
+  <tr>
+    <td>@Configuration @Bean</td>
+    <td><a href="#factory">@Factory @Bean</a></td>
+    <td><b>No</b></td>
+  </tr>
+  <tr>
+    <td>@Primary</td>
+    <td><a href="#primary">@Primary</a></td>
+    <td><b>No</b></td>
+  </tr>
+  <tr>
+    <td>@Secondary</td>
+    <td><a href="#secondary">@Secondary</a></td>
+    <td><b>No</b></td>
+  </tr>
+</table>
+
+<h3 id="aop">AOP</h3>
+<p>
+  <em>avaje-inject</em> does not include AOP as other libraries provide build time AOP
+  for <code><a href="https://ebean.io/docs/transactions/">@Transactional</a></code>,
+  Metrics <code><a href="https://avaje.io/metrics/">@Timed</a></code>
+  and configuration injection via <a href="https://avaje.io/config/">avaje-config</a>.
+</p>
+<p>
+  Performing AOP at build time is important as it removes the runtime cost at startup
+  of using dynamic proxies.
+</p>
+<p>
+  The following are library recommendations for @Transactional, @Value and @Timed.
+</p>
+
+<table class="table">
+  <tr>
+    <th width="50%">Spring</th>
+    <th width="50%">Recommendation</th>
+  </tr>
+  <tr>
+    <td>@Transactional</td>
+    <td><a href="https://ebean.io/docs/transactions/">Ebean @Transactional</a></td>
+  </tr>
+  <tr>
+    <td>@Value</td>
+    <td><a href="https://avaje.io/config/">Avaje Config</a></td>
+  </tr>
+  <tr>
+    <td>@Timed</td>
+    <td><a href="https://avaje.io/metrics/">Avaje Metrics</a></td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>
