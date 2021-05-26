@@ -60,18 +60,18 @@
     <li><a href="#pre-destroy">@PreDestroy</a></li>
   </ul>
 </li>
-<li><a href="#context">Context</a>
+<li><a href="#application-scope">ApplicationScope</a>
   <ul>
-    <li><a href="#system-context">SystemContext</a></li>
-    <li><a href="#bean-context">BeanContext</a></li>
-    <li><a href="#context-builder">BeanContext.newBuilder()</a></li>
+    <li><a href="#application-scope">ApplicationScope</a></li>
+    <li><a href="#bean-scope">BeanScope</a></li>
+    <li><a href="#context-builder">BeanScope.newBuilder()</a></li>
   </ul>
 </li>
 <li><a href="#modules">Modules</a>
   <ul>
     <li><a href="#single-module">Single module</a></li>
     <li><a href="#multi-module">Multi-module</a></li>
-    <li><a href="#context-module">@ContextModule</a></li>
+    <li><a href="#inject-module">@InjectModule</a></li>
   </ul>
 </li>
 <li><a href="#why">Why avaje-inject exists?</a>
@@ -126,7 +126,7 @@
     <td><a target="_blank" href="https://github.com/avaje/avaje-inject">Github</a></td>
     <td><a target="_blank" href="/apidocs/avaje-inject">Javadoc</a></td>
     <td><a target="_blank" href="https://github.com/avaje/avaje-inject/issues">Github</a></td>
-    <td><a target="_blank" href="https://github.com/avaje/avaje-inject/releases">Latest 4.4</a></td>
+    <td><a target="_blank" href="https://github.com/avaje/avaje-inject/releases">Latest 6.0.RC3</a></td>
   </tr>
 </table>
 <p>&nbsp;</p>
@@ -170,6 +170,11 @@
   </tr>
 </table>
 
+<h3 id="prior-docs">Older documentation</h3>
+<p>
+  The documentation for versions prior to 6.x is available at <a href="v4">version 4.x docs</a>
+</p>
+
 <h3 id="releases">Releases for javax and jakarta</h3>
 <p>
   The move of JEE to the eclipse foundation meant a change in package from <code>javax</code>
@@ -187,7 +192,7 @@
 </p>
 <h4>Want to use jakarta.inject?</h4>
 <p>
-  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-4.4">version 4.4</a> of
+  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-6.0.RC3">version 6.0.RC3</a> of
   avaje-inject with the dependency on <code>jakarta.inject</code> (maintained on jakarta-master branch).
 </p>
 
@@ -245,7 +250,7 @@
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>4.4<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>6.0.RC3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -258,7 +263,7 @@
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>4.4<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>6.0.RC3<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
@@ -276,7 +281,7 @@
       <span class="nt">&lt;path&gt;</span>
           <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
           <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
-          <span class="nt">&lt;version&gt;</span>4.4<span class="nt">&lt;/version&gt;</span>
+          <span class="nt">&lt;version&gt;</span>6.0.RC3<span class="nt">&lt;/version&gt;</span>
       <span class="nt">&lt;/path&gt;</span>
       <span class="nt">&lt;path&gt;</span>
           ... other annotation processor ...
@@ -310,8 +315,8 @@
 
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:4.4&#39;</span><span class="o">)</span>
-  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:4.4&#39;</span><span class="o">)</span>
+  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:6.0.RC3&#39;</span><span class="o">)</span>
+  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:6.0.RC3&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -326,8 +331,8 @@
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:4.4&#39;</span><span class="o">)</span>
-  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:4.4&#39;</span><span class="o">)</span>
+  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:6.0.RC3&#39;</span><span class="o">)</span>
+  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:6.0.RC3&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -366,13 +371,13 @@
 
   <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">inject</span><span class="o">;</span>
 
-  <span class="c1">// explicitly register the generated BeanContextFactory</span>
-  <span class="n">provides</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">BeanContextFactory</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">_DI&#36;BeanContextFactory</span><span class="o">;</span>
+  <span class="c1">// explicitly register the generated BeanScopeFactory</span>
+  <span class="n">provides</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">BeanScopeFactory</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">_DI&#36;BeanScopeFactory</span><span class="o">;</span>
 <span class="o">}</span>
 </pre></div>
 </div>
 <p>
-  With JPMS we need to explicitly specify the generated <code>BeanContextFactory</code>
+  With JPMS we need to explicitly specify the generated <code>BeanScopeFactory</code>
   in a <code>provides</code> clause.
 </p>
 <h2 id="injection">Injection</h2>
@@ -1072,23 +1077,41 @@
   <span class="o">...</span>
 </pre></div>
 </div>
-<h2 id="context">Context</h2>
 
-<h3 id="system-context">SystemContext</h3>
+<h3>AutoCloseable and Closeable</h3>
 <p>
-  <code>SystemContext</code> provides application scope to an underlying
-  <em>BeanContext</em> and convenience methods to access the beans from that
-  underlying BeanContext.
+  Both <code>java.lang.AutoCloseable</code> and <code>java.io.Closeable</code> are treated as <em>PreDestroy</em>
+  lifecycle methods. Types that implement these interfaces do not need to annotate the <code>close()</code> method,
+  it will automatically be treated as if it had a <code>@PreDestroy</code>.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeQueue</span> <span class="kd">implements</span> <span class="n">AutoCloseable</span> <span class="o">{</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Automatically treated as a PreDestroy method.</span>
+<span class="cm">   */</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">close</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// close resources</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<h2 id="application-scope">ApplicationScope</h2>
+<p>
+  <code>ApplicationScope</code> provides access to the beans in the application scope.
 </p>
 <h5>example</h5>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get a bean from the context</span>
-<span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">SystemContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">brew</span><span class="o">();</span>
 </pre></div>
 </div>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get all the beans that implement an interface</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoutes</span><span class="o">&gt;</span> <span class="n">webRoutes</span> <span class="o">=</span> <span class="n">SystemContext</span><span class="o">.</span><span class="na">getBeans</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoutes</span><span class="o">&gt;</span> <span class="n">webRoutes</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
 <span class="c1">// register them with Javalin</span>
 <span class="n">Javalin</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
@@ -1097,61 +1120,61 @@
 </pre></div>
 </div>
 
-<h4>SystemContext.context()</h4>
+<h4>ApplicationScope.scope()</h4>
 <p>
-  We use <em>SystemContext.context()</em> to get the underlying <code>BeanContext</code>.
+  We use <em>ApplicationScope.scope()</em> to get the underlying <code>BeanScope</code>.
 </p>
 <h5>example</h5>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get the underlying context</span>
-<span class="n">BeanContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">SystemContext</span><span class="o">.</span><span class="na">context</span><span class="o">();</span>
+<span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">scope</span><span class="o">();</span>
 
 <span class="c1">// Get a bean from the context</span>
-<span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">brew</span><span class="o">();</span>
 </pre></div>
 </div>
 
-<h3 id="bean-context">BeanContext</h3>
+<h3 id="bean-scope">BeanScope</h3>
 <p>
-  The methods on BeanContext that we use to obtain beans out of the context are:
+  The methods on BeanScope that we use to obtain beans out of the scope are:
 </p>
 
-<h5>getBean(<em>type</em>)</h5>
+<h5>get(<em>type</em>)</h5>
 <p>
   Return a single bean given the type.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">StoreManager</span> <span class="n">storeManager</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">StoreManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">StoreManager</span> <span class="n">storeManager</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">StoreManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="n">StoreManager</span><span class="o">.</span><span class="na">processOrders</span><span class="o">();</span>
 </pre></div>
 </div>
 
-<h5>getBean(<em>type</em>, <em>qualifier</em>)</h5>
+<h5>get(<em>type</em>, <em>qualifier</em>)</h5>
 <p>
   Return a single bean given the type and name.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Store</span> <span class="n">blueStore</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">Store</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;blue&quot;</span><span class="o">);</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Store</span> <span class="n">blueStore</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Store</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;blue&quot;</span><span class="o">);</span>
 <span class="n">blueStore</span><span class="o">.</span><span class="na">checkOrders</span><span class="o">();</span>
 </pre></div>
 </div>
 
-<h5>getBeans(<em>type</em>)</h5>
+<h5>list(<em>type</em>)</h5>
 <p>
   Return the list of beans that implement the interface.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. register all routes for a web framework</span>
 
-<span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoute</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBeans</span><span class="o">(</span><span class="n">WebRoute</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoute</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoute</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
 </div>
 
-<h5>getBeansWithAnnotation(<em>annotation type</em>)</h5>
+<h5>listByAnnotation(<em>annotation type</em>)</h5>
 <p>
   Return the list of beans that have an annotation.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. register all controllers with web a framework</span>
 <span class="c1">// .. where Controller is an annotation on the beans</span>
 
-<span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">controllers</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBeansWithAnnotation</span><span class="o">(</span><span class="n">Controller</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">controllers</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">listByAnnotation</span><span class="o">(</span><span class="n">Controller</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
 </div>
 <p>
@@ -1159,21 +1182,21 @@ The classic use case for this is registering controllers or routes to
  web frameworks like Sparkjava, Javlin, Rapidoid etc.
 </p>
 
-<h5>getBeansByPriority(<em>type</em>)</h5>
+<h5>listByPriority(<em>type</em>)</h5>
 <p>
   Return the list of beans that implement the interface sorting by priority.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. filters that should be applied in @Priority order</span>
 
-<span class="n">List</span><span class="o">&lt;</span><span class="n">Filter</span><span class="o">&gt;</span> <span class="n">filters</span> <span class="o">=</span> <span class="n">beanContext</span><span class="o">.</span><span class="na">getBeansByPriority</span><span class="o">(</span><span class="n">Filter</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Filter</span><span class="o">&gt;</span> <span class="n">filters</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">listByPriority</span><span class="o">(</span><span class="n">Filter</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
 </div>
 
-<h3 id="context-builder">BeanContext.newBuilder()</h3>
+<h3 id="context-builder">BeanScope.newBuilder()</h3>
 <p>
   For testing purposes we sometimes want to wire the beans but provide
   test doubles, mocks, spies for some of the dependencies. We do this
-  using BeanContext builder.
+  using BeanScope builder.
 </p>
 
 <h4 id="withMock">withMock()</h4>
@@ -1184,7 +1207,7 @@ The classic use case for this is registering controllers or routes to
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
 <span class="kd">public</span> <span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
 
-  <span class="k">try</span> <span class="o">(</span><span class="n">BeanContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">BeanContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
     <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
     <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Heater</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
     <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">grinder</span> <span class="o">-&gt;</span> <span class="o">{</span>
@@ -1194,10 +1217,10 @@ The classic use case for this is registering controllers or routes to
     <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
     <span class="c1">// Act</span>
-    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
 
-    <span class="n">Grinder</span> <span class="n">grinder</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Grinder</span> <span class="n">grinder</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="n">verify</span><span class="o">(</span><span class="n">grinder</span><span class="o">).</span><span class="na">grindBeans</span><span class="o">();</span>
 <span class="o">}</span>
 </pre></div>
@@ -1215,7 +1238,7 @@ The classic use case for this is registering controllers or routes to
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
 <span class="kd">public</span> <span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
 
-  <span class="k">try</span> <span class="o">(</span><span class="n">BeanContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">BeanContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
     <span class="o">.</span><span class="na">withSpy</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">pump</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="c1">// setup the spy, only stub out pumpWater()</span>
       <span class="n">doNothing</span><span class="o">().</span><span class="na">when</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpWater</span><span class="o">();</span>
@@ -1223,11 +1246,11 @@ The classic use case for this is registering controllers or routes to
     <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
     <span class="c1">// or setup here ...</span>
-    <span class="n">Pump</span> <span class="n">pump</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">Pump</span> <span class="n">pump</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="n">doNothing</span><span class="o">().</span><span class="na">when</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpSteam</span><span class="o">();</span>
 
     <span class="c1">// act</span>
-    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
 
     <span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpWater</span><span class="o">();</span>
@@ -1238,32 +1261,6 @@ The classic use case for this is registering controllers or routes to
 </pre></div>
 </div>
 
-<h4 id="withBeans">withBeans()</h4>
-<p>
-  We can use <code>withBeans()</code> to supply our own test doubles.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
-
-  <span class="c1">// create our test doubles to use</span>
-  <span class="n">Pump</span> <span class="n">pump</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-  <span class="n">Grinder</span> <span class="n">grinder</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-
-  <span class="k">try</span> <span class="o">(</span><span class="n">BeanContext</span> <span class="n">context</span> <span class="o">=</span> <span class="n">BeanContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">withBeans</span><span class="o">(</span><span class="n">pump</span><span class="o">,</span> <span class="n">grinder</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
-
-    <span class="c1">// act</span>
-    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
-
-    <span class="c1">// assert</span>
-    <span class="n">assertThat</span><span class="o">(...)</span>
-  <span class="o">}</span>
-
-<span class="o">}</span>
-</pre></div>
-</div>
 
 <h2 id="modules">Modules</h2>
 
@@ -1274,39 +1271,39 @@ The classic use case for this is registering controllers or routes to
   provided by the same jar/module.
 </p>
 <p>
-  In a single module app there is only 1 BeanContext.
+  In a single module app there is only 1 BeanScope.
 </p>
 
 <h3 id="multi-module">Multi-module apps</h3>
 <p>
   When we are wiring dependencies that span multiple jars/modules then we to provide more
   control over the order in which each modules dependencies are wired. We provide this control
-  by using <code>@ContextModule</code>.
+  by using <code>@InjectModule</code>.
 </p>
 <p>
-  In a multi-module app there is 1 BeanContext per module and <em>avaje-inject</em> needs to
+  In a multi-module app there is 1 BeanScope per module and <em>avaje-inject</em> needs to
   determine the order in which the modules are wired. It does this using the module <em>provides</em>
   and <em>dependsOn</em>.
 </p>
 
 <h3 id="unnamed-module">Unnamed modules</h3>
 <p>
-  When we don't specify <em>@ContextModule</em> on a module it is an <em>unnamed module</em>.
+  When we don't specify <em>@InjectModule</em> on a module it is an <em>unnamed module</em>.
   In effect a module name is derived from the top most package and that module has no
   <em>provides</em> or <em>dependsOn</em> specified.
 </p>
 
-<h3 id="context-module">@ContextModule</h3>
+<h3 id="context-module">@InjectModule</h3>
 <p>
-  Use <code>@ContextModule</code> to explicitly name a module and define the features it <em>provides</em>
+  Use <code>@InjectModule</code> to explicitly name a module and define the features it <em>provides</em>
   and the features it <em>dependsOn</em>. The <em>provides</em> and <em>dependsOn</em> effectively control
   the order in which modules are wired.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ContextModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;feature-toggle&quot;</span><span class="o">)</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;feature-toggle&quot;</span><span class="o">)</span>
 </pre></div>
 </div>
 <p>
-  We use the <code>@ContextModule</code> annotation to give a module an explicit name.
+  We use the <code>@InjectModule</code> annotation to give a module an explicit name.
 </p>
 
 <h3 id="module-dependsOn">Module dependsOn</h3>
@@ -1314,7 +1311,7 @@ The classic use case for this is registering controllers or routes to
   Modules that depend on functionality / beans from other modules specify in <code>dependsOn</code>
   the modules that should provide beans they want to inject.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ContextModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;job-system&quot;</span><span class="o">,</span> <span class="nx">dependsOn</span> <span class="o">=</span> <span class="o">{</span><span class="s">&quot;feature-toggle&quot;</span><span class="o">})</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;job-system&quot;</span><span class="o">,</span> <span class="nx">dependsOn</span> <span class="o">=</span> <span class="o">{</span><span class="s">&quot;feature-toggle&quot;</span><span class="o">})</span>
 </pre></div>
 </div>
 <p>
