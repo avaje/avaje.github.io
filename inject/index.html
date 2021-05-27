@@ -58,13 +58,27 @@
   <ul>
     <li><a href="#post-construct">@PostConstruct</a></li>
     <li><a href="#pre-destroy">@PreDestroy</a></li>
+    <li><a href="#auto-closeable">AutoCloseable</a></li>
+  </ul>
+</li>
+<li><a href="#scope">Scope</a>
+  <ul>
+    <li><a href="#scope-singleton">@Singleton</a></li>
+    <li><a href="#scope-request">@Request</a></li>
+    <li><a href="#controller">@Controller</a></li>
   </ul>
 </li>
 <li><a href="#application-scope">ApplicationScope</a>
   <ul>
     <li><a href="#application-scope">ApplicationScope</a></li>
     <li><a href="#bean-scope">BeanScope</a></li>
-    <li><a href="#context-builder">BeanScope.newBuilder()</a></li>
+    <li><a href="#request-scope">RequestScope</a></li>
+  </ul>
+</li>
+<li><a href="#testing">Testing</a>
+  <ul>
+    <li><a href="#unit-testing">Unit testing</a></li>
+    <li><a href="#component-testing">Component testing</a></li>
   </ul>
 </li>
 <li><a href="#modules">Modules</a>
@@ -187,19 +201,19 @@
 
 <h4>Want to use javax.inject?</h4>
 <p>
-  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-parent-3.4">version 3.4</a> of
-  avaje-inject with the dependency on <code>javax.inject</code> (maintained on master branch).
+  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-parent-5.0.RC3">version 5.0.RC3</a> of
+  avaje-inject with the dependency on <code>javax.inject</code> (maintained on javax.main branch).
 </p>
 <h4>Want to use jakarta.inject?</h4>
 <p>
   Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-6.0.RC3">version 6.0.RC3</a> of
-  avaje-inject with the dependency on <code>jakarta.inject</code> (maintained on jakarta-master branch).
+  avaje-inject with the dependency on <code>jakarta.inject</code> (maintained on master branch).
 </p>
 
 <h3 id="jsr-330">Based on JSR-330</h3>
 <p>
-  avaje inject is based on <a href="http://javax-inject.github.io/javax-inject/api/index.html">JSR-330: Dependency Injection for Java</a>
-  - <em>javax.inject / jakarta.inject</em> with some extensions similar to Spring DI.
+  avaje inject is based on <a href="http://javax-inject.github.io/javax-inject/api/index.html">JSR-330: Dependency
+    Injection for Java</a> - <em>javax.inject / jakarta.inject</em> with some extensions similar to Spring DI.
 </p>
 <p>
   JSR-330 provides:
@@ -208,20 +222,34 @@
   <li><code><a href="#singleton">@Singleton</a></code></li>
   <li><code><a href="#inject">@Inject</a></code></li>
   <li><code><a href="#named">@Named</a> and <a href="#named">@Qualifier</a></code></li>
+  <li><code><a href="#scope">@Scope</a></code></li>
+</ul>
+<p>
+  JSR 250 - Common Annotations for the Java provides:
+</p>
+<ul>
   <li><code><a href="#post-construct">@PostConstruct</a></code></li>
   <li><code><a href="#pre-destroy">@PreDestroy</a></code></li>
 </ul>
+<p>
+  <code>@PostConstruct</code> and <code>@PreDestroy</code> are part of <em>Common Annotations API</em>.
+  These where in JDK 8 but from JDK 9 onwards are part of JDK module <em>javax.annotation-api</em>.
+</p>
+<p>
+  Noting that at this point neither Dagger2 or Guice support <code>@PostConstruct</code>
+  and <code>@PreDestroy</code> lifecycle annotations.
+</p>
 
 <h3 id="extensions">Spring DI like extensions to JSR-330</h3>
 <h4>@Factory + @Bean</h4>
 <p>
   In addition to the JSR-330 standard we use <a href="#factory">@Factory</a> + <a href="#bean">@Bean</a>
   which work the same as Spring DI's <em>@Configuration + @Bean</em> and also Micronaut's
-  <em>@Factory + @Bean</em>.
+  <em>@Factory + @Bean</em>. This is also similar to a Guice module with <em>@Provides</em> methods.
 </p>
 <p>
-  Teams will often use <code>@Factory/@Bean</code> to provide dependencies that
-  are best created programmatically - typically depending on external configuration,
+  Teams will often use <em>@Factory@Bean</em> to provide dependencies that
+  are best created programmatically. Typically these depend on external configuration,
   environment settings etc.
 </p>
 <p>
@@ -385,7 +413,7 @@
 <h3 id="singleton">@Singleton</h3>
 <p>
   Put <code>@Singleton</code> on beans that we want dependency injection on.
-  These are beans that are created ("wired") by dependency injection and put into the context.
+  These are beans that are created ("wired") by dependency injection and put into the scope.
   They are then available to be injected into other beans.
 </p>
 
@@ -1078,7 +1106,7 @@
 </pre></div>
 </div>
 
-<h3>AutoCloseable and Closeable</h3>
+<h3 id="auto-closeable">AutoCloseable and Closeable</h3>
 <p>
   Both <code>java.lang.AutoCloseable</code> and <code>java.io.Closeable</code> are treated as <em>PreDestroy</em>
   lifecycle methods. Types that implement these interfaces do not need to annotate the <code>close()</code> method,
@@ -1099,12 +1127,89 @@
   <span class="o">...</span>
 </pre></div>
 </div>
+<h2 id="scope">Scope</h2>
+
+<h3 id="scope-singleton">@Singleton</h3>
+<p>
+  Beans annotated with <code>@Singleton</code> will have a single instance created
+  in the BeanScope. For an application we typically only have one BeanScope (ApplicationScope)
+  and so we only create one instance.
+</p>
+<p>
+  Singleton's can only depend on other singleton beans. If we add a dependency to a <code>@Request</code>
+  bean then we will get a compiler error telling us we can't do that.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProductService</span>  <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="scope-request">@Request</h3>
+<p>
+  Beans annotated with <code>@Request</code> have request scope. This means that:
+</p>
+<ul>
+  <li>They can only be accessed via RequestScope</li>
+  <li>They can depend on things supplied to the RequestScope</li>
+  <li>They can depend on other @Request beans</li>
+  <li>They can depend on @Singleton beans</li>
+</ul>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Request</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ProductController</span> <span class="o">{</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Can depend on:</span>
+<span class="cm">   * - Things provided to the request scope</span>
+<span class="cm">   * - @Request scope beans</span>
+<span class="cm">   * - @Singleton beans</span>
+<span class="cm">   */</span>
+  <span class="kd">public</span> <span class="nf">ProductController</span><span class="o">(</span><span class="n">HttpRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">HttpResponse</span> <span class="n">response</span><span class="o">,</span> <span class="n">ProductService</span> <span class="n">productService</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  We can only use request scoped beans via <em>RequestScope</em>. One instance is created once per
+  <code>RequestScope</code> on demand - an instance is only created if it is used for that request.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">try</span> <span class="o">(</span><span class="n">RequestScope</span> <span class="n">requestScope</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">newRequestScope</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">withBean</span><span class="o">(</span><span class="n">HttpRequest</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">request</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withBean</span><span class="o">(</span><span class="n">HttpResponse</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">response</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+
+  <span class="n">ProductController</span> <span class="n">productController</span> <span class="o">=</span> <span class="n">requestScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">ProductController</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="n">productController</span><span class="o">.</span><span class="na">doStuff</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="controller">@Controller (avaje-http)</h3>
+<p>
+  If we are using <a href="/http">avaje-http</a> then we use
+  <a href="/http/#controller">@Controller</a> rather than <code>@Singleton</code>
+  or <code>@Request</code>. When we do this avaje  inject will detect if the controller
+  needs to be request scoped (by looking at it's dependencies at compile time) and
+  automatically handle that.
+</p>
+<p>
+  In general we would only expect to use <code>@Request</code> and <code>RequestScope</code>
+  when we are not using <em>avaje-http</em>.
+</p>
 <h2 id="application-scope">ApplicationScope</h2>
 <p>
-  <code>ApplicationScope</code> provides access to the beans in the application scope.
+  <code>ApplicationScope</code> provides access to the beans in the application scope. ApplicationScope will
+  initialise with a BeanScope that contains all the singleton scoped beans. All the PostConstruct methods will
+  have been executed. A shutdown hook is registered and will invoke the PreDestroy methods on shutdown.
 </p>
 <h5>example</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get a bean from the context</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get a bean</span>
 <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">brew</span><span class="o">();</span>
 </pre></div>
@@ -1123,14 +1228,31 @@
 <h4>ApplicationScope.scope()</h4>
 <p>
   We use <em>ApplicationScope.scope()</em> to get the underlying <code>BeanScope</code>.
+  We often prefer to use the BeanScope with code to start the application as this
+  allows us to have tests that run the entire application with perhaps only a few
+  dependencies stubbed out. For example, run a component test that starts the application
+  but with all real components except for remote calls to another service mocked/stubbed out.
 </p>
 <h5>example</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get the underlying context</span>
-<span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">scope</span><span class="o">();</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="o">{</span>
 
-<span class="c1">// Get a bean from the context</span>
-<span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-<span class="n">coffeeMaker</span><span class="o">.</span><span class="na">brew</span><span class="o">();</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+      <span class="c1">// main just uses ApplicationScope.scope()</span>
+      <span class="k">new</span> <span class="n">App</span><span class="o">().</span><span class="na">startServer</span><span class="o">(</span><span class="mi">8080</span><span class="o">,</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">scope</span><span class="o">())</span>
+  <span class="o">}</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Tests can create a BeanScope with some mocks, stubs.</span>
+<span class="cm">   */</span>
+  <span class="kt">void</span> <span class="nf">startServer</span><span class="o">(</span><span class="kt">int</span> <span class="n">port</span><span class="o">,</span> <span class="n">BeanScope</span> <span class="n">scope</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoutes</span><span class="o">&gt;</span> <span class="n">webRoutes</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="n">Javalin</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+    <span class="n">app</span><span class="o">.</span><span class="na">routes</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">webRoutes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">::</span><span class="n">registerRoutes</span><span class="o">));</span>
+    <span class="n">app</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="n">port</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 
@@ -1179,7 +1301,7 @@
 </div>
 <p>
 The classic use case for this is registering controllers or routes to
- web frameworks like Sparkjava, Javlin, Rapidoid etc.
+ web frameworks like Sparkjava, Javalin, Rapidoid, Helidon, Undertow etc.
 </p>
 
 <h5>listByPriority(<em>type</em>)</h5>
@@ -1192,75 +1314,189 @@ The classic use case for this is registering controllers or routes to
 </pre></div>
 </div>
 
-<h3 id="context-builder">BeanScope.newBuilder()</h3>
+<h4 id="context-builder">BeanScope.newBuilder()</h4>
 <p>
-  For testing purposes we sometimes want to wire the beans but provide
-  test doubles, mocks, spies for some of the dependencies. We do this
-  using BeanScope builder.
+  We can programmatically create a BeanScope with the option on providing
+  some instances to use as dependencies. Most often we will do this for
+  component testing providing mocks, spies etc to be wired into the beans.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// provide dependencies to be wired</span>
+<span class="c1">// ... can be real things or test doubles</span>
+<span class="n">MyDependency</span> <span class="n">dependency</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">withBean</span><span class="o">(</span><span class="n">MyDependency</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">dependency</span><span class="o">)</span>
+  <span class="o">...</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+
+  <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  See <a href="#testing">Testing</a> for more on wiring with test doubles.
 </p>
 
-<h4 id="withMock">withMock()</h4>
+<h3 id="request-scope">RequestScope</h3>
 <p>
-  We can use <code>withMock()</code> to have <a href="https://site.mockito.org/">Mockito mocks</a>
-  injected in place of the normal behaviour.
+  Note that if we are using <a href="/http">avaje-http</a> then we will not explicitly
+  use RequestScope or <a href="#scope-request">@Request</a> - we would instead use
+  <a href="/http/#controller">@Controller</a>.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
+<p>
+  <code>RequestScope</code> is created from ApplicationScope or BeanScope.
+  We provide some dependencies which can be wired into <a href="#scope-request">@Request</a>
+  beans. We can obtain beans from the RequestScope to perform the required processing.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">try</span> <span class="o">(</span><span class="n">RequestScope</span> <span class="n">requestScope</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">newRequestScope</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">withBean</span><span class="o">(</span><span class="n">HttpRequest</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">request</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">withBean</span><span class="o">(</span><span class="n">HttpResponse</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">response</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
-  <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Heater</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">grinder</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="c1">// setup the mock</span>
-      <span class="n">when</span><span class="o">(</span><span class="n">grinder</span><span class="o">.</span><span class="na">grindBeans</span><span class="o">()).</span><span class="na">thenReturn</span><span class="o">(</span><span class="s">&quot;stub response&quot;</span><span class="o">);</span>
-    <span class="o">})</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+  <span class="n">requestScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">MyRequestProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">doStuff</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  An approximate alternative to using RequestScope is to put all the request scoped
+  dependencies into a new type and pass that as a method argument to singleton scoped
+  things to process.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">MyHttpRequest</span> <span class="n">request</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyHttpRequest</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
 
-    <span class="c1">// Act</span>
-    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">ApplicationScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">MySingletonProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">process</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  As soon as we want request scoped things to be dependencies "injected" by avaje-inject
+  rather than passed around via a method argument then we use RequestScope.
+</p>
+<h2 id="testing">Testing</h2>
+
+<h3 id="unit-testing">Unit testing</h3>
+<p>
+  When we are <em>unit testing</em> we are not using avaje-inject. We are focused on the
+  thing we want to test (object under test) and it's dependencies.
+</p>
+<p>
+  With unit testing in the test setup code will create the thing we are testing (object under test)
+  along with it's dependencies.
+</p>
+
+<h5>Mockito programmatic style</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// setup</span>
+<span class="kd">final</span> <span class="n">Pump</span> <span class="n">pump</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="kd">final</span> <span class="n">Grinder</span> <span class="n">grinder</span> <span class="o">=</span> <span class="n">mock</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CoffeeMaker</span><span class="o">(</span><span class="n">pump</span><span class="o">,</span> <span class="n">grinder</span><span class="o">);</span>
+
+<span class="c1">// act</span>
+<span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
+
+<span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpSteam</span><span class="o">();</span>
+<span class="n">verify</span><span class="o">(</span><span class="n">grinder</span><span class="o">).</span><span class="na">grindBeans</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<h5>Mockito junit5 extension</h5>
+<p>
+  Mockito provides a JUnit 5 extension <code>MockitoExtension</code> which can be used
+  with JUnit <code>@ExtendWith</code>. With this extension we can annotate fields with
+  <code>@Mock</code>, <code>@Spy</code> and <code>@Captor</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ExtendWith</span><span class="o">(</span><span class="nx">MockitoExtension</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">CoffeeMakerTest</span> <span class="o">{</span>
+
+  <span class="nd">@Mock</span> <span class="nx">Pump</span> <span class="nx">pump</span><span class="o">;</span>
+  <span class="nd">@Mock</span> <span class="nx">Grinder</span> <span class="nx">grinder</span><span class="o">;</span>
+
+  <span class="nd">@Test</span>
+  <span class="kt">void</span> <span class="nf">extensionStyle</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="c1">// setup</span>
+    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CoffeeMaker</span><span class="o">(</span><span class="n">pump</span><span class="o">,</span> <span class="n">grinder</span><span class="o">);</span>
+
+    <span class="c1">// act</span>
     <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
 
-    <span class="n">Grinder</span> <span class="n">grinder</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpSteam</span><span class="o">();</span>
     <span class="n">verify</span><span class="o">(</span><span class="n">grinder</span><span class="o">).</span><span class="na">grindBeans</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  Avaje-Inject provides a JUnit extension similar to this that
+</p>
+
+<h3 id="component-testing">Component testing</h3>
+<p>
+  Component testing is where we look to run tests that use much of the objects with few of
+  them mocked out or even nothing mocked out. With component testing we are looking to test
+  a scenario / piece of functionality with minimal to no mocking.
+</p>
+<p>
+  With avaje-inject component testing we are getting avaje-inject to "wire" most or all of
+  the application with potentially some objects as test doubles (mocks, spies, stubs or dummies).
+  For example, we might wire the entire application only using test double for an object that
+  makes remote rest calls to another system.
+</p>
+
+<h4>JUnit 5 InjectExtension</h4>
+<p>
+  Avaje-inject provides a JUnit 5 extension <code>InjectExtension</code> that we can use to
+  define <code>@Inject</code> as well as mockito <code>@Mock, @Spy, @Captor</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ExtendWith</span><span class="o">(</span><span class="nx">InjectExtension</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">CoffeeMakerTest</span> <span class="o">{</span>
+
+  <span class="nd">@Mock</span> <span class="nx">Pump</span> <span class="nx">pump</span><span class="o">;</span>
+  <span class="nd">@Mock</span> <span class="nx">Grinder</span> <span class="nx">grinder</span><span class="o">;</span>
+  <span class="nd">@Inject</span> <span class="nx">CoffeeMaker</span> <span class="nx">coffeeMaker</span><span class="o">;</span>
+
+  <span class="nd">@Test</span>
+  <span class="kt">void</span> <span class="nf">extensionStyle</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="c1">// act</span>
+    <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
+
+    <span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpSteam</span><span class="o">();</span>
+    <span class="n">verify</span><span class="o">(</span><span class="n">grinder</span><span class="o">).</span><span class="na">grindBeans</span><span class="o">();</span>
+  <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
 
+<p>
 
-<h4 id="withSpy">withSpy()</h4>
-<p>
-  We can use <code>withSpy()</code> to get the beans to be enhanced with <a href="https://www.baeldung.com/mockito-spy">Mockito Spy</a>.
 </p>
+
+<h4>Programmatic style component test</h4>
 <p>
-  We typically want to do this when we want the bean to have most or all of it's behaviour and
-  only stub out some of it's behaviour and track it's interactions.
+  For programmatic style component testing we create a BeanScope and define test doubles that
+  we want to use in place of the real things. We can use <code>withMock()</code> to get a
+  dependency to be a Mockito mock. We can use <code>withSpy()</code> to get a dependency to
+  be a Mockito spy. We can use <code>withBean()</code> to supply any sort of test double we
+  like.
 </p>
+
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
-<span class="kd">public</span> <span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
+<span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
 
   <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">withSpy</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">pump</span> <span class="o">-&gt;</span> <span class="o">{</span>
-      <span class="c1">// setup the spy, only stub out pumpWater()</span>
-      <span class="n">doNothing</span><span class="o">().</span><span class="na">when</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpWater</span><span class="o">();</span>
-    <span class="o">})</span>
+    <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
     <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
-
-    <span class="c1">// or setup here ...</span>
-    <span class="n">Pump</span> <span class="n">pump</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="n">doNothing</span><span class="o">().</span><span class="na">when</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpSteam</span><span class="o">();</span>
 
     <span class="c1">// act</span>
     <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
     <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
 
-    <span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpWater</span><span class="o">();</span>
     <span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpSteam</span><span class="o">();</span>
-  <span class="o">}</span>
-
+    <span class="n">verify</span><span class="o">(</span><span class="n">grinder</span><span class="o">).</span><span class="na">grindBeans</span><span class="o">();</span>
 <span class="o">}</span>
 </pre></div>
 </div>
-
 
 <h2 id="modules">Modules</h2>
 
@@ -1319,10 +1555,10 @@ The classic use case for this is registering controllers or routes to
   available for injecting into it's bean graph.
 </p>
 <p>
-  For <em>avaje-inject</em> internally this defines the order in which the bean contexts in each of the modules are created.
+  For <em>avaje-inject</em> internally this defines the order in which the beans in each of the modules are created.
   <em>avaje-inject</em> finds all the modules in the classpath (via Service loader) and then orders the modules based on the
-  dependsOn values. In the example above the "feature-toggle" bean context must be built first, and then the
-  beans it contains are available when building the "job-system" bean context.
+  dependsOn values. In the example above the "feature-toggle" beans must be built first, and then the
+  beans it contains are available when building the "job-system".
 </p>
 
 
