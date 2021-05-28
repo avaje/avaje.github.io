@@ -122,7 +122,6 @@
     </ul>
   </nav>
 </header>
-
 <h1 id="overview">Avaje Inject</h1>
 <p>
   Fast and light dependency injection library for Java and Kotlin developers.
@@ -262,8 +261,8 @@
 <p>
   Additionally we use <a href="#primary">@Primary</a> <a href="#secondary">@Secondary</a> annotations
   which work the same as Spring DI's <em>@Primary @Secondary</em> and also Micronaut DI's
-  <em>@Primary @Secondary</em>. These provide injection priority in the case of injecting
-  when multiple injection candidates are available.
+  <em>@Primary @Secondary</em>. These provide injection priority in the case when multiple injection
+  candidates are available.
 </p>
 <h2 id="dependency">Dependencies</h2>
 
@@ -415,6 +414,11 @@
   Put <code>@Singleton</code> on beans that we want dependency injection on.
   These are beans that are created ("wired") by dependency injection and put into the scope.
   They are then available to be injected into other beans.
+</p>
+<h5>Spring DI Note</h5>
+<p>
+  Spring <code>@Component</code>, <code>@Service</code> and <code>@Repository</code> are all
+  singleton scoped. With avaje-inject these would map to <code>@Singleton</code>.
 </p>
 
 <h3 id="inject">@Inject</h3>
@@ -673,7 +677,7 @@
 <p>
   Spring users will be familiar with the use of <code>@Autowired(required=false)</code>
   for wiring optional dependencies. With <em>avaje-inject</em> we instead use <code>Optional</code>
-  to inject optional dependencies.
+  or <code>@Nullable</code> to inject optional dependencies.
 </p>
 
 <h3 id="nullable">@Nullable</h3>
@@ -690,7 +694,7 @@
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Widget</span> <span class="n">widget</span><span class="o">;</span>
 
   <span class="nd">@Inject</span>
-  <span class="nx">Pump</span><span class="o">(</span><span class="nx">Heater</span> <span class="nx">heater</span><span class="o">,</span> <span class="nd">@Nullable</span> <span class="nx">widget</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nx">Pump</span><span class="o">(</span><span class="nx">Heater</span> <span class="nx">heater</span><span class="o">,</span> <span class="nd">@Nullable</span> <span class="nx">Widget</span> <span class="nx">widget</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">this</span><span class="o">.</span><span class="na">heater</span> <span class="o">=</span> <span class="n">heater</span><span class="o">;</span>
     <span class="k">this</span><span class="o">.</span><span class="na">widget</span> <span class="o">=</span> <span class="n">widget</span><span class="o">;</span>
   <span class="o">}</span>
@@ -783,7 +787,8 @@
 </p>
 <p>
   <em>@Factory</em> <em>@Bean</em> are equivalent to Spring DI <em>@Configuration</em> <em>@Bean</em>
-  and Micronaut <em>@Factory</em> <em>@Bean</em>.
+  and Micronaut <em>@Factory</em> <em>@Bean</em>. Guice users will see this as similar to Modules with
+  <em>@Provides</em> methods.
 </p>
 
 <h3 id="bean">@Bean</h3>
@@ -966,6 +971,9 @@
   they are injected.
 </p>
 <p>
+  Note that qualifier names are treated as case insensitive.
+</p>
+<p>
   Lets say we have a Store interface with multiple implementations. We can have
   multiple implementations with <em>@Named</em> qualifier like the example below.
 </p>
@@ -1110,7 +1118,7 @@
 <p>
   Both <code>java.lang.AutoCloseable</code> and <code>java.io.Closeable</code> are treated as <em>PreDestroy</em>
   lifecycle methods. Types that implement these interfaces do not need to annotate the <code>close()</code> method,
-  it will automatically be treated as if it had a <code>@PreDestroy</code>.
+  it will automatically be treated as if it had a <code>@PreDestroy</code> and executed when the bean scope is closed.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
@@ -1127,6 +1135,12 @@
   <span class="o">...</span>
 </pre></div>
 </div>
+
+<h3 id="shutdownHook">Shutdown hook</h3>
+<p>
+  When the <a href="#scope-application">ApplicationScope</a> is initialised it registers a JVM shutdown hook.
+  This is fired when the JVM is shutdown and this in turn invokes the PreDestroy methods.
+</p>
 <h2 id="scope">Scope</h2>
 
 <h3 id="scope-singleton">@Singleton</h3>
@@ -1230,9 +1244,13 @@
   We use <em>ApplicationScope.scope()</em> to get the underlying <code>BeanScope</code>.
   We often prefer to use the BeanScope with code to start the application as this
   allows us to have tests that run the entire application with perhaps only a few
-  dependencies stubbed out. For example, run a component test that starts the application
-  but with all real components except for remote calls to another service mocked/stubbed out.
+  dependencies mocked out (component testing).
+
+  For example, run a component test that starts the application using all real
+  components except for ones that make remote calls to another service  which are
+  mocked/stubbed.
 </p>
+
 <h5>example</h5>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="o">{</span>
 
@@ -1272,7 +1290,7 @@
 
 <h5>get(<em>type</em>, <em>qualifier</em>)</h5>
 <p>
-  Return a single bean given the type and name.
+  Return a single bean given the type and qualifier name.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Store</span> <span class="n">blueStore</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Store</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;blue&quot;</span><span class="o">);</span>
 <span class="n">blueStore</span><span class="o">.</span><span class="na">checkOrders</span><span class="o">();</span>
@@ -1369,7 +1387,7 @@ The classic use case for this is registering controllers or routes to
 </pre></div>
 </div>
 <p>
-  As soon as we want request scoped things to be dependencies "injected" by avaje-inject
+  When we want request scoped things to be dependencies that are "injected" by avaje-inject
   rather than passed around via a method argument then we use RequestScope.
 </p>
 <h2 id="testing">Testing</h2>
@@ -1402,7 +1420,8 @@ The classic use case for this is registering controllers or routes to
 <p>
   Mockito provides a JUnit 5 extension <code>MockitoExtension</code> which can be used
   with JUnit <code>@ExtendWith</code>. With this extension we can annotate fields with
-  <code>@Mock</code>, <code>@Spy</code> and <code>@Captor</code>.
+  <code>@Mock</code>, <code>@Spy</code> and <code>@Captor</code>. Again, this is all
+  Mockito - no avaje inject is used here.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ExtendWith</span><span class="o">(</span><span class="nx">MockitoExtension</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">CoffeeMakerTest</span> <span class="o">{</span>
@@ -1426,27 +1445,42 @@ The classic use case for this is registering controllers or routes to
 </pre></div>
 </div>
 <p>
-  Avaje-Inject provides a JUnit extension similar to this that
+  avaje-inject is NOT used in the above unit tests (as expected). We will see below that avaje-inject
+  provides a JUnit extension similar to the Mockito one and that uses the Mockito annotations
+  <code>@Mock, @Spy, @Captor</code> and also adds <code>@Inject</code>.
 </p>
 
 <h3 id="component-testing">Component testing</h3>
 <p>
-  Component testing is where we look to run tests that use much of the objects with few of
-  them mocked out or even nothing mocked out. With component testing we are looking to test
-  a scenario / piece of functionality with minimal to no mocking.
+  Component testing is where we look to run tests that use most of the objects with their real
+  behaviour and only a few of the objects with mocked / stubbed behaviour. With component testing
+  we are looking to test a scenario / piece of functionality with minimal to no mocking.
 </p>
 <p>
   With avaje-inject component testing we are getting avaje-inject to "wire" most or all of
   the application with potentially some objects as test doubles (mocks, spies, stubs or dummies).
-  For example, we might wire the entire application only using test double for an object that
-  makes remote rest calls to another system.
+  For example, we might wire the entire application only using test doubles for objects that
+  make remote calls to another system.
 </p>
 
 <h4>JUnit 5 InjectExtension</h4>
 <p>
-  Avaje-inject provides a JUnit 5 extension <code>InjectExtension</code> that we can use to
-  define <code>@Inject</code> as well as mockito <code>@Mock, @Spy, @Captor</code>.
+  avaje-inject provides a JUnit 5 extension <code>InjectExtension</code>. With this we use
+  <code>@Inject</code> as well as mockito's <code>@Mock, @Spy, @Captor</code> to define the
+  objects we wish to use in the test.
 </p>
+<p>
+  Add <em>avaje-inject-test</em> as a test dependency.
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-inject-test<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>6.0.RC3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ExtendWith</span><span class="o">(</span><span class="nx">InjectExtension</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">CoffeeMakerTest</span> <span class="o">{</span>
 
@@ -1466,10 +1500,19 @@ The classic use case for this is registering controllers or routes to
 <span class="o">}</span>
 </pre></div>
 </div>
-
 <p>
-
+  With <em>InjectExtension</em> avaje-inject will build a BeanScope will the appropriate mockito
+  mocks and spies and inject back into the test the appropriate objects out of the BeanScope.
 </p>
+<h4>@Named and @Qualifier</h4>
+<p>
+  We can use <code>@Named</code> and qualifiers as needed like below.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Mock</span> <span class="nd">@Blue</span> <span class="nx">Store</span> <span class="nx">blueStore</span><span class="o">;</span>
+
+<span class="nd">@Mock</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span> <span class="nx">Store</span> <span class="nx">redStore</span><span class="o">;</span>
+</pre></div>
+</div>
 
 <h4>Programmatic style component test</h4>
 <p>
@@ -1638,14 +1681,14 @@ The classic use case for this is registering controllers or routes to
 </p>
 <h5>Why not Micronaut?</h5>
 <p>
-  Micronaut DI and <em>avaje-inject</em> are both heavily influenced by Spring ID and
-  look very similar in feature set.
+  Micronaut DI and <em>avaje-inject</em> are both heavily influenced by Spring DI and
+  to some extent look pretty similar. avaje-inject has taken a source code generation
+  approach, excluded AOP and excluded <code>@Value</code> with a preference instead to
+  use a simple <a href="/config">avaje-config</a> style approach to external configuration.
 </p>
 <p>
-  Micronaut DI was relatively strongly linked to the rest of the Micronaut framework
-  where as <em>avaje-inject</em> is relatively small in comparison and focused on DI alone.
-  Micronaut generates bytecode where as <em>avaje-inject</em> generates source code
-  making the functionality of DI fully transparent to developers.
+  Ultimately <em>avaje-inject</em> is a relatively tiny library in comparison to Micronaut
+  DI and focused on DI alone.
 </p>
 <h2 id="http">http servers</h2>
 <p>
@@ -1697,6 +1740,7 @@ The classic use case for this is registering controllers or routes to
   injection candidates are available.
 </p>
 
+<p>&nbsp;</p>
 <h4 id="spring-translation">Spring DI translation</h4>
 <table class="table">
   <tr>
@@ -1705,7 +1749,7 @@ The classic use case for this is registering controllers or routes to
     <th width="10%">JSR-330</th>
   </tr>
   <tr>
-    <td>@Component, @Service, @Controller, @Repository</td>
+    <td>@Component, @Service, @Repository</td>
     <td><a href="#singleton">@Singleton</a></td>
     <td>Yes</td>
   </tr>
@@ -1722,17 +1766,17 @@ The classic use case for this is registering controllers or routes to
   <tr>
     <td>@Autowired(required=false)</td>
     <td><a href="#optional">@Inject Optional&lt;T&gt;</a></td>
-    <td>Yes</td>
+    <td>-</td>
   </tr>
   <tr>
     <td>@PostConstruct</td>
     <td><a href="#post-construct">@PostConstruct</a></td>
-    <td>Yes</td>
+    <td>JSR 250</td>
   </tr>
   <tr>
     <td>@PreDestroy</td>
     <td><a href="#pre-destroy">@PreDestroy</a></td>
-    <td>Yes</td>
+    <td>JSR 250</td>
   </tr>
   <tr>
     <td colspan="3" align="center" style="padding-top:2em;"><i>Non standard extensions to JSR-330</i></td>
@@ -1753,6 +1797,33 @@ The classic use case for this is registering controllers or routes to
     <td><b>No</b></td>
   </tr>
 </table>
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<h4>Spring DI translation <em>NOT</em> part of avaje-inject</h4>
+<table class="table">
+  <tr>
+    <th width="45%">Spring</th>
+    <th width="45%">Other</th>
+    <th width="10%"></th>
+  </tr>
+  <tr>
+    <td>@Value</td>
+    <td><a href="https://avaje.io/config/">avaje-config</a></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>@Controller</td>
+    <td><a href="/http/#controller">avaje-http @Controller</a></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>@Transactional</td>
+    <td><a href="https://ebean.io/docs/transactions/">Ebean @Transactional</a></td>
+    <td></td>
+  </tr>
+</table>
+
 
 <h3 id="aop">AOP</h3>
 <p>
