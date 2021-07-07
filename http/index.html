@@ -109,12 +109,12 @@
 <p>
   Better in terms of being much lighter and faster at runtime by using source code generation
   (java annotation processors) to adapt annotated rest controllers with (<code>@Path, @Get, @Post etc</code>)
-  to <a href="https://javalin.io">Javalin</a>, <a href="https://helidon.io">Helidon SE</a>
+  to <a target="_blank" href="https://javalin.io">Javalin</a>, <a target="_blank" href="https://helidon.io">Helidon SE</a>
   and similar http servers.
 </p>
 <p>
   Effectively we are replacing Jersey or RestEasy with source code generation and the capabilities
-  of <a href="https://javalin.io">Javalin</a> and <a href="https://helidon.io">Helidon SE</a>.
+  of <a target="_blank" href="https://javalin.io">Javalin</a> and <a target="_blank" href="https://helidon.io">Helidon SE</a>.
 </p>
 <p>
   Better also in terms of being simpler when compared with the internals of Jersey or RestEasy. It turns
@@ -124,7 +124,7 @@
 </p>
 <p>
   What we <b>lose</b> in doing this is built in
-  <a href="https://en.wikipedia.org/wiki/Content_negotiation">Content negotiation</a>. For example, if
+  <a target="_blank" href="https://en.wikipedia.org/wiki/Content_negotiation">Content negotiation</a>. For example, if
   we need endpoints that serve response content as <i>either</i> JSON or XML content based on request headers
   then we would to handle this ourselves.
 </p>
@@ -185,8 +185,8 @@
 <h4>Annotation processors</h4>
 <p>
   Add the annotation processors <em>avaje-inject-generator</em> and either
-  <em>avaje-http-javalin-generator</em> to target <a href="https://javalin.io">Javalin</a>
-  or <em>avaje-http-helidon-generator</em> to target <a href="https://helidon.io">Helidon SE</a>.
+  <em>avaje-http-javalin-generator</em> to target <a target="_blank" href="https://javalin.io">Javalin</a>
+  or <em>avaje-http-helidon-generator</em> to target <a target="_blank" href="https://helidon.io">Helidon SE</a>.
 </p>
 <p>
   We typically use <em>provided</em> scope for annotation processors.
@@ -241,7 +241,7 @@
 <h3 id="gradle">Gradle</h3>
 <p>
   See the example at:
-  <a href="https://github.com/dinject/examples/blob/master/javalin-gradle-java-basic/build.gradle">examples/javalin-gradle-java-basic/build.gradle</a>
+  <a target="_blank" href="https://github.com/dinject/examples/blob/master/javalin-gradle-java-basic/build.gradle">examples/javalin-gradle-java-basic/build.gradle</a>
 </p>
 <p>
   Use Gradle version 5.2 or greater which has better support for annotation processing.
@@ -1272,7 +1272,7 @@ The generated Javalin code for the above is.
   We can optionally add bean validation.
 </p>
 <p>
-  Example: <a href="https://github.com/dinject/examples/blob/master/javalin-maven-java-basic/src/main/java/org/example/myapp/web/HelloController.java#L30">HelloController</a>
+  Example: <a target="_blank" href="https://github.com/dinject/examples/blob/master/javalin-maven-java-basic/src/main/java/org/example/myapp/web/HelloController.java#L30">HelloController</a>
 </p>
 
 <h3>Add dependency</h3>
@@ -1369,7 +1369,7 @@ The generated Javalin code for the above is.
 
 <h2 id="roles-javalin">Javalin Roles</h2>
 <p>
-  Example reference <a href="https://github.com/avaje/avaje-http/blob/master/tests/test-javalin/src/main/java/org/example/myapp/web/HelloController.java#L58">test-javalin - HelloController</a>
+  Example reference <a target="_blank" href="https://github.com/avaje/avaje-http/blob/master/tests/test-javalin/src/main/java/org/example/myapp/web/HelloController.java#L58">test-javalin - HelloController</a>
 </p>
 <h4>Step 1: Create an enum that implements io.avaje.jex.Role</h4>
 <p>
@@ -1450,7 +1450,7 @@ The generated Javalin code for the above is.
 
 <h2 id="roles-jex">Jex Roles</h2>
 <p>
-  Example reference <a href="https://github.com/avaje/avaje-http/blob/master/tests/test-jex/src/main/java/org/example/web/HelloController.java#L28">test-jex - HelloController</a>
+  Example reference <a target="_blank" href="https://github.com/avaje/avaje-http/blob/master/tests/test-jex/src/main/java/org/example/web/HelloController.java#L28">test-jex - HelloController</a>
 </p>
 <p>
 
@@ -1537,7 +1537,7 @@ The generated Javalin code for the above is.
   that the controllers define.
 </p>
 <p>
-  Example <a href="https://github.com/dinject/examples/blob/master/javalin-maven-java-basic/src/main/resources/public/openapi.json">javalin-maven-java-basic</a>
+  Example <a target="_blank" href="https://github.com/dinject/examples/blob/master/javalin-maven-java-basic/src/main/resources/public/openapi.json">javalin-maven-java-basic</a>
 </p>
 
 <h3>Javadoc</h3>
@@ -1571,7 +1571,7 @@ The generated Javalin code for the above is.
   in the controllers package.
 </p>
 <p>
-  Example <a href="https://github.com/dinject/examples/blob/master/javalin-maven-java-basic/src/main/java/org/example/myapp/Main.java#L18">@OpenAPIDefinition</a>
+  Example <a target="_blank" href="https://github.com/dinject/examples/blob/master/javalin-maven-java-basic/src/main/java/org/example/myapp/Main.java#L18">@OpenAPIDefinition</a>
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@OpenAPIDefinition</span><span class="o">(</span>
   <span class="nx">info</span> <span class="o">=</span> <span class="nd">@Info</span><span class="o">(</span>
