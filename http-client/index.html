@@ -19,11 +19,13 @@
 <ul>
   <li><a href="#overview">Overview</a>
 </li>
+<li><a href="#getting-started">Getting started</a>
+</li>
 <li><a href="#dependencies">Dependencies</a>
 </li>
 <li><a href="#limitations">Limitations</a>
 </li>
-<li><a href="#jdk-intro">HttpClient Intro</a>
+<li><a href="#jdk-intro">JDK HttpClient Intro</a>
 </li>
 <li><a href="#quick-overview">Quick overview</a>
 </li>
@@ -63,6 +65,17 @@
       <li><a href="#auth-bearer">bearer token</a></li>
     </ul>
 </li>
+<li><a href="#client-api">Client API</a>
+    <ul>
+      <li><a href="#at-client">@Client</a></li>
+      <li><a href="#at-client-import">@Client.Import</a></li>
+      <li><a href="#obtain-api">Obtain API</a></li>
+      <li><a href="#generated-api">Generated source</a></li>
+      <li><a href="#api-response-types">Response types</a></li>
+      <li><a href="#api-response-body">BodyHandler</a></li>
+      <li><a href="#api-request-body">BodyPublisher</a></li>
+    </ul>
+</li>
 <li><a href="#10k">10k requests & Loom</a>
     <ul>
       <li><a href="#10k-async">async</a></li>
@@ -74,7 +87,18 @@
     </nav>
   </aside>
   <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><a href="/http">http</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">client</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="$gitsource" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
     
+
 <h1 id="overview">avaje http client</h1>
 
 <table width="100%">
@@ -132,12 +156,30 @@
 
   <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/repos/{owner}/{repo}/contributors&quot;</span><span class="o">)</span>
   <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">);</span>
-
 <span class="o">}</span>
 </pre></div>
 </div>
+<h5>API allowing async or sync use via HttpCall</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">interface</span> <span class="nc">GitHub</span> <span class="o">{</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/repos/{owner}/{repo}/contributors&quot;</span><span class="o">)</span>
+  <span class="n">HttpCall</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The Client API can also be a useful target given a Openapi/Swagger spec.
+  Given a Openapi spec generate a client API (or client and server API).
+  The plan is to add a maven plugin that takes an openapi spec and generates
+  the associated API (but this does not exist just yet).
+</p>
 
 
+<h2 id="getting-started">Getting started</h2>
+<ul>
+  <li><a href="/http-client/start">Get started with the base client</a></li>
+  <li><a href="/http-client/start#api-start">Get started with Client API generation</a></li>
+</ul>
 
 <h2 id="dependencies">Dependencies</h2>
 
@@ -218,6 +260,8 @@
 <ul>
   <li>No support for multipart-form body</li>
   <li>Retry (when specified) does not currently apply to <em>async</em> request processing</li>
+  <li>Currently no swagger/openapi to Client API generator</li>
+  <li>Currently no OpenTelemetry or OpenTracing interceptor/plugins</li>
 </ul>
 
 
@@ -231,27 +275,33 @@
   <li>A closer look at the <a target="_blank" href="https://golb.hplar.ch/2019/01/java-11-http-client.html">Java 11 HTTP Client</a></li>
 </ul>
 
+<h3 id="other-projects">Other JDK HttpClient projects</h3>
+<p>
+  Methanol is another project based on JDK HttpClient. Let me know of others and
+  I'll add them to the list below.
+</p>
+<ul>
+  <li><a href="https://github.com/mizosoft/methanol/">Methanol</a></li>
+</ul>
+
 
 <h3 id="quick-overview">Quick overview</h3>
 
 <h4>HttpClientContext</h4>
 <p>
-  Create a HttpClientContext with a base URL plus options for request logging,
-  JSON marshalling via Jackson or Gson, retry etc.
+  Create a HttpClientContext with a base URL and BodyAdapter (plus other options as necessary like retry,
+  interceptors etc).
 </p>
 <p>
-  Use the HttpClientContext to create requests. Requests can be executed synchronously or asynchronously with
+  Use HttpClientContext to create requests. Requests can be executed synchronously or asynchronously with
   CompletableFuture.
 </p>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="n">HttpClientContext</span> <span class="nf">client</span><span class="o">()</span> <span class="o">{</span>
-  <span class="k">return</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">withBaseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">withRequestListener</span><span class="o">(</span><span class="k">new</span> <span class="n">RequestLogger</span><span class="o">())</span>
-    <span class="o">.</span><span class="na">withBodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">()))</span>
-    <span class="c1">//.withBodyAdapter(new GsonBodyAdapter(new Gson()))</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
-<span class="o">}</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+  <span class="c1">//.bodyAdapter(new GsonBodyAdapter(new Gson()))</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
 </div>
 
@@ -304,8 +354,9 @@
 
 <h3>Loom vs Async</h3>
 <p>
-  With Loom we can use simple blocking requests and get the same non-blocking
-  behaviour as the <code>async()</code> requests.
+  With Loom we will be able to use simple blocking requests and get a similar
+  behaviour as the <code>async()</code> requests. This is an important factor
+  to keep in mind.
 </p>
 <p>
   See <a href="#10k">10K requests - Loom vs Async</a>
@@ -317,27 +368,33 @@
   with extra features for request interceptors, body adapters, retry.
 </p>
 <p>
-  Create a HttpClientContext with a base URL plus options for request logging,
-  JSON marshalling via Jackson or Gson, retry etc.
-</p>
-<p>
-  From HttpClientContext we create requests and execute them.
+  Create a HttpClientContext with a base URL plus BodyAdapter (e.g. JacksonBodyAdapter).
+  Additionally set other options like retry and request interceptors as necessary.
 </p>
 
-<h4>Example creating HttpClientContext</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span>
-  <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">withBaseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">withRequestListener</span><span class="o">(</span><span class="k">new</span> <span class="n">RequestLogger</span><span class="o">())</span>
-    <span class="o">.</span><span class="na">withBodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">()))</span>
-    <span class="c1">// .withBodyAdapter(new GsonBodyAdapter(new Gson()))</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
-</pre></div>
-</div>
 <p>
   Reference <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/HttpClientContext.Builder.html">HttpClientContext.Builder</a>
 </p>
 
+<h4>Creating HttpClientContext</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span>
+  <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+    <span class="c1">// .bodyAdapter(new GsonBodyAdapter(new Gson()))</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</pre></div>
+</div>
+<p>
+  From the HttpClientContext instance we create requests and execute them.
+</p>
+<h4>Create and execute requests</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">httpClientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">asString</span><span class="o">();</span>
+</pre></div>
+</div>
 
 <h2 id="request-body">Request body</h2>
 <p>
@@ -353,7 +410,7 @@
 
 <h5>Request body</h5>
 <ul>
-  <li>Object which is written as JSON content by default</li>
+  <li>Object which is written by the BodyAdapter, e.g. JacksonBodyAdapter writes as JSON content</li>
   <li>formParam() for url encoded form</li>
   <li>byte[], String, Path (file), InputStream</li>
   <li>Any <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpRequest.BodyPublishers.html">HttpRequest.BodyPublisher</a></li>
@@ -374,7 +431,7 @@
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">bean</span><span class="o">)</span>
   <span class="o">.</span><span class="na">POST</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">asDiscarding</span><span class="o">();</span>
+  <span class="o">.</span><span class="na">asVoid</span><span class="o">();</span>
 </pre></div>
 </div>
 
@@ -454,7 +511,7 @@
 </p>
 <p>
   <em>avaje-http-client</em> has API to use the common ones such as String, Void, byte[] etc
-  and we use <code>withHandler()</code> to use any BodyHandler implementation.
+  and <code>withHandler()</code> to use any BodyHandler implementation.
 </p>
 
 <h4>Summary of BodyHandlers</h4>
@@ -472,7 +529,8 @@
 
 <h3 id="bean">bean(Class&lt;T&gt;)</h3>
 <p>
-  Return the response via body adapter as a java bean/type (typically JSON).
+  Return the response via BodyAdapter as a java bean/type (typically JSON). The BodyAdapter
+  decodes from <code>byte[]</code>. Gzip decoding occurs based on <em>Content-Encoding</em> header.
 </p>
 <p>
   If the HTTP status code is in the error range this throws a <a href="#httpException">HttpException</a>.
@@ -488,7 +546,8 @@
 
 <h3 id="list">list(Class&lt;T&gt;)</h3>
 <p>
-  Return the response via body adapter as a list of java beans/type (typically JSON).
+  Return the response via BodyAdapter as a list of java beans/type (typically JSON). The BodyAdapter
+  decodes from <code>byte[]</code>. Gzip decoding occurs based on <em>Content-Encoding</em> header.
 </p>
 <p>
   If the HTTP status code is in the error range this throws a <a href="#httpException">HttpException</a>.
@@ -504,10 +563,11 @@
 
 <h3 id="stream">stream(Class&lt;T&gt;)</h3>
 <p>
-  Return the response via body adapter as a stream of java beans/type.
+  Return the response via BodyAdapter as a stream of java beans/type.
   The response is expected to be <code>application/x-json-stream</code>.
   Internally this uses <code>HttpResponse.BodyHandlers.asLines()</code> to
-  get a stream of lines <code>Stream&lt;String&gt;</code>.
+  get a stream of lines <code>Stream&lt;String&gt;</code>. In this case the BodyAdapter
+  decodes from <code>String</code> content and there is no gzip decoding supported.
 </p>
 <p>
   If the HTTP status code is in the error range this throws a <a href="#httpException">HttpException</a>.
@@ -524,7 +584,7 @@
 
 <h3 id="asVoid">asVoid()</h3>
 <p>
-  Return the as <code>HttpResponse&lt;Void&gt;</code> but the response
+  Return as <code>HttpResponse&lt;Void&gt;</code> but the response
   content is still available to be read in the case of error response.
 </p>
 <p>
@@ -541,9 +601,13 @@
 
 <h3 id="asDiscarding">asDiscarding()</h3>
 <p>
-  Return the as <code>HttpResponse&lt;Void&gt;</code> but the response
+  Return as <code>HttpResponse&lt;Void&gt;</code> but the response
   content is always discarded. Unlike <code>asVoid()</code> if there is an error
   response with content error content that content will not be available.
+</p>
+<p>
+  We use <em>asDiscarding()</em> when we only ever want the status code
+  and headers etc and never want the response body.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
@@ -554,7 +618,7 @@
 
 <h3 id="asString">asString()</h3>
 <p>
-  Return the as <code>HttpResponse&lt;String&gt;</code>.
+  Return as <code>HttpResponse&lt;String&gt;</code>.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
@@ -578,10 +642,8 @@
 
 <h2 id="httpException">HttpException</h2>
 <p>
-  HttpException is thrown when the status code is >= 300 and the call is one of <a href="#bean">bean</a>,
-  <a href="#list">list</a>, <a href="#stream">stream</a>, <a href="#asVoid">void</a>. Note that by default
-  redirects are automatically followed by HttpClient apart for HTTPS to HTTP so 300 range responses are
-  hence not expected and considered an error.
+  HttpException is thrown when the status code is not in 2XX range and the call is one of <a href="#bean">bean()</a>,
+  <a href="#list">list()</a>, <a href="#stream">stream()</a>, <a href="#asVoid">asVoid()</a>.
 </p>
 <p>
   Reference API javadoc <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/HttpException.html">HttpException</a>
@@ -611,9 +673,8 @@
   Commonly the <code>whenComplete()</code> callback will be used to process the async responses.
 </p>
 <p>
-  The <em>bean()</em>, <em>list()</em> and <em>stream()</em> responses throw a
-  <code><a href="#httpException">HttpException</a></code> if the status code >= 300 (noting that by default
-  redirects are followed apart for HTTPS to HTTP).
+  The <em>bean()</em>, <em>list()</em>, <em>stream()</em> and <em>asVoid()</em> responses throw a
+  <code><a href="#httpException">HttpException</a></code> if the status code is not in the 2XX range.
 </p>
 <p>
   Reference API javadoc <a href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/HttpAsyncResponse.html">HttpAsyncResponse</a>
@@ -709,6 +770,7 @@
   Reference API javadoc <a href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/HttpCall.html">HttpCall</a>
 </p>
 
+<h4>Example: call()</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpCall</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;&gt;</span> <span class="n">call</span> <span class="o">=</span>
   <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
     <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customers&quot;</span><span class="o">)</span>
@@ -741,9 +803,9 @@
 
 <h4>Example</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">clientContext</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">withBaseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
   <span class="o">...</span>
-  <span class="o">.</span><span class="na">withRequestIntercept</span><span class="o">(</span><span class="k">new</span> <span class="n">BasicAuthIntercept</span><span class="o">(</span><span class="s">&quot;myUsername&quot;</span><span class="o">,</span> <span class="s">&quot;myPassword&quot;</span><span class="o">))</span>  <span class="o">&lt;!--</span> <span class="n">HERE</span>
+  <span class="o">.</span><span class="na">requestIntercept</span><span class="o">(</span><span class="k">new</span> <span class="n">BasicAuthIntercept</span><span class="o">(</span><span class="s">&quot;myUsername&quot;</span><span class="o">,</span> <span class="s">&quot;myPassword&quot;</span><span class="o">))</span>  <span class="o">&lt;!--</span> <span class="n">HERE</span>
   <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
 </div>
@@ -762,16 +824,16 @@
 
   <span class="nd">@Override</span>
   <span class="kd">public</span> <span class="n">AuthToken</span> <span class="nf">obtainToken</span><span class="o">(</span><span class="n">HttpClientRequest</span> <span class="n">tokenRequest</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">AuthTokenResponse</span> <span class="n">res</span> <span class="o">=</span> <span class="n">tokenRequest</span>
+    <span class="n">MyAuthTokenResponse</span> <span class="n">res</span> <span class="o">=</span> <span class="n">tokenRequest</span>
       <span class="o">.</span><span class="na">url</span><span class="o">(</span><span class="s">&quot;https://foo/v2/token&quot;</span><span class="o">)</span>
       <span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;content-type&quot;</span><span class="o">,</span> <span class="s">&quot;application/json&quot;</span><span class="o">)</span>
       <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">authRequestAsJson</span><span class="o">())</span>
       <span class="o">.</span><span class="na">POST</span><span class="o">()</span>
-      <span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">AuthTokenResponse</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+      <span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">MyAuthTokenResponse</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
-    <span class="n">Instant</span> <span class="n">validUntil</span> <span class="o">=</span> <span class="n">Instant</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">plusSeconds</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">expires_in</span><span class="o">).</span><span class="na">minusSeconds</span><span class="o">(</span><span class="mi">60</span><span class="o">);</span>
+    <span class="n">Instant</span> <span class="n">validUntil</span> <span class="o">=</span> <span class="n">Instant</span><span class="o">.</span><span class="na">now</span><span class="o">().</span><span class="na">plusSeconds</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">expiresIn</span><span class="o">()).</span><span class="na">minusSeconds</span><span class="o">(</span><span class="mi">60</span><span class="o">);</span>
 
-    <span class="k">return</span> <span class="n">AuthToken</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">access_token</span><span class="o">,</span> <span class="n">validUntil</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">AuthToken</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">accessToken</span><span class="o">(),</span> <span class="n">validUntil</span><span class="o">);</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -780,9 +842,9 @@
 <h4>Step 2. Register with HttpClientContext</h4>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">withBaseUrl</span><span class="o">(</span><span class="s">&quot;https://foo&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://foo&quot;</span><span class="o">)</span>
   <span class="o">...</span>
-  <span class="o">.</span><span class="na">withAuthTokenProvider</span><span class="o">(</span><span class="k">new</span> <span class="n">MyAuthTokenProvider</span><span class="o">())</span> <span class="o">&lt;!--</span> <span class="n">HERE</span>
+  <span class="o">.</span><span class="na">authTokenProvider</span><span class="o">(</span><span class="k">new</span> <span class="n">MyAuthTokenProvider</span><span class="o">())</span> <span class="o">&lt;!--</span> <span class="n">HERE</span>
   <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
 </div>
@@ -793,6 +855,245 @@
   an <em>Authorization</em> header with <em>Bearer</em> token added. The token will be
   obtained for initial request and then renewed when the token has expired.
 </p>
+
+
+<h2 id="client-api">Client API</h2>
+<p>
+  We can define an interface and have the implementation generated. Similar to
+  JAX-RS Client, Retrofit, Feign.
+</p>
+<p>
+  When using Client API we need to add a dependency for <em>avaje-http-api</em>
+  which has the annotations and also add the annotation processor <em>avaje-http-client-generator</em>.
+</p>
+<h3>Getting started</h3>
+<p>
+  Goto <a href="start#api-start">Getting started with Client API</a> for step by step
+  instructions to get started.
+</p>
+
+<h3 id="at-client">@Client</h3>
+<p>
+  If we are creating the interface we can put <code>@Client</code> on the interface
+  to indicate that the generator should generate an implementation for it.
+</p>
+
+<h5>Example client API</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Client</span>
+<span class="kd">interface</span> <span class="nc">GitHub</span> <span class="o">{</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/repos/{owner}/{repo}/contributors&quot;</span><span class="o">)</span>
+  <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">);</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="at-client-import">@Client.Import</h3>
+<p>
+  If the interface is already defined (in say another project) then we can instead
+  use <code>@Client.Import</code> to indicate to the generator that it should
+  generate an implementation for the interface defined by <code>@Client.Import</code>.
+</p>
+<p>
+  We can put the <code>@Client.Import</code> on a <code>package-info</code> or any type.
+  Most commonly we would put it on the top level <em>package-info</em>.
+</p>
+
+<h5>Example client import</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Client.Import</span><span class="o">(</span><span class="nx">types</span> <span class="o">=</span> <span class="nx">org</span><span class="o">.</span><span class="na field">foo</span><span class="o">.</span><span class="na field">MyInterface</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kn">package</span> <span class="nn">org.bar</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Client</span><span class="o">;</span>
+</pre></div>
+</div>
+
+<h3 id="obtain-api">Obtain/use API</h3>
+<p>
+  We obtain the API implementation via <code>httpClientContext.create(T)</code> passing
+  our client interface type <em>T</em>.
+</p>
+
+<h4 id="client-create">Example: obtain implementation</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// create HttpClientContext</span>
+<span class="kd">final</span> <span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="c1">// obtain API implementation</span>
+<span class="kd">final</span> <span class="n">Github</span> <span class="n">github</span> <span class="o">=</span> <span class="n">httpClientContext</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Github</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+<span class="c1">// use it</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="n">contributors</span> <span class="o">=</span> <span class="n">github</span><span class="o">.</span><span class="na">contributors</span><span class="o">(</span><span class="s">&quot;ebean-orm&quot;</span><span class="o">,</span> <span class="s">&quot;ebean&quot;</span><span class="o">);</span>
+</pre></div>
+</div>
+
+<h3 id="generated-api">Generated implementation</h3>
+<p>
+  The <em>avaje-http-client-generator</em> annotation processor generates the
+  implementation as java source code. The generated source is typically found in:
+  <code>target/generated-sources/annotations</code>
+</p>
+<img src="/images/http-client-api-sources.png" width="400px">
+
+<p>&nbsp;</p>
+<h3>Example: Generated source</h3>
+<p>
+  The generated code for the <code>Github</code> interface above is:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.httpclient</span><span class="o">;</span>
+
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClientContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.example.Contributor</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.example.Github</span><span class="o">;</span>
+
+<span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-http-client-generator&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Github&#36;HttpClient</span> <span class="kd">implements</span> <span class="n">Github</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">HttpClientContext</span> <span class="n">clientContext</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">Github&#36;HttpClient</span><span class="o">(</span><span class="n">HttpClientContext</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">clientContext</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="c1">// GET /repos/{owner}/{repo}/contributors</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;repos&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">owner</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">repo</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;contributors&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Contributor</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="api-response-types">Response types</h3>
+<p>
+  Below is a tabe of the API response types can be used and the resulting generated code.
+</p>
+<table width="100%">
+  <tr>
+    <th width="50%">Method response type</th>
+    <th>Generated code</th>
+  </tr>
+
+  <tr><td>void</td><td>asVoid()</td></tr>
+  <tr><td>String</td><td>asPlainString().body()</td></tr>
+
+  <tr><td>T</td><td>bean(T.class)</td></tr>
+  <tr><td>List&lt;T&gt;</td><td>list(T.class)</td></tr>
+  <tr><td>Stream&lt;T&gt;</td><td>stream(T.class)</td></tr>
+  <tr><td>HttpResponse&lt;Void&gt;</td><td>asVoid()</td></tr>
+  <tr><td>HttpResponse&lt;String&gt;</td><td>asString()</td></tr>
+  <tr><td>HttpResponse&lt;byte[]&gt;</td><td>asByteArray()</td></tr>
+  <tr><td>HttpResponse&lt;InputStream&gt;</td><td>asInputStream()</td></tr>
+  <tr><td>HttpResponse&lt;Stream&lt;String&gt;&gt;</td><td>asLines()</td></tr>
+  <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+
+
+  <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+<!--  <tr><td><b>CompletableFuture</b></td><td>&nbsp;</td></tr>-->
+
+  <tr><td>CompletableFuture&lt;T&gt;</T></td><td>async().bean(T.class)</td></tr>
+  <tr><td>CompletableFuture&lt;List&lt;T&gt;&gt;</td><td>async().list(T.class)</td></tr>
+  <tr><td>CompletableFuture&lt;Stream&lt;T&gt;&gt;</td><td>async().stream(T.class)</td></tr>
+
+  <tr><td>CompletableFuture&lt;HttpResponse&lt;Void&gt;&gt;</td><td>async().asVoid()</td></tr>
+  <tr><td>CompletableFuture&lt;HttpResponse&lt;String&gt;&gt;</td><td>async().asString()</td></tr>
+  <tr><td>CompletableFuture&lt;HttpResponse&lt;byte[]&gt;&gt;</td><td>async().asByteArray()</td></tr>
+  <tr><td>CompletableFuture&lt;HttpResponse&lt;InputStream&gt;&gt;</td><td>async().asInputStream()</td></tr>
+  <tr><td>CompletableFuture&lt;HttpResponse&lt;Stream&lt;String&gt;&gt;&gt;</td><td>async().asLines()</td></tr>
+
+  <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+<!--  <tr><td><b>HttpCall</b></td><td>&nbsp;</td></tr>-->
+
+  <tr><td>HttpCall&lt;T&gt;</T></td><td>call().bean(T.class)</td></tr>
+  <tr><td>HttpCall&lt;List&lt;T&gt;&gt;</td><td>call().list(T.class)</td></tr>
+  <tr><td>HttpCall&lt;Stream&lt;T&gt;&gt;</td><td>call().stream(T.class)</td></tr>
+
+  <tr><td>HttpCall&lt;HttpResponse&lt;Void&gt;&gt;</td><td>call().asVoid()</td></tr>
+  <tr><td>HttpCall&lt;HttpResponse&lt;String&gt;&gt;</td><td>call().asString()</td></tr>
+  <tr><td>HttpCall&lt;HttpResponse&lt;byte[]&gt;&gt;</td><td>call().asByteArray()</td></tr>
+  <tr><td>HttpCall&lt;HttpResponse&lt;InputStream&gt;&gt;</td><td>call().asInputStream()</td></tr>
+  <tr><td>HttpCall&lt;HttpResponse&lt;Stream&lt;String&gt;&gt;&gt;</td><td>call().asLines()</td></tr>
+
+</table>
+
+<h3 id="api-response-body">HttpResponse.BodyHandler parameter</h3>
+<p>
+  The method can also declare one parameter of type <code>java.net.http.HttpResponse.BodyHandler</code>
+  and this will be used to handle the response body. This can be a specific generic type like
+  <code>BodyHandler&lt;Path&gt;</code> or more general type like <code>BodyHandler&lt;T&gt;</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+<span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Path</span><span class="o">&gt;</span> <span class="nf">getWithHandler</span><span class="o">(</span><span class="n">String</span> <span class="n">id</span><span class="o">,</span> <span class="n">HttpResponse</span><span class="o">.</span><span class="na">BodyHandler</span><span class="o">&lt;</span><span class="n">Path</span><span class="o">&gt;</span> <span class="n">myHandler</span><span class="o">,</span> <span class="n">String</span> <span class="n">other</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  The generated code uses the BodyHandler parameter to handle the response body. The resulting generated code is:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET /{id}</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Path</span><span class="o">&gt;</span> <span class="nf">getWithHandler</span><span class="o">(</span><span class="n">String</span> <span class="n">id</span><span class="o">,</span> <span class="n">BodyHandler</span><span class="o">&lt;</span><span class="n">Path</span><span class="o">&gt;</span> <span class="n">myHandler</span><span class="o">,</span> <span class="n">String</span> <span class="n">other</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="n">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;other&quot;</span><span class="o">,</span> <span class="n">other</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">withHandler</span><span class="o">(</span><span class="n">myHandler</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  We can also use a more general handler like <code>HttpResponse.BodyHandler&lt;T&gt;</code>.
+  For example:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+<span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="nf">getWithGeneralHandler</span><span class="o">(</span><span class="n">String</span> <span class="n">id</span><span class="o">,</span> <span class="n">HttpResponse</span><span class="o">.</span><span class="na">BodyHandler</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">myHandler</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  The generated code uses the BodyHandler parameter to handle the response body. The resulting generated code is:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET /{id}</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="nf">getWithGeneralHandler</span><span class="o">(</span><span class="n">String</span> <span class="n">id</span><span class="o">,</span> <span class="n">BodyHandler</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">myHandler</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="n">id</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">withHandler</span><span class="o">(</span><span class="n">myHandler</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="api-request-body">HttpRequest.BodyPublisher parameter</h3>
+<p>
+  The method can also declare one parameter of type <code>java.net.http.HttpRequest.BodyPublisher</code>
+  and this will be used for the request body.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;/{id}/foo/{name}&quot;</span><span class="o">)</span>
+<span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="nf">postWithBody</span><span class="o">(</span><span class="n">String</span> <span class="n">id</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">HttpRequest</span><span class="o">.</span><span class="na">BodyPublisher</span> <span class="n">body</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  The generated code uses the BodyPublisher parameter as the request body. The resulting generated code is:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// POST /{id}/foo/{name}</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="nf">postWithBody</span><span class="o">(</span><span class="n">String</span> <span class="n">id</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">BodyPublisher</span> <span class="n">body</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="n">id</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">name</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">body</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">POST</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">asVoid</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 
 
 

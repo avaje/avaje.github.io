@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="/http-client">Back to HttpClient</a>
+</li>
+<li><a href="#A1">Getting started</a>
+    <ul>
+      <li><a href="#A1">A1. Dependencies</a></li>
+      <li><a href="#A2">A2. HttpClientContext</a></li>
+      <li><a href="#A3">A3. Record class</a></li>
+      <li><a href="#A4">A4. Make the request</a></li>
+      <li><a href="#A-all-code">All the code</a></li>
+    </ul>
+</li>
+<li><a href="#api-start">Client API start</a>
+    <ul>
+      <li><a href="#B1">B1. Dependencies</a></li>
+      <li><a href="#B2">B2. Create interface</a></li>
+      <li><a href="#B3">B3. IntelliJ IDEA</a></li>
+      <li><a href="#B4">B4. Generated source</a></li>
+      <li><a href="#B5">B5. Use the interface</a></li>
+    </ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/http/">http</a><span class="sep">&nbsp;/&nbsp;</span><a href="/http-client/">client</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">getting started</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="$gitsource" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+
+<h3 id="A1">A1. Add dependencies</h3>
+<p>
+  Add <em>avaje-http-client</em> and <em>jackson-databind</em> as a dependencies.
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-http-client<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.8<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>com.fasterxml.jackson.core<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jackson-databind<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>2.12.3<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+<h3 id="A2">A2. Create HttpClientContext</h3>
+<p>
+  We will use <code>https://api.github.com</code> as the base URL and use
+  <code>JacksonBodyAdapter</code> to decode the json response.
+</p>
+<p>
+  Often we want to use a specific Jackson ObjectMapper and pass that to
+  JacksonBodyAdapter. The default constructor for JacksonBodyAdapter
+  uses an ObjectMapper with reasonable default options.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">final</span> <span class="n">HttpClientContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<h3 id="A3">A3. Add "record/data" class Contributor</h3>
+<p>
+  We will use this to hold the response json results.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Contributor</span> <span class="o">{</span>
+  <span class="c1">// just using public fields to get going ...</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">login</span><span class="o">;</span>
+  <span class="kd">public</span> <span class="kt">int</span> <span class="n">contributions</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+
+<h3 id="A4">A4. Make the request</h3>
+<p>
+  The below used <em>avaje</em> as the organisation and <em>avaje-http</em>
+  as the repo.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="n">contributors</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;repos/avaje/avaje-http/contributors&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Contributor</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+<span class="k">for</span> <span class="o">(</span><span class="n">Contributor</span> <span class="n">contributor</span> <span class="o">:</span> <span class="n">contributors</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">contributor</span><span class="o">.</span><span class="na">login</span> <span class="o">+</span> <span class="s">&quot; contributions:&quot;</span> <span class="o">+</span> <span class="n">contributor</span><span class="o">.</span><span class="na">contributions</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+
+<h3 id="A-all-code">All the code</h3>
+<p>
+  All the code from the prior steps combined is:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClientContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.JacksonBodyAdapter</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Contributor</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">login</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="n">contributions</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="kd">final</span> <span class="n">HttpClientContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="n">contributors</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;repos/avaje/avaje-http/contributors&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Contributor</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="k">for</span> <span class="o">(</span><span class="n">Contributor</span> <span class="n">contributor</span> <span class="o">:</span> <span class="n">contributors</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">contributor</span><span class="o">.</span><span class="na">login</span> <span class="o">+</span> <span class="s">&quot; contributions:&quot;</span> <span class="o">+</span> <span class="n">contributor</span><span class="o">.</span><span class="na">contributions</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h1 id="api-start">Client API start</h1>
+
+<h3 id="B1">B1. Add dependencies</h3>
+<p>
+  In addition to avaje-http-client and jackson-databind
+  we need to add <em>avaje-http-api</em> and <em>avaje-http-client-generator</em>
+  as dependencies.
+</p>
+<p>
+  Note that <em>avaje-http-client-generator</em> is the annotation processor
+  that generates the implementation for our Client API.
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-http-client<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.9<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>com.fasterxml.jackson.core<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>jackson-databind<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>2.12.3<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-http-api<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.9<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+
+<span class="c">&lt;!-- Annotation processor --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-http-client-generator<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.9<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<p>
+  If there are other annotation processors and they are specified via
+  <em>build / plugins / maven-compiler-plugin / annotationProcessorPaths</em>
+  then we add <em>avaje-http-client-generator</em> there instead.
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;annotationProcessorPaths&gt;</span> <span class="c">&lt;!-- All annotation processors specified here --&gt;</span>
+      <span class="nt">&lt;path&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>avaje-http-client-generator<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>1.9<span class="nt">&lt;/version&gt;</span>
+      <span class="nt">&lt;/path&gt;</span>
+      <span class="nt">&lt;path&gt;</span>
+          ... other annotation processor ...
+      <span class="nt">&lt;/path&gt;</span>
+    <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</pre></div>
+</div>
+
+
+<h3 id="B2">B2. Create interface</h3>
+<p>
+  Create a package <code>org.example</code> and create an interface
+  called <code>Github</code> in that package like below:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Client</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Get</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+
+<span class="nd">@Client</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Github</span> <span class="o">{</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/repos/{owner}/{repo}/contributors&quot;</span><span class="o">)</span>
+  <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">);</span>
+
+
+  <span class="kd">class</span> <span class="nc">Contributor</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="n">login</span><span class="o">;</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="n">contributions</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h4>@Client</h4>
+<p>
+  The interface marked with <code>@Client</code> it will be picked
+  up by the <em>avaje-http-client-generator</em> annotation processor
+  which will generate the implementation for the interface.
+</p>
+
+<h3 id="B3">B3. IntelliJ IDEA</h3>
+<p>
+  When using IntelliJ we can check if
+  <code>target / generated-sources / annotations</code> is marked as
+  a <em>generated source</em>.
+</p>
+
+<table width="80%">
+  <tr>
+    <td>
+      <img src="/images/client-api-b1-generated-sources.png" width="250px">
+    </td>
+    <td width="50%" valign="top">
+      <p class="small-font">
+        Here <code>target / generated-sources / annotations</code>
+        is currently not treated as a <b>generated source</b>
+        (still orange)
+      </p>
+      <p class="small-font">
+        We can see that <code>Github$HttpClient.java</code>
+        has been generated but IntelliJ isn't aware of it as
+        generated source yet.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<table width="80%">
+  <tr>
+    <td width="40%" valign="top">
+      <p class="small-font">
+        On <code>target / generated-sources / annotations</code>
+      </p>
+      <p class="small-font">
+        - right-mouse-click <br/>
+        - Mark Directory as<br/>
+        - Generated Sources Root<br/>
+      </p>
+    </td>
+    <td>
+      <img src="/images/client-api-b2-mark-generated-sources.png" width="400px">
+    </td>
+  </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<table width="80%">
+  <tr>
+    <td>
+      <img src="/images/client-api-b3-generated-sources-ok.png" width="250px">
+    </td>
+    <td width="50%" valign="top">
+      <p class="small-font">
+        <code>target / generated-sources / annotations</code>
+        is now marked as <b>generated source</b>
+      </p>
+      <p class="small-font">
+        In IntelliJ IDE we will now be able to navigate
+        from the interface to the implementation.
+      </p>
+      <p class="small-font">
+        We can change the interface and recompile and the
+        implementation will be regenerated to suit.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<h3 id="B4">B4. Generated source</h3>
+<p>
+  For the <code>Github</code> interface there would be generated source
+  for <code>Github$HttpClient</code> found in <code>target / generated-sources / annotations</code>.
+</p>
+<p>
+  The generated source will look like:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.httpclient</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClientContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.example.Github</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.example.Github.Contributor</span><span class="o">;</span>
+
+<span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-http-client-generator&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Github&#36;HttpClient</span> <span class="kd">implements</span> <span class="n">Github</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">HttpClientContext</span> <span class="n">clientContext</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">Github&#36;HttpClient</span><span class="o">(</span><span class="n">HttpClientContext</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">clientContext</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="c1">// GET /repos/{owner}/{repo}/contributors</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;repos&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">owner</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">repo</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;contributors&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Contributor</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="B5">B5. Use the interface</h3>
+<p>
+  We can obtain the implementation via <code>HttpClientContext</code> <code>create(T.class)</code>
+  method.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">final</span> <span class="n">Github</span> <span class="n">github</span> <span class="o">=</span> <span class="n">httpClientContext</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Github</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  The full code example is below.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClientContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.JacksonBodyAdapter</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ApiMain</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="kd">final</span> <span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="c1">// obtain API ...</span>
+    <span class="kd">final</span> <span class="n">Github</span> <span class="n">github</span> <span class="o">=</span> <span class="n">httpClientContext</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Github</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="c1">// use the API ...</span>
+    <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Github</span><span class="o">.</span><span class="na">Contributor</span><span class="o">&gt;</span> <span class="n">contributors</span> <span class="o">=</span> <span class="n">github</span><span class="o">.</span><span class="na">contributors</span><span class="o">(</span><span class="s">&quot;avaje&quot;</span><span class="o">,</span> <span class="s">&quot;avaje-http&quot;</span><span class="o">);</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">Github</span><span class="o">.</span><span class="na">Contributor</span> <span class="n">contributor</span> <span class="o">:</span> <span class="n">contributors</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">contributor</span><span class="o">.</span><span class="na">login</span><span class="o">+</span><span class="s">&quot; contributions: &quot;</span><span class="o">+</span><span class="n">contributor</span><span class="o">.</span><span class="na">contributions</span><span class="o">);</span>
+    <span class="o">}</span>
+
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>
