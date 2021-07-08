@@ -65,6 +65,12 @@
       <li><a href="#auth-bearer">bearer token</a></li>
     </ul>
 </li>
+<li><a href="#logging">Logging</a>
+    <ul>
+      <li><a href="#logging-summary">summary</a></li>
+      <li><a href="#logging-body">detail</a></li>
+    </ul>
+</li>
 <li><a href="#client-api">Client API</a>
     <ul>
       <li><a href="#at-client">@Client</a></li>
@@ -74,6 +80,14 @@
       <li><a href="#api-response-types">Response types</a></li>
       <li><a href="#api-response-body">BodyHandler</a></li>
       <li><a href="#api-request-body">BodyPublisher</a></li>
+      <li><a href="#path">@Path</a></li>
+      <li><a href="#pathParameters">Path parameters</a></li>
+      <li><a href="#queryParam">@QueryParam</a></li>
+      <li><a href="#beanParam">@BeanParam</a></li>
+      <li><a href="#form">@Form</a></li>
+      <li><a href="#formParam">@FormParam</a></li>
+      <li><a href="#formBeans">Form beans</a></li>
+      <li><a href="#header">@Header</a></li>
     </ul>
 </li>
 <li><a href="#10k">10k requests & Loom</a>
@@ -857,6 +871,37 @@
 </p>
 
 
+<h2 id="logging">Logging</h2>
+<p>
+  By default request response logging is built in (via <code>RequestLogger</code>)
+  and we enable it via setting the log level to <code>DEBUG</code> or <code>TRACE</code>
+  for <code>io.avaje.http.client.RequestLogger</code>
+</p>
+<h5>Example: Logback</h5>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;logger</span> <span class="na">name=</span><span class="s">&quot;io.avaje.http.client.RequestLogger&quot;</span> <span class="na">level=</span><span class="s">&quot;trace&quot;</span><span class="nt">/&gt;</span>
+</pre></div>
+</div>
+
+<h4 id="logging-summary">DEBUG</h4>
+<p>
+  Summary logging that includes the response status code and execution time is logged
+  at <code>DEBUG</code> level.
+</p>
+<h4 id="logging-detail">TRACE</h4>
+<p>
+  Logging that includes the request and response <em>headers</em> plus the <em>body</em>
+  content is logged at <code>TRACE</code> level.
+</p>
+
+<h3>Suppression</h3>
+<p>
+  Logging is suppressed for <em>Authorization</em> headers and requests used by
+  <a href="#auth-bearer">AuthTokenProvider</a>. Additionally logging can be
+  suppressed on requests via <code>HttpClientRequest.suppressLogging()</code>.
+</p>
+
+
+
 <h2 id="client-api">Client API</h2>
 <p>
   We can define an interface and have the implementation generated. Similar to
@@ -1095,6 +1140,356 @@
 </pre></div>
 </div>
 
+<h3 id="path">@Path</h3>
+<p>
+  We can optionally put <code>@Path</code> on the interface type. This path is prefixed to the
+  paths defined on the verb annotations <code>@Get, @Post, @Put ...</code>.
+</p>
+<p>
+  For example, with <code>@Path("/api/cats")</code> all the paths defined have <code>/api/cats</code> prefixed.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Client</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/api/cats&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Cats</span> <span class="o">{</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;{id}&quot;</span><span class="o">)</span>
+  <span class="n">Cat</span> <span class="nf">byId</span><span class="o">(</span><span class="n">UUID</span> <span class="n">id</span><span class="o">);</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;{id}/operations&quot;</span><span class="o">)</span>
+  <span class="n">List</span><span class="o">&lt;</span><span class="n">Operation</span><span class="o">&gt;</span> <span class="nf">operations</span><span class="o">(</span><span class="n">UUID</span> <span class="n">id</span><span class="o">,</span> <span class="n">OffsetDateTime</span> <span class="n">since</span><span class="o">);</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;all&quot;</span><span class="o">)</span>
+  <span class="n">Stream</span><span class="o">&lt;</span><span class="n">Cat</span><span class="o">&gt;</span> <span class="nf">all</span><span class="o">();</span>
+
+  <span class="nd">@Post</span>
+  <span class="kt">void</span> <span class="nf">create</span><span class="o">(</span><span class="n">Cat</span> <span class="n">cat</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The generated paths for the methods above all have <code>/api/cats</code> prefix:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET {id}</span>
+<span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;api&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;cats&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">id</span><span class="o">)</span>
+
+<span class="c1">// GET {id}/operations</span>
+<span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;api&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;cats&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">id</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;operations&quot;</span><span class="o">)</span>
+
+<span class="c1">// GET all</span>
+<span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;api&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;cats&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;all&quot;</span><span class="o">)</span>
+
+<span class="c1">// POST</span>
+<span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;api&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;cats&quot;</span><span class="o">)</span>
+</pre></div>
+</div>
+
+<h3 id="pathParameters">Path parameters</h3>
+<p>
+  Path parameters start with <code>{</code> and end with <code>}</code> and matched
+  to method parameter names. So unlike JAX-RS we do not need a <code>@PathParam</code>
+  annotation.
+</p>
+<p>
+  For example <code>{id}</code>, <code>{name}</code>, <code>{startDate}</code>
+  in the path are matched to method parameters of the same name.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}/{startDate}/{type}&quot;</span><span class="o">)</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Bazz</span><span class="o">&gt;</span> <span class="nf">findBazz</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">,</span> <span class="n">LocalDate</span> <span class="n">startDate</span><span class="o">,</span> <span class="n">String</span> <span class="n">type</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  The generated code includes <code>.path(id).path(startDate).path(type)</code>:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET /{id}/{startDate}/{type}</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Bazz</span><span class="o">&gt;</span> <span class="nf">findBazz</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">,</span> <span class="n">LocalDate</span> <span class="n">startDate</span><span class="o">,</span> <span class="n">String</span> <span class="n">type</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="n">id</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">startDate</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">type</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Bazz</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  Unlike JAX-RS we do not need a <code>@PathParam</code> annotation.
+</p>
+
+
+<h3 id="queryParam">@QueryParam</h3>
+<p>
+  We explicitly specify query parameters using <code>@QueryParam</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Explicit query parameter order-by</span>
+
+<span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{bornAfter}&quot;</span><span class="o">)</span>
+<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">findCats</span><span class="o">(</span><span class="nx">LocalDate</span> <span class="nx">bornAfter</span><span class="o">,</span> <span class="nd">@QueryParam</span><span class="o">(</span><span class="s">&quot;order-by&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">orderBy</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  The generated code includes <code>.queryParam("order-by", orderBy)</code>
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET /{bornAfter}</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Cat</span><span class="o">&gt;</span> <span class="nf">findCats</span><span class="o">(</span><span class="n">LocalDate</span> <span class="n">bornAfter</span><span class="o">,</span> <span class="n">String</span> <span class="n">orderBy</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="n">bornAfter</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;order-by&quot;</span><span class="o">,</span> <span class="n">orderBy</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Cat</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<h4>Implied query parameters</h4>
+<p>
+  Query parameters can be <em>implied</em> by not being a path parameter.
+  That is, if a method parameter does not match a path parameter then it is
+  implied to be a query parameter.
+</p>
+<p>
+  The following 3 declarations are exactly the same with all 3 having
+  a query parameters for <code>orderBy</code>
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{bornAfter}&quot;</span><span class="o">)</span>
+<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">findCats</span><span class="o">(</span><span class="nx">LocalDate</span> <span class="nx">bornAfter</span><span class="o">,</span> <span class="nd">@QueryParam</span><span class="o">(</span><span class="s">&quot;orderBy&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">orderBy</span><span class="o">);</span>
+
+<span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{bornAfter}&quot;</span><span class="o">)</span>
+<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">findCats</span><span class="o">(</span><span class="nx">LocalDate</span> <span class="nx">bornAfter</span><span class="o">,</span> <span class="nd">@QueryParam</span> <span class="nx">String</span> <span class="nx">orderBy</span><span class="o">);</span>
+
+<span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{bornAfter}&quot;</span><span class="o">)</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Cat</span><span class="o">&gt;</span> <span class="nf">findCats</span><span class="o">(</span><span class="n">LocalDate</span> <span class="n">bornAfter</span><span class="o">,</span> <span class="n">String</span> <span class="n">orderBy</span><span class="o">);</span>  <span class="c1">// orderBy implied as query parameter</span>
+</pre></div>
+</div>
+
+<p>
+  Note that we must explicitly use <code>@QueryParam</code> when the query parameter
+  is not a valid java identifier. For example, if the query parameter includes a hyphen
+  then we must use <code>@QueryParam</code> explicitly.
+</p>
+
+
+<h3 id="beanParam">@BeanParam</h3>
+<p>
+  When we have a lot of query parameters or if we have query parameters
+  that are common to many endpoints then we look to use <code>@BeanParam</code>.
+</p>
+<p>
+  We can create a bean and all the properties on the bean default to being
+  query parameters and annotate this with <code>@BeanParam</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="n">record</span> <span class="nf">Common</span><span class="o">(</span>
+  <span class="n">Long</span> <span class="n">firstRow</span><span class="o">,</span>
+  <span class="n">Long</span> <span class="n">maxRows</span><span class="o">,</span>
+  <span class="n">String</span> <span class="n">sortBy</span><span class="o">,</span>
+  <span class="n">String</span> <span class="n">filter</span><span class="o">)</span> <span class="o">{</span> <span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  Use a record type or any type that has getter methods, record style getter methods or public fields.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Common</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="n">Long</span> <span class="n">firstRow</span><span class="o">;</span>
+  <span class="kd">public</span> <span class="n">Long</span> <span class="n">maxRows</span><span class="o">;</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">sortBy</span><span class="o">;</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">filter</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  We annotate the method parameter with <code>@BeanParam</code>
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;search/{type}&quot;</span><span class="o">)</span>
+<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">searchCats</span><span class="o">(</span><span class="nx">String</span> <span class="nx">type</span><span class="o">,</span> <span class="nd">@BeanParam</span> <span class="nx">Common</span> <span class="nx">commonParams</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  Generated code has <code>queryParam()</code> for each of the properties:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET search/{type}</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Cat</span><span class="o">&gt;</span> <span class="nf">searchCats</span><span class="o">(</span><span class="n">String</span> <span class="n">type</span><span class="o">,</span> <span class="n">Common</span> <span class="n">commonParams</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;search&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">type</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;firstRow&quot;</span><span class="o">,</span> <span class="n">commonParams</span><span class="o">.</span><span class="na">firstRow</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;maxRows&quot;</span><span class="o">,</span> <span class="n">commonParams</span><span class="o">.</span><span class="na">maxRows</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;sortBy&quot;</span><span class="o">,</span> <span class="n">commonParams</span><span class="o">.</span><span class="na">sortBy</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;filter&quot;</span><span class="o">,</span> <span class="n">commonParams</span><span class="o">.</span><span class="na">filter</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Cat</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h4>JAX-RS @BeanParam</h4>
+<p>
+  Our <em>@BeanParam</em> is the same as JAX-RS <em>@BeanParam</em> except the properties
+  default to being query parameters. With JAX-RS we need to explicitly annotate each of the properties.
+  We can do this because we also have <a href="#form">@Form</a> and "Form beans".
+</p>
+
+<h4>BeanParam with @Header properties</h4>
+<p>
+  The properties on a "bean" default to being query parameters. We put
+  <a href="#header">@Header</a> on properties that are instead headers.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="n">record</span> <span class="nf">Common</span><span class="o">(</span>
+  <span class="n">Long</span> <span class="n">firstRow</span><span class="o">,</span>
+  <span class="n">Long</span> <span class="n">maxRows</span><span class="o">,</span>
+  <span class="n">String</span> <span class="n">sortBy</span><span class="o">,</span>
+  <span class="n">String</span> <span class="n">filter</span><span class="o">,</span>
+  <span class="nd">@Header</span><span class="o">(</span><span class="s">&quot;X-Mod&quot;</span><span class="o">)</span>
+  <span class="n">String</span> <span class="n">modification</span><span class="o">)</span> <span class="o">{</span> <span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  We then get the <code>modification</code> value set as a <em>header</em>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;X-Mod&quot;</span><span class="o">,</span> <span class="n">commonParams</span><span class="o">.</span><span class="na">modification</span><span class="o">())</span>
+</pre></div>
+</div>
+
+
+<h3 id="form">@Form</h3>
+<p>
+  If a method has both <code>@Post</code> and <code>@Form</code> then the
+  method parameters default to be form parameters.
+</p>
+<p>
+  In the following example name, email and url all default to be form parameters.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Form</span> <span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;register&quot;</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">email</span><span class="o">,</span> <span class="n">String</span> <span class="n">url</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  The generated code includes <code>.formParam()</code> for <em>name, email and url</em>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// POST register</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">email</span><span class="o">,</span> <span class="n">String</span> <span class="n">url</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;register&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="n">name</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;email&quot;</span><span class="o">,</span> <span class="n">email</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">,</span> <span class="n">url</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">POST</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">asVoid</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="formParam">@FormParam</h3>
+<p>
+  For the example above we could alternatively use explicit <code>@FormParam</code>
+  on each of the form parameters rather than <code>@Form</code>. We then get:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;register&quot;</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="nd">@FormParam</span> <span class="nx">String</span> <span class="nx">name</span><span class="o">,</span> <span class="nd">@FormParam</span> <span class="nx">String</span> <span class="nx">email</span><span class="o">,</span> <span class="nd">@FormParam</span> <span class="nx">String</span> <span class="nx">url</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  The expectation is that we most often would use <code>@Form</code> because it reduces
+  "annotation noise" and that we will very rarely use <code>@FormParam</code>. Potentially
+  we only use @FormParam if the parameter name includes hyphen or similar characters that
+  are not valid Java/Kotlin identifiers.
+</p>
+
+
+<h2 id="formBeans">@Form "Form Beans"</h2>
+<p>
+  In the case where we are posting a form with a lot of parameters we can define a bean with
+  properties for each of the form parameters rather than have a method with lots of arguments.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="n">record</span> <span class="nf">RegisterForm</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">email</span><span class="o">,</span> <span class="n">String</span> <span class="n">url</span><span class="o">)</span> <span class="o">{</span> <span class="o">}</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Form</span> <span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;register&quot;</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">RegisterForm</span> <span class="n">myForm</span><span class="o">);</span>
+</pre></div>
+</div>
+The generated code for the above is:
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// POST register</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">RegisterForm</span> <span class="n">myForm</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;register&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="n">myForm</span><span class="o">.</span><span class="na">name</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;email&quot;</span><span class="o">,</span> <span class="n">myForm</span><span class="o">.</span><span class="na">email</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">,</span> <span class="n">myForm</span><span class="o">.</span><span class="na">url</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">POST</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">asVoid</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  "Form beans" are nice with forms with lots of properties because they de-clutter our code
+  and the generated code takes care of putting the values into our bean properties so that
+  we don't have to write that code.
+</p>
+<p>
+  This use of <em>@Form</em> is very similar to JAX-RS <em>@BeanParam</em> except that the
+  bean properties default be being form parameters. With JAX-RS we would put a <code>@FormParam</code>
+  on every property that is a form parameter which becomes a lot of annotation noise on a large form.
+</p>
+
+<h4>Form beans with @QueryParam, @Header properties</h4>
+<p>
+  The properties on a "form bean" default to being form parameters. We put <em>@QueryParam</em>,
+  <em>@Header</em> on properties that are instead query params, headers or cookies.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="n">record</span> <span class="nf">RegisterForm</span><span class="o">(</span>
+  <span class="n">String</span> <span class="n">name</span><span class="o">,</span>
+  <span class="n">String</span> <span class="n">email</span><span class="o">,</span>
+  <span class="n">String</span> <span class="n">url</span><span class="o">,</span>
+  <span class="nd">@QueryParam</span> <span class="nx">Boolean</span> <span class="nx">overrideFlag</span><span class="o">,</span>
+  <span class="nd">@Header</span> <span class="nx">String</span> <span class="nx">xModified</span><span class="o">)</span> <span class="o">{</span> <span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The generated code includes <code>queryParam()</code> and <code>header()</code> for
+  those parameters:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// POST register</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">RegisterForm</span> <span class="n">myForm</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;register&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="n">myForm</span><span class="o">.</span><span class="na">name</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;email&quot;</span><span class="o">,</span> <span class="n">myForm</span><span class="o">.</span><span class="na">email</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">,</span> <span class="n">myForm</span><span class="o">.</span><span class="na">url</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;overrideFlag&quot;</span><span class="o">,</span> <span class="n">myForm</span><span class="o">.</span><span class="na">overrideFlag</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;X-Modified&quot;</span><span class="o">,</span> <span class="n">myForm</span><span class="o">.</span><span class="na">xModified</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">POST</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">asVoid</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+
+<h3 id="header">@Header</h3>
+<p>
+  Use <code>@Header</code> for a header parameter.
+  It the header parameter name is not explicitly specified then
+  it is the <em>init caps snake case</em> of the parameter name.
+</p>
+<p>
+  <code>userAgent</code> -> <code>User-Agent</code>
+</p>
+<p>
+  <code>lastModified</code> -> <code>Last-Modified</code>
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span>
+<span class="nx">Bar</span> <span class="nf">postIt</span><span class="o">(</span><span class="nx">Foo</span> <span class="nx">payload</span><span class="o">,</span> <span class="nd">@Header</span><span class="o">(</span><span class="s">&quot;User-Agent&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">userAgent</span><span class="o">);</span> <span class="c1">// explicit</span>
+
+<span class="nd">@Post</span>
+<span class="nx">Bar</span> <span class="nf">postIt</span><span class="o">(</span><span class="nx">Foo</span> <span class="nx">payload</span><span class="o">,</span> <span class="nd">@Header</span> <span class="nx">String</span> <span class="nx">userAgent</span><span class="o">);</span> <span class="c1">// User-Agent</span>
+
+<span class="nd">@Get</span>
+<span class="nx">Bazz</span> <span class="nf">find</span><span class="o">(</span><span class="nd">@Header</span> <span class="nx">String</span> <span class="nx">lastModified</span><span class="o">);</span> <span class="c1">// Last-Modified</span>
+</pre></div>
+</div>
 
 
 <h2 id="10k">10K requests - Loom vs Async</h2>
