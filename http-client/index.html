@@ -168,7 +168,8 @@
 </p>
 
 <h5>Example client API</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">interface</span> <span class="nc">GitHub</span> <span class="o">{</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Client</span>
+<span class="kd">interface</span> <span class="nc">GitHub</span> <span class="o">{</span>
 
   <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/repos/{owner}/{repo}/contributors&quot;</span><span class="o">)</span>
   <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">);</span>
@@ -176,7 +177,8 @@
 </pre></div>
 </div>
 <h5>API allowing async or sync use via HttpCall</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">interface</span> <span class="nc">GitHub</span> <span class="o">{</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Client</span>
+<span class="kd">interface</span> <span class="nc">GitHub</span> <span class="o">{</span>
 
   <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/repos/{owner}/{repo}/contributors&quot;</span><span class="o">)</span>
   <span class="n">HttpCall</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">);</span>
@@ -184,10 +186,10 @@
 </pre></div>
 </div>
 <p>
-  The Client API can also be a useful target given a Openapi/Swagger spec.
-  Given a Openapi spec generate a client API (or client and server API).
+  The client API can also be a useful target given a openapi/swagger spec.
+  Given a openapi spec generate a client API (or client and server API).
   The plan is to add a maven plugin that takes an openapi spec and generates
-  the associated API (but this does not exist just yet).
+  the associated API but this does not exist just yet.
 </p>
 
 
