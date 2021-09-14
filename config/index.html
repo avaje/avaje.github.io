@@ -95,7 +95,7 @@
         <td><a target="_blank" href="https://github.com/avaje/avaje-config">Github</a></td>
         <td><a target="_blank" href="/apidocs/avaje-config">Javadoc</a></td>
         <td><a target="_blank" href="https://github.com/avaje/avaje-config/issues">Github</a></td>
-        <td><a target="_blank" href="https://github.com/avaje/avaje-config/releases">Latest 1.0</a></td>
+        <td><a target="_blank" href="https://github.com/avaje/avaje-config/releases">Latest 1.4</a></td>
       </tr>
     </table>
 
@@ -104,7 +104,7 @@
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-config<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.4<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -264,7 +264,7 @@
       watch the config files and reload configuration when the files change.
     </p>
     <p>
-      By default it will check the config files every 60 seconds. We can change this by setting
+      By default it will check the config files every 10 seconds. We can change this by setting
       <code>config.watch.period</code>
     </p>
 
@@ -272,7 +272,7 @@
     <div class="syntax yml"><div class="highlight"><pre><span></span><span class="nt">config</span><span class="p">:</span>
   <span class="nt">watch</span><span class="p">:</span>
     <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
-    <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>   <span class="c1">## check every 10 seconds</span>
+    <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5</span>   <span class="c1">## check every 5 seconds</span>
 </pre></div>
 </div>
     <p>
