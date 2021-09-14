@@ -63,16 +63,9 @@
 </li>
 <li><a href="#scope">Scope</a>
   <ul>
-    <li><a href="#scope-singleton">@Singleton</a></li>
-    <li><a href="#scope-request">@Request</a></li>
-    <li><a href="#controller">@Controller</a></li>
-  </ul>
-</li>
-<li><a href="#application-scope">ApplicationScope</a>
-  <ul>
-    <li><a href="#application-scope">ApplicationScope</a></li>
-    <li><a href="#bean-scope">BeanScope</a></li>
-    <li><a href="#request-scope">RequestScope</a></li>
+    <li><a href="#default-scope">Default scope</a></li>
+    <li><a href="#request-scope">Request scope</a></li>
+    <li><a href="#custom-scope">Custom scope</a></li>
   </ul>
 </li>
 <li><a href="#testing">Testing</a>
@@ -1161,20 +1154,137 @@
 
 <h3 id="shutdownHook">Shutdown hook</h3>
 <p>
-  When the <a href="#scope-application">ApplicationScope</a> is initialised it registers a JVM shutdown hook.
-  This is fired when the JVM is shutdown and this in turn invokes the PreDestroy methods.
+  When <code>BeanScope</code> is created we can specify if it should register a JVM shutdown hook.
+  This is fired when the JVM is shutdown and this in turn invokes the PreDestroy methods. Otherwise
+  <code>PreDestroy</code> methods are closed when the BeanScope is closed.
 </p>
-<h2 id="scope">@Scope</h2>
-
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">BeanScope</span> <span class="n">beanScope</span> <span class="o">=</span>
+  <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withShutdownHook</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="c1">// create with JVM shutdown hook</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+</pre></div>
+</div>
+<h2 id="default-scope">Default scope</h2>
 <p>
-  All beans are instantiated within a <i>scope</i>. A few scopes are provided for you out of the box, but you can also define your own
-  by creating an annotation and then meta-annotating it with <code>@Scope</code>. Scopes can depend on each other and also externally
-  defined objects, thus allowing a hierarchy of scopes to be modelled. Each scope results in the generation of a module class that
-  can be added to a <code>BeanScope</code> using the <code>withModules</code> method. The constructor of the module class takes the
-  externally defined dependencies. This makes it easy to partially adopt Avaje Inject: some objects can be built manually by your own code
-  and then provided to the DI scope.
+  All beans are instantiated within a <i>scope</i>. Beans annotated with <code>@Singleton</code>
+  are in the "default scope".
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="c1">// create all the beans in the &quot;default scope&quot;</span>
+    <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="n">SomeObject</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">SomeObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  When avaje-inject builds the "default scope" it will service load all the default scope modules
+  in the classpath (i.e. wire all the "default scope" modules in the classpath together into the BeanScope).
 </p>
 
+<h2 id="request-scope">Request scope - @Controller</h2>
+<p>
+  When using <a href="/http">avaje-http</a> we annotate controllers with <code>@Controller</code>.
+  <em>avaje-inject</em> will detect when controllers have a request scope dependency and automatically
+  make them request scoped.
+</p>
+<p>
+  For the following example, the ContactController has a dependency on Javalin Context. This means this
+  controller must use request scope.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Automatically becomes request scoped</span>
+<span class="c1">//  ... because Javalin Context is a dependency</span>
+<span class="c1">//  ... controller instantiated per request</span>
+
+<span class="nd">@Controller</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">ContactController</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Context</span> <span class="n">context</span><span class="o">;</span> <span class="c1">// Javalin Context</span>
+
+  <span class="c1">// Inject Javalin context via constructor</span>
+  <span class="nd">@Inject</span>
+  <span class="n">ContactController</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">context</span> <span class="o">=</span> <span class="n">context</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">contactService</span> <span class="o">=</span> <span class="n">contactService</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+  <span class="n">Contact</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// use the javalin context ...</span>
+    <span class="k">var</span> <span class="n">fooCookie</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">cookieStore</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">);</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h2 id="custom-scope">@Scope - custom scopes</h2>
+<p>
+  We can define our own custom scopes. To do this we create an annotation that is meta-annotated with <code>@Scope</code>.
+  We use this custom scope annotation rather than <code>@Singleton</code>.
+</p>
+<p>
+  Custom scopes can depend on each other and also externally defined objects, thus allowing a hierarchy of scopes to be modelled.
+</p>
+<p>
+  Each scope results in the generation of a module class that can be added to a <code>BeanScope</code> using the <code>withModules</code> method.
+  The constructor of the module class takes the externally defined dependencies if defined. This makes it easy to partially adopt Avaje Inject
+  where we want some objects can be built manually by your own code and then provided to the DI scope.
+</p>
+<p>
+  For simple cases we don't need to use custom scopes. We can just annotate classes with <code>@Singleton</code> and
+  use the default scope.
+</p>
+
+<h3>Example: Custom scope</h3>
+
+<h5>Step 1: Define the custom scope annotation</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Scope</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">MyCustomScope</span> <span class="o">{</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h5>Step 2: Use the custom scope annotation (rather than @Singleton)</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@MyCustomScope</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SomeObject</span> <span class="o">{</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h5>Step 3: Build BeanScope with the custom scope</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">withModules</span><span class="o">(</span><span class="k">new</span> <span class="n">MyCustomScopeModule</span><span class="o">())</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="n">SomeObject</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">SomeObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3>Custom scope dependencies</h3>
+<p>
+  Custom scopes can have dependencies on other scopes or externally supplied beans.
+  We specify these dependencies using <code>@InjectModule(requires = ...)</code>.
+</p>
+<p>
+  Note that custom scope beans are allowed to depend on any bean in the "default scope" implicitly. We do not
+  need to specify a dependency for custom scoped beans to use default scoped beans.
+</p>
+<p>
+  In the following example <code>MyCustomScope</code> has a dependency on <code>NonDIConstructedObject</code>.
+</p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Scope</span>
 <span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">requires</span> <span class="o">=</span> <span class="o">{</span><span class="nx">NonDIConstructedObject</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
 <span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">MyCustomScope</span> <span class="o">{</span>
@@ -1187,7 +1297,12 @@
 
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="o">{</span>
   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">().</span><span class="na">withModules</span><span class="o">(</span><span class="k">new</span> <span class="n">MyCustomScopeModule</span><span class="o">(</span><span class="k">new</span> <span class="n">NonDIConstructedObject</span><span class="o">())).</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+      <span class="c1">// custom module with an external dependency</span>
+      <span class="o">.</span><span class="na">withModules</span><span class="o">(</span><span class="k">new</span> <span class="n">MyCustomScopeModule</span><span class="o">(</span><span class="k">new</span> <span class="n">NonDIConstructedObject</span><span class="o">()))</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
     <span class="n">SomeObject</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">SomeObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
   <span class="o">}</span>
 <span class="o">}</span>
@@ -1195,72 +1310,39 @@
 </div>
 
 <p>
-  For simple uses you don't need any custom scopes. You can just annotate classes with `@Singleton` and use the default scope, which
-  is used if you don't specify any modules to the <code>BeanScope</code> constructor. It's located using the <code>ServiceLoader</code>
-  mechanism.
-</p>
-
-<p>
   To make one scope depend on another, just put the depended-on scope's annotation into the <code>@InjectModule(requires = { .. })</code>
   list, then call the <code>withParent</code> method of the <code>BeanScope</code> to chain them together.
 </p>
-<h2 id="application-scope">ApplicationScope</h2>
+
+<h3>Custom scope parent child hierarchy</h3>
 <p>
-  <code>ApplicationScope</code> provides access to the beans in the application scope. ApplicationScope will
-  initialise with a BeanScope that contains all the singleton scoped beans. All the PostConstruct methods will
-  have been executed. A shutdown hook is registered and will invoke the PreDestroy methods on shutdown.
-</p>
-<h5>example</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get a bean</span>
-<span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-<span class="n">coffeeMaker</span><span class="o">.</span><span class="na">brew</span><span class="o">();</span>
-</pre></div>
-</div>
-
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Get all the beans that implement an interface</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoutes</span><span class="o">&gt;</span> <span class="n">webRoutes</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-
-<span class="c1">// register them with Javalin</span>
-<span class="n">Javalin</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
-<span class="n">app</span><span class="o">.</span><span class="na">routes</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">webRoutes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">::</span><span class="n">registerRoutes</span><span class="o">));</span>
-<span class="n">app</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="mi">8080</span><span class="o">);</span>
-</pre></div>
-</div>
-
-<h4>ApplicationScope.scope()</h4>
-<p>
-  We use <em>ApplicationScope.scope()</em> to get the underlying <code>BeanScope</code>.
-  We often prefer to use the BeanScope with code to start the application as this
-  allows us to have tests that run the entire application with perhaps only a few
-  dependencies mocked out (component testing).
-
-  For example, run a component test that starts the application using all real
-  components except for ones that make remote calls to another service  which are
-  mocked/stubbed.
+  When using custom scopes we can create a hierarchy of scopes. When we create the BeanScope
+  we can use <code>withParent()</code> to specify a parent scope.
 </p>
 
-<h5>example</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="o">{</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// create a parent scope</span>
+<span class="k">try</span> <span class="o">(</span><span class="kd">final</span> <span class="n">BeanScope</span> <span class="n">parentScope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">().</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
-  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-      <span class="c1">// main just uses ApplicationScope.scope()</span>
-      <span class="k">new</span> <span class="n">App</span><span class="o">().</span><span class="na">startServer</span><span class="o">(</span><span class="mi">8080</span><span class="o">,</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">scope</span><span class="o">())</span>
-  <span class="o">}</span>
+  <span class="c1">// we can use this scope</span>
+  <span class="kd">final</span> <span class="k">var</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">parentScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
-  <span class="cm">/**</span>
-<span class="cm">   * Tests can create a BeanScope with some mocks, stubs.</span>
-<span class="cm">   */</span>
-  <span class="kt">void</span> <span class="nf">startServer</span><span class="o">(</span><span class="kt">int</span> <span class="n">port</span><span class="o">,</span> <span class="n">BeanScope</span> <span class="n">scope</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// external dependency for a custom scope</span>
+  <span class="n">LocalExt</span> <span class="n">ext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LocalExt</span><span class="o">();</span>
 
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoutes</span><span class="o">&gt;</span> <span class="n">webRoutes</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="c1">// create a child scope</span>
+  <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">childScope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">withParent</span><span class="o">(</span><span class="n">parentScope</span><span class="o">)</span> <span class="c1">// specify the parent</span>
+    <span class="o">.</span><span class="na">withModules</span><span class="o">(</span><span class="k">new</span> <span class="n">MyCustomModule</span><span class="o">(</span><span class="n">ext</span><span class="o">))</span> <span class="c1">// the custom scope(s)</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
-    <span class="n">Javalin</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
-    <span class="n">app</span><span class="o">.</span><span class="na">routes</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">webRoutes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">::</span><span class="n">registerRoutes</span><span class="o">));</span>
-    <span class="n">app</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="n">port</span><span class="o">);</span>
+    <span class="c1">// use the child scope</span>
+    <span class="o">...</span>
+
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
+
 
 <h3 id="bean-scope">BeanScope</h3>
 <p>
@@ -1344,40 +1426,6 @@ The classic use case for this is registering controllers or routes to
   See <a href="#testing">Testing</a> for more on wiring with test doubles.
 </p>
 
-<h3 id="request-scope">RequestScope</h3>
-<p>
-  Note that if we are using <a href="/http">avaje-http</a> then we will not explicitly
-  use RequestScope or <a href="#scope-request">@Request</a> - we would instead use
-  <a href="/http/#controller">@Controller</a>.
-</p>
-<p>
-  <code>RequestScope</code> is created from ApplicationScope or BeanScope.
-  We provide some dependencies which can be wired into <a href="#scope-request">@Request</a>
-  beans. We can obtain beans from the RequestScope to perform the required processing.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">try</span> <span class="o">(</span><span class="n">RequestScope</span> <span class="n">requestScope</span> <span class="o">=</span> <span class="n">ApplicationScope</span><span class="o">.</span><span class="na">newRequestScope</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">withBean</span><span class="o">(</span><span class="n">HttpRequest</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">request</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">withBean</span><span class="o">(</span><span class="n">HttpResponse</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">response</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
-
-  <span class="n">requestScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">MyRequestProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">doStuff</span><span class="o">();</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-<p>
-  An approximate alternative to using RequestScope is to put all the request scoped
-  dependencies into a new type and pass that as a method argument to singleton scoped
-  things to process.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">MyHttpRequest</span> <span class="n">request</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MyHttpRequest</span><span class="o">(</span><span class="n">request</span><span class="o">,</span> <span class="n">response</span><span class="o">);</span>
-
-<span class="n">ApplicationScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">MySingletonProcessor</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">process</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
-</pre></div>
-</div>
-<p>
-  When we want request scoped things to be dependencies that are "injected" by avaje-inject
-  rather than passed around via a method argument then we use RequestScope.
-</p>
 <h2 id="testing">Testing</h2>
 
 <h3 id="unit-testing">Unit testing</h3>
@@ -1505,16 +1553,20 @@ The classic use case for this is registering controllers or routes to
 <h4>Programmatic style component test</h4>
 <p>
   For programmatic style component testing we create a BeanScope and define test doubles that
-  we want to use in place of the real things. We can use <code>withMock()</code> to get a
-  dependency to be a Mockito mock. We can use <code>withSpy()</code> to get a dependency to
-  be a Mockito spy. We can use <code>withBean()</code> to supply any sort of test double we
-  like.
+  we want to use in place of the real things.
+</p>
+<p>
+  With the bean scope builder we use <code>forTesting()</code> to give us extra methods for ease of using
+  mockito mocks and spies. Use <code>withMock()</code> to specify a dependency to be a Mockito mock.
+  Use <code>withSpy()</code> to get a dependency to be a Mockito spy. We can use <code>withBean()</code>
+  to supply any sort of test double we like.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
-<span class="kt">void</span> <span class="nf">myComponentTest</span><span class="o">()</span> <span class="o">{</span>
+<span class="kt">void</span> <span class="nf">using_withMock</span><span class="o">()</span> <span class="o">{</span>
 
   <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">forTesting</span><span class="o">()</span>
     <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
     <span class="o">.</span><span class="na">withMock</span><span class="o">(</span><span class="n">Grinder</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
     <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
@@ -1525,6 +1577,25 @@ The classic use case for this is registering controllers or routes to
 
     <span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpSteam</span><span class="o">();</span>
     <span class="n">verify</span><span class="o">(</span><span class="n">grinder</span><span class="o">).</span><span class="na">grindBeans</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Test</span>
+<span class="kt">void</span> <span class="nf">using_withSpy</span><span class="o">()</span> <span class="o">{</span>
+
+  <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">context</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">forTesting</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">withSpy</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+
+    <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">coffeeMaker</span><span class="o">).</span><span class="na">isNotNull</span><span class="o">();</span>
+    <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
+
+    <span class="n">Pump</span> <span class="n">pump</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="n">verify</span><span class="o">(</span><span class="n">pump</span><span class="o">).</span><span class="na">pumpWater</span><span class="o">();</span>
+  <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
