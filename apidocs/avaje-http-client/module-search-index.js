@@ -1,1 +1,1 @@
-moduleSearchIndex = [{"l":"io.avaje.http.client"}];updateSearchResults();
+moduleSearchIndex = [{"l":"io.avaje.http.client"}]
