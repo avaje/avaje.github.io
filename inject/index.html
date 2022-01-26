@@ -132,7 +132,7 @@
     <td><a target="_blank" href="https://github.com/avaje/avaje-inject">Github</a></td>
     <td><a target="_blank" href="/apidocs/avaje-inject">Javadoc</a></td>
     <td><a target="_blank" href="https://github.com/avaje/avaje-inject/issues">Github</a></td>
-    <td><a target="_blank" href="https://github.com/avaje/avaje-inject/releases">Latest 6.11</a></td>
+    <td><a target="_blank" href="https://github.com/avaje/avaje-inject/releases">Latest 6.20</a></td>
   </tr>
 </table>
 <p>&nbsp;</p>
@@ -198,7 +198,7 @@
 </p>
 <h4>Want to use jakarta.inject?</h4>
 <p>
-  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-6.11">version 6.11</a> of
+  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-6.20">version 6.20</a> of
   avaje-inject with the dependency on <code>jakarta.inject</code> (maintained on master branch).
 </p>
 
@@ -270,7 +270,7 @@
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>6.11<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>6.20<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -283,7 +283,7 @@
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>6.11<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>6.20<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
@@ -301,7 +301,7 @@
       <span class="nt">&lt;path&gt;</span>
           <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
           <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
-          <span class="nt">&lt;version&gt;</span>6.11<span class="nt">&lt;/version&gt;</span>
+          <span class="nt">&lt;version&gt;</span>6.20<span class="nt">&lt;/version&gt;</span>
       <span class="nt">&lt;/path&gt;</span>
       <span class="nt">&lt;path&gt;</span>
           ... other annotation processor ...
@@ -335,8 +335,8 @@
 
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:6.11&#39;</span><span class="o">)</span>
-  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:6.11&#39;</span><span class="o">)</span>
+  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:6.20&#39;</span><span class="o">)</span>
+  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:6.20&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -351,8 +351,8 @@
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:6.11&#39;</span><span class="o">)</span>
-  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:6.11&#39;</span><span class="o">)</span>
+  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:6.20&#39;</span><span class="o">)</span>
+  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:6.20&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -1511,7 +1511,7 @@ The classic use case for this is registering controllers or routes to
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject-test<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>6.11<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>6.20<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
