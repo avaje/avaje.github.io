@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"io.avaje.jsonb"},{"l":"io.avaje.jsonb.core"},{"l":"io.avaje.jsonb.jackson"},{"l":"io.avaje.jsonb.spi"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"io.avaje.jsonb"},{"l":"io.avaje.jsonb.core"},{"l":"io.avaje.jsonb.spi"},{"l":"io.avaje.jsonb.stream"}];updateSearchResults();

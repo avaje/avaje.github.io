@@ -37,10 +37,14 @@
 <span class="source-line-no">024</span><span id="line-24">    super(message);</span>
 <span class="source-line-no">025</span><span id="line-25">  }</span>
 <span class="source-line-no">026</span><span id="line-26"></span>
-<span class="source-line-no">027</span><span id="line-27">  public JsonDataException(Throwable e) {</span>
-<span class="source-line-no">028</span><span id="line-28">    super(e);</span>
+<span class="source-line-no">027</span><span id="line-27">  public JsonDataException(Throwable cause) {</span>
+<span class="source-line-no">028</span><span id="line-28">    super(cause);</span>
 <span class="source-line-no">029</span><span id="line-29">  }</span>
-<span class="source-line-no">030</span><span id="line-30">}</span>
+<span class="source-line-no">030</span><span id="line-30"></span>
+<span class="source-line-no">031</span><span id="line-31">  public JsonDataException(String description, Throwable cause) {</span>
+<span class="source-line-no">032</span><span id="line-32">    super(description, cause);</span>
+<span class="source-line-no">033</span><span id="line-33">  }</span>
+<span class="source-line-no">034</span><span id="line-34">}</span>
 
 
 

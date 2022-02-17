@@ -1,4 +1,4 @@
 io.avaje.jsonb
 io.avaje.jsonb.core
-io.avaje.jsonb.jackson
 io.avaje.jsonb.spi
+io.avaje.jsonb.stream
