@@ -1,2 +1,4 @@
+module:io.avaje.inject
 io.avaje.inject
+io.avaje.inject.aop
 io.avaje.inject.spi

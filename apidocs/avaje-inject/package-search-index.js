@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"io.avaje.inject"},{"l":"io.avaje.inject.spi"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"io.avaje.inject","l":"io.avaje.inject"},{"m":"io.avaje.inject","l":"io.avaje.inject.aop"},{"m":"io.avaje.inject","l":"io.avaje.inject.spi"}];updateSearchResults();
