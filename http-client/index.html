@@ -196,6 +196,21 @@
 <span class="o">}</span>
 </pre></div>
 </div>
+
+<h5>Using client API</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
+  <span class="c1">//.bodyAdapter(new JacksonBodyAdapter())</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="c1">// obtain API implementation</span>
+<span class="n">GitHub</span> <span class="n">github</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">GitHub</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+<span class="c1">// use the api/interface</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="n">contributors</span> <span class="o">=</span> <span class="n">github</span><span class="o">.</span><span class="na">contributors</span><span class="o">(</span><span class="s">&quot;rbygrave&quot;</span><span class="o">,</span> <span class="s">&quot;junk&quot;</span><span class="o">);</span>
+</pre></div>
+</div>
+
 <h5>API allowing async or sync use via HttpCall</h5>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Client</span>
 <span class="kd">interface</span> <span class="nc">GitHub</span> <span class="o">{</span>
@@ -357,7 +372,7 @@
   CompletableFuture.
 </p>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
   <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
   <span class="c1">//.bodyAdapter(new GsonBodyAdapter(new Gson()))</span>
@@ -366,15 +381,25 @@
 </div>
 
 <h4>Example GET</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">httpClientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Customer</span> <span class="n">customer</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customers/42&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Product</span><span class="o">&gt;</span> <span class="n">products</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;products&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Product</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+<span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;health&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
   <span class="o">.</span><span class="na">asString</span><span class="o">();</span>
 </pre></div>
 </div>
 
 <h4>Example GET Async</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">httpClientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
  <span class="o">.</span><span class="na">async</span><span class="o">().</span><span class="na">asString</span><span class="o">()</span>  <span class="c1">// CompletableFuture&lt;HttpResponse&lt;String&gt;&gt;</span>
@@ -437,19 +462,18 @@
 </p>
 
 <h4>Creating HttpClientContext</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span>
-  <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
-    <span class="c1">// .bodyAdapter(new GsonBodyAdapter(new Gson()))</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+  <span class="c1">// .bodyAdapter(new GsonBodyAdapter(new Gson()))</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
 </div>
 <p>
   From the HttpClientContext instance we create requests and execute them.
 </p>
 <h4>Create and execute requests</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">httpClientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
   <span class="o">.</span><span class="na">asString</span><span class="o">();</span>
@@ -485,11 +509,10 @@
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">ObjectMapper</span> <span class="n">objectMapper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">().</span><span class="na">registerModule</span><span class="o">(</span><span class="k">new</span> <span class="n">JavaTimeModule</span><span class="o">());</span>
 
-<span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span>
-  <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">(</span><span class="n">objectMapper</span><span class="o">))</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+<span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">(</span><span class="n">objectMapper</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
 </div>
 
@@ -510,11 +533,10 @@
 <p>
   Register the GsonBodyAdapter with the HttpClientContext builder. For example:
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span>
-  <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">GsonBodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">Gson</span><span class="o">()))</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">GsonBodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">Gson</span><span class="o">()))</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
 </div>
 
@@ -526,7 +548,7 @@
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-jsonb<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.8<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.15<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -538,11 +560,10 @@
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jsonb</span> <span class="n">jsonb</span> <span class="o">=</span> <span class="n">Jsonb</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
 
-<span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span>
-  <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JsonbBodyAdapter</span><span class="o">(</span><span class="n">jsonb</span><span class="o">))</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+<span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JsonbBodyAdapter</span><span class="o">(</span><span class="n">jsonb</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
 </div>
 <p>
@@ -582,7 +603,7 @@
 <h4>Example: POST object as json</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Hello</span> <span class="n">bean</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hello</span><span class="o">(</span><span class="mi">42</span><span class="o">,</span> <span class="s">&quot;rob&quot;</span><span class="o">,</span> <span class="s">&quot;hello world&quot;</span><span class="o">);</span>
 
-<span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">bean</span><span class="o">)</span>
   <span class="o">.</span><span class="na">POST</span><span class="o">()</span>
@@ -597,7 +618,7 @@
 </p>
 
 <h4>Example: POST using formParams</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;register/user&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="s">&quot;Bazz&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;email&quot;</span><span class="o">,</span> <span class="s">&quot;user@foo.com&quot;</span><span class="o">)</span>
@@ -616,7 +637,7 @@
 
 <h4>Example: PUT file Path</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Path</span> <span class="n">file</span> <span class="o">=</span> <span class="o">...;</span>
-<span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;upload&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">file</span><span class="o">)</span>
   <span class="o">.</span><span class="na">PUT</span><span class="o">()</span>
@@ -633,7 +654,7 @@
 <h4>Example: PUT InputStream</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Supplier</span><span class="o">&lt;</span><span class="n">InputStream</span><span class="o">&gt;</span> <span class="n">supplier</span> <span class="o">=</span> <span class="o">...;</span>
 
-<span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;upload&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">supplier</span><span class="o">)</span>
   <span class="o">.</span><span class="na">PUT</span><span class="o">()</span>
@@ -649,7 +670,7 @@
 </p>
 
 <h4>Example: Use any BodyPublisher</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;whazzzup&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">HttpRequest</span><span class="o">.</span><span class="na field">BodyPublishers</span><span class="o">.</span><span class="na">ofString</span><span class="o">(</span><span class="s">&quot;silly example&quot;</span><span class="o">))</span>
   <span class="o">.</span><span class="na">PUT</span><span class="o">()</span>
@@ -692,7 +713,7 @@
   From the HttpException we can get the underlying HttpResponse and error
   response body.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Customer</span> <span class="n">customer</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Customer</span> <span class="n">customer</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customers/42&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
   <span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -709,7 +730,7 @@
   From the HttpException we can get the underlying HttpResponse and error
   response body.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="n">customers</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="n">customers</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customers&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
   <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -729,7 +750,7 @@
   From the HttpException we can get the underlying HttpResponse and error
   response body.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Stream</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="n">customers</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Stream</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="n">customers</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customers&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
   <span class="o">.</span><span class="na">stream</span><span class="o">(</span><span class="n">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
@@ -747,7 +768,7 @@
   From the HttpException we can get the underlying HttpResponse and error
   response body.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
   <span class="o">.</span><span class="na">asVoid</span><span class="o">();</span>
@@ -764,7 +785,7 @@
   We use <em>asDiscarding()</em> when we only ever want the status code
   and headers etc and never want the response body.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
   <span class="o">.</span><span class="na">asDiscarding</span><span class="o">();</span>
@@ -775,7 +796,7 @@
 <p>
   Return as <code>HttpResponse&lt;String&gt;</code>.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">)</span>
   <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
   <span class="o">.</span><span class="na">asString</span><span class="o">();</span>
@@ -786,7 +807,7 @@
 <p>
   Using <code>withHandler()</code> we can use any BodyHandler to process the response.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">InputStream</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">InputStream</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello/stream&quot;</span><span class="o">)</span>
  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
  <span class="o">.</span><span class="na">withHandler</span><span class="o">(</span><span class="n">BodyHandlers</span><span class="o">.</span><span class="na">ofInputStream</span><span class="o">());</span>
@@ -836,7 +857,7 @@
 </p>
 
 <h4>Example: async().asString()</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello/world&quot;</span><span class="o">)</span>
  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
  <span class="o">.</span><span class="na">async</span><span class="o">().</span><span class="na">asString</span><span class="o">()</span>
@@ -854,7 +875,7 @@
 </div>
 
 <h4>Example: async().bean(Class&lt;T&gt;)</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customer&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="mi">42</span><span class="o">)</span>
  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
  <span class="o">.</span><span class="na">async</span><span class="o">().</span><span class="na">bean</span><span class="o">(</span><span class="n">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
@@ -881,7 +902,7 @@
   The example below is a line subscriber processing response content line by line.
 </p>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Void</span><span class="o">&gt;&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hello/lineStream&quot;</span><span class="o">)</span>
  <span class="o">.</span><span class="na">GET</span><span class="o">().</span><span class="na">async</span><span class="o">()</span>
  <span class="o">.</span><span class="na">withHandler</span><span class="o">(</span><span class="n">HttpResponse</span><span class="o">.</span><span class="na field">BodyHandlers</span><span class="o">.</span><span class="na">fromLineSubscriber</span><span class="o">(</span><span class="k">new</span> <span class="n">Flow</span><span class="o">.</span><span class="na">Subscriber</span><span class="o">&lt;&gt;()</span> <span class="o">{</span>
@@ -919,7 +940,7 @@
 </p>
 
 <h4>Example: join()</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customer&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="mi">42</span><span class="o">)</span>
  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
  <span class="o">.</span><span class="na">async</span><span class="o">().</span><span class="na">bean</span><span class="o">(</span><span class="n">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
@@ -958,11 +979,10 @@
 </p>
 
 <h4>Example: call()</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpCall</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;&gt;</span> <span class="n">call</span> <span class="o">=</span>
-  <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customers&quot;</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">call</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpCall</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;&gt;</span> <span class="n">call</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customers&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">call</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
 <span class="c1">// Either execute synchronously</span>
 <span class="n">List</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="n">customers</span> <span class="o">=</span>  <span class="n">call</span><span class="o">.</span><span class="na">execute</span><span class="o">();</span>
@@ -1200,9 +1220,9 @@
 <p>
   Below is a tabe of the API response types can be used and the resulting generated code.
 </p>
-<table width="100%">
+<table style="width: 100%;">
   <tr>
-    <th width="50%">Method response type</th>
+    <th style="width: 50%;">Method response type</th>
     <th>Generated code</th>
   </tr>
 
