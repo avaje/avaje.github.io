@@ -78,8 +78,8 @@
 <li><a href="#component-testing">Component testing</a>
   <ul>
     <li><a href="#test-dependency">Dependency</a></li>
-    <li><a href="#injectTest">@InjectTest</a></li>
-    <li><a href="#test-scope">Test scope</a></li>
+    <li><a href="#inject-test">@InjectTest</a></li>
+    <li><a href="#test-scope">@TestScope</a></li>
     <li><a href="#programmatic-testing">Programmatic testing</a></li>
   </ul>
 </li>
@@ -183,8 +183,8 @@
       <ul>
         <li><a href="#jsr-330">JSR-330</a> dependency injection</li>
         <li><a href="#lifecycle">Lifecycle</a> support</li>
-        <li><a href="#factory">@Factory @Bean</a></li>
-        <li><a href="#primary">@Primary @Secondary</a></li>
+        <li><a href="#factory">@Factory + @Bean</a></li>
+        <li><a href="#primary">@Primary + @Secondary</a></li>
         <li><a href="#test-scope">Test scope</a> component testing</li>
         <li><a href="#aspects">AOP</a> around method advice</li>
       </ul>
@@ -207,7 +207,7 @@
 
 <h4>Want to use javax.inject?</h4>
 <p>
-  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-parent-7.5">version 7.5</a> of
+  Use <a href="https://github.com/avaje/avaje-inject/releases/tag/avaje-inject-8.5">version 7.5</a> of
   avaje-inject with the dependency on <code>javax.inject</code> (maintained on javax.main branch).
 </p>
 <h4>Want to use jakarta.inject?</h4>
@@ -250,6 +250,16 @@
 </p>
 
 <h3 id="extensions">Spring DI like extensions to JSR-330</h3>
+
+<h4>@InjectTest - component testing</h4>
+<p>
+  We use <code><a href="#inject-test">@InjectTest</a></code> for <a href="#component-testing">component testing</a> which is similar
+  to Spring's junit extensions <code>SpringExtension</code>, <code>@SpringBootTest</code>.
+</p>
+<p>
+  This is where we get avaje-inject to wire the test class using <code>@Inject, @Mock, @Spy</code>.
+</p>
+
 <h4>@Factory + @Bean</h4>
 <p>
   In addition to the JSR-330 standard we use <a href="#factory">@Factory</a> + <a href="#bean">@Bean</a>
@@ -257,21 +267,21 @@
   <em>@Factory + @Bean</em>. This is also similar to a Guice module with <em>@Provides</em> methods.
 </p>
 <p>
-  Teams will often use <em>@Factory@Bean</em> to provide dependencies that
-  are best created programmatically. Typically these depend on external configuration,
+  Teams will often use <em>@Factory + @Bean</em> to provide dependencies that
+  are best created programmatically. Typically, these depend on external configuration,
   environment settings etc.
 </p>
 <p>
   Factory provides a more convenient alternative to the JSR-330
   <a href="#provider">javax.inject.Provider&lt;T&gt;</a> interface and is also more natural
-  for people who familiar with Spring DI or Micronaut DI.
+  for people who are familiar with Spring DI or Micronaut DI.
 </p>
 
-<h4>@Primary @Secondary</h4>
+<h4>@Primary + @Secondary</h4>
 <p>
   Additionally we use <a href="#primary">@Primary</a> <a href="#secondary">@Secondary</a> annotations
-  which work the same as Spring DI's <em>@Primary @Secondary</em> and also Micronaut DI's
-  <em>@Primary @Secondary</em>. These provide injection priority in the case when multiple injection
+  which work the same as Spring DI's <em>@Primary + @Secondary</em> and also Micronaut DI's
+  <em>@Primary + @Secondary</em>. These provide injection priority in the case when multiple injection
   candidates are available.
 </p>
 <h2 id="dependency">Dependencies</h2>
@@ -1590,7 +1600,7 @@ The classic use case for this is registering controllers or routes to
 </div>
 
 
-<h3 id="injectTest">@InjectTest</h3>
+<h3 id="inject-test">@InjectTest</h3>
 <p>
   avaje-inject provides a JUnit 5 extension via <code>@InjectTest</code>.
   When a test is annotated with <code>@InjectTest</code> then avaje-inject will be used to setup the
@@ -1658,15 +1668,18 @@ The classic use case for this is registering controllers or routes to
 </pre></div>
 </div>
 
-<h3>static fields, instance fields</h3>
+<h3>Static fields, Instance fields</h3>
 <p>
   With <code>@InjectTest</code> we can inject into static fields and non-static fields.
   Under the hood these map to BeanScopes that are created and used to populate these fields in the tests.
 </p>
-<h4>static fields</h4>
+<h4>static fields - Junit All</h4>
 <p>
   With static fields there is an underlying BeanScope that is created and used for all
   tests in the test class. In the example below, the static Foo is in that BeanScope.
+</p>
+<p>
+  This matches Junit5 <em>All</em> - <code>@BeforeAll, @AfterAll</code> etc.
 </p>
 <p>
   This BeanScope is created and used for all tests that run for that test class. This scope will be
@@ -1674,11 +1687,14 @@ The classic use case for this is registering controllers or routes to
   The "global test scope" (if defined) will be the parent bean scope.
 </p>
 
-<h4>non-static fields</h4>
+<h4>non-static fields - Junit Each</h4>
 <p>
   For non-static fields, there is a BeanScope that is created for these. In the example
   below Bar and Bazz are in that BeanScope. With the 3 test methods <code>one(), two(), three()</code>
   this BeanScope is created (and closed) for each test so 3 times.
+</p>
+<p>
+  This matches Junit5 <em>Each</em> - <code>@BeforeEach, @AfterEach</code> etc.
 </p>
 <p>
   This BeanScope is created for each test and closed after that test has been run.
@@ -1711,12 +1727,39 @@ The classic use case for this is registering controllers or routes to
 </pre></div>
 </div>
 <p>
-  The above can be programmatically written as below.
+  The above <code>MyTest</code> runs 3 tests, <code>one(), two(),</code> and <code>three()</code>.
+
 </p>
+<p>
+  <em>Static Foo field</em> is wired once and the same foo instance would be used for ALL three tests.
+</p>
+<p>
+  <em>Instance Bar, Bazz fields</em> are wired for each of the three tests - they are wired 3 times.
+</p>
+<p>
+  This can be represented by the diagram below. <em>Bar, Bazz</em> are created and injected 3 times.
+  <em>Static Foo</em> is created and injected once.
+</p>
+<p>
+  <img src="/images/inject/inject-static-instance.png" width="100%">
+</p>
+<p>
+  &nbsp;
+</p>
+<p>
+  The above test can be programmatically written as below. In the code below, we see:
+</p>
+<ul>
+  <li><em>staticScope</em> that spans all the tests. Created in <code>beforeAll()</code> and closed in <code>afterAll()</code>.</li>
+  <li><em>instanceScope</em> that is created in <code>beforeEach()</code> and closed in <code>afterEach()</code></li>
+</ul>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">MyTest</span> <span class="o">{</span>
 
+  <span class="c1">// static fields</span>
   <span class="kd">static</span> <span class="nd">@Mock</span> <span class="nx">Foo</span> <span class="nx">foo</span><span class="o">;</span>
+
+  <span class="c1">// instance fields</span>
   <span class="nd">@Mock</span> <span class="nx">Bar</span> <span class="nx">bar</span><span class="o">;</span>
   <span class="nd">@Inject</span> <span class="nx">Bazz</span> <span class="nx">bazz</span><span class="o">;</span>
 
@@ -1725,7 +1768,7 @@ The classic use case for this is registering controllers or routes to
 
   <span class="nd">@BeforeAll</span>
   <span class="kd">static</span> <span class="kt">void</span> <span class="nf">beforeAll</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">staticScope</span> <span class="o">=</span> <span class="n">TestBeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span> <span class="c1">// parent of &quot;global test scope&quot; if defined</span>
+    <span class="n">staticScope</span> <span class="o">=</span> <span class="n">TestBeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
         <span class="o">.</span><span class="na">forTesting</span><span class="o">()</span>
         <span class="o">.</span><span class="na">mock</span><span class="o">(</span><span class="n">Foo</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
         <span class="o">.</span><span class="na">build</span><span class="o">()</span>
@@ -1771,12 +1814,68 @@ The classic use case for this is registering controllers or routes to
 </pre></div>
 </div>
 
-
-<h2 id="test-scope">Test scope</h2>
+<h3 id="test-scope-parent">Parent child hierarchy</h3>
 <p>
-  Test scope is a special scope used for testing. It effectively provides <em>default dependencies to
-    use for ALL tests</em>. As such we can think of it as the "global test scope".
+  When using <code>@InjectTest</code> we get a 3 level parent child hierarchy of <em>BeanScope</em>.
 </p>
+<ol>
+  <li>Global <a href="#test-scope">test scope</a> that spans ALL tests. This is detailed in the next section.</li>
+  <li>Static/All BeanScope - when there are static fields to <em>@Inject, @Mock or @Spy</em>.</li>
+  <li>Instance/Each BeanScope - when there are instance fields to <em>@Inject, @Mock or @Spy</em>.</li>
+</ol>
+
+<h3>All 3 scopes</h3>
+<p>
+  When we have all 3 scopes they form a parent child hierarchy as per the diagram below. The "global test scope"
+  is the parent of the "static/all scope".  The "static/all scope" is the parent of each "instance/each scope".
+</p>
+<p>
+  <img src="/images/inject/inject-parent.png" width="100%">
+</p>
+
+<p>&nbsp;</p>
+<h3>Only instance fields</h3>
+<p>
+  When a test only has instance fields with <em>@Inject, @Mock or @Spy</em> then the global test scope (if defined)
+  is the parent of the instance/each scopes.
+</p>
+<p>
+  In this case, <code>@InjectTest</code> detects that there are no static fields to wire and will not create a BeanScope for the
+  static/all scope.
+</p>
+<p>
+  <img src="/images/inject/inject-parent-onlyinstance.png" width="100%">
+</p>
+
+<p>&nbsp;</p>
+<h3>Only static fields</h3>
+<p>
+  When a test only has static fields with <em>@Inject, @Mock or @Spy</em> then the global test scope (if defined)
+  is the parent of the static/all scope. This is used by all the tests that run.
+</p>
+<p>
+  In this case, <code>@InjectTest</code> detects that there are no instance fields to wire and will not create a BeanScope for
+  each instance/each scope.
+</p>
+<p>
+  <img src="/images/inject/inject-parent-onlystatic.png" width="100%">
+</p>
+
+<p>&nbsp;</p>
+<h2 id="test-scope">@TestScope - global test scope</h2>
+<p>
+  Test scope is a special scope used for testing that spans <em>ALL TESTS</em>. It effectively
+  provides <em>default dependencies to use for ALL tests</em>. As such we can think of it as the "global test scope".
+</p>
+<p>
+  Under the hood, the test BeanScope is created when junit starts, the test BeanScope holds all the beans
+  that we put in <code>@TestScope</code> and this scope is used as the parent BeanScope for <code>@InjectTest</code>
+  tests.
+</p>
+<p>
+  <img src="/images/inject/inject-global-test-scope.png" width="100%">
+</p>
+
 <h4>Step 1: Add @TestScope</h4>
 <p>
   In <code>src/test</code> create a factory bean that we dedicate to creating test scope dependencies.
@@ -1796,7 +1895,10 @@ The classic use case for this is registering controllers or routes to
     avaje-inject-examples - hello-dynamodb - MyTestConfiguration.java
   </a>
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@TestScope</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * All beans wired by this factory will be in the &quot;global test scope&quot;.</span>
+<span class="cm"> */</span>
+<span class="nd">@TestScope</span>
 <span class="nd">@Factory</span>
 <span class="kd">class</span> <span class="nc">MyTestConfiguration</span> <span class="o">{</span>
 
@@ -1806,8 +1908,8 @@ The classic use case for this is registering controllers or routes to
   <span class="nd">@Bean</span>
   <span class="n">LocalstackContainer</span> <span class="nf">dynamoDBContainer</span><span class="o">()</span> <span class="o">{</span>
     <span class="n">LocalstackContainer</span> <span class="n">container</span> <span class="o">=</span> <span class="n">LocalstackContainer</span>
-      <span class="o">.</span><span class="na">newBuilder</span><span class="o">(</span><span class="s">&quot;1.13.2&quot;</span><span class="o">)</span>
-      <span class="o">.</span><span class="na">services</span><span class="o">(</span><span class="s">&quot;dynamodb&quot;</span><span class="o">)</span> <span class="c1">// &quot;dynamodb,sns,sqs&quot;</span>
+      <span class="o">.</span><span class="na">builder</span><span class="o">(</span><span class="s">&quot;0.14.2&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">services</span><span class="o">(</span><span class="s">&quot;dynamodb&quot;</span><span class="o">)</span> <span class="c1">// e.g. &quot;dynamodb,sns,sqs&quot;</span>
       <span class="o">.</span><span class="na">build</span><span class="o">();</span>
     <span class="n">container</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
     <span class="k">return</span> <span class="n">container</span><span class="o">;</span>
@@ -2213,8 +2315,8 @@ The classic use case for this is registering controllers or routes to
 <h5>Why not use Dagger2?</h5>
 <p>
   Dagger2 is not particularly orientated for server side developers with no lifecycle
-  support (@PostConstruct/@PreDestroy) and does not have some features that we like from
-  Spring DI (@Factory/@Bean + @Primary/@Secondary).
+  support (@PostConstruct + @PreDestroy) and does not have some features that we like from
+  Spring DI (@Factory + @Bean, @Primary + @Secondary).
 </p>
 <h5>Why not use Quarkus?</h5>
 <p>
@@ -2368,6 +2470,13 @@ The classic use case for this is registering controllers or routes to
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
+
+
+
+
+
+
+
 
 
 
