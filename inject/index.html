@@ -27,8 +27,9 @@
   <ul>
     <li><a href="#maven">Maven</a></li>
     <li><a href="#gradle">Gradle</a></li>
-    <li><a href="#jpms">JPMS Module system</a></li>
   </ul>
+</li>
+<li><a href="#jpms">Java modules</a>
 </li>
 <li><a href="#injection">Injection</a>
   <ul>
@@ -350,20 +351,20 @@
 <p>
   Use Gradle version 5.2 or greater which has better support for annotation processing.
 </p>
-<p>
-  Also review the IntelliJ IDEA Gradle settings - see below.
-</p>
 
 <h4>Dependencies</h4>
 <p>
-  Add <em>avaje-inject</em> as a compile dependency and <em>avaje-inject-generator</em> as
-  an annotation processor.
+  Add <em>avaje-inject</em> as an implementation dependency, <em>avaje-inject-generator</em> as
+  an annotation processor, and <em>avaje-inject-test</em> as a test dependency.
 </p>
 
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:8.5&#39;</span><span class="o">)</span>
+  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:8.5&#39;</span><span class="o">)</span>
   <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:8.5&#39;</span><span class="o">)</span>
+
+  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:8.5&#39;</span><span class="o">)</span>
+  <span class="n">testAnnotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:8.5&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -378,43 +379,25 @@
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:8.5&#39;</span><span class="o">)</span>
+  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:8.5&#39;</span><span class="o">)</span>
   <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:8.5&#39;</span><span class="o">)</span>
+
+  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:8.5&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
 
-<h3 id="idea">IntelliJ IDEA with Gradle</h3>
+
+<h2 id="jpms">Java modules - module-info</h2>
 <p>
-  We want to delegate the <code>build</code> to Gradle (to properly include the annotation processing)
-  so check our IDEA settings.
+  If using java modules, in the <code>module-info.java</code> we need to:
 </p>
+<ol>
+  <li>Add a <em>requires</em> clause for <em>io.avaje.inject</em></li>
+  <li>Add a <em>provides</em> clause for <em>io.avaje.inject.spi.Module</em></li>
+</ol>
 
-<h4>Settings / Build / Compiler / Annotation processors</h4>
-<p>
-  Ensure that <code>Enable annotation processing</code> is disabled so
-  that the build is delegated to Gradle (including the annotation processing):
-</p>
-
-<img src="/images/gradle-idea-disable-apt.png" width="100%">
-
-<h5>Settings / Build / Build tools / Gradle</h5>
-<p>
-  Make sure <code>Build and run</code> is delegated to Gradle.
-</p>
-<p>
-  Optionally set <em>Run tests using</em> to <code>Gradle</code> but leaving it to IntelliJ IDEA should be ok.
-</p>
-
-<img src="/images/gradle-idea-build.png" width="100%">
-
-
-<h3 id="jpms">JPMS - Java module system</h3>
-<p>
-  <em>avaje-inject</em> supports the java module system. Add a <em>requires</em> clause and
-  <em>provides</em> clause like the following:
-</p>
-
+<h5>Example module-info</h5>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
   <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">inject</span><span class="o">;</span>
   <span class="n">provides</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">Module</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">ExampleModule</span><span class="o">;</span>
@@ -422,7 +405,8 @@
 </pre></div>
 </div>
 <p>
-  With JPMS we need to explicitly specify the generated <code>Module</code> in a <code>provides</code> clause.
+ In the example above, <code>org.example.ExampleModule</code> is generated code typically found in
+  <code>target/generated-sources/annotations</code>.
 </p>
 <h2 id="injection">Injection</h2>
 
@@ -566,9 +550,9 @@
     Promotes single responsibility principal.</li>
 </ul>
 
-<h4>Field injection for circular dependencies</h4>
+<h4>Circular dependencies</h4>
 <p>
-  We use field injection to handle <a href="#circular">circular dependencies</a>.
+  We use field injection or method injection to handle <a href="#circular">circular dependencies</a>.
   See <a href="#circular">below</a> for more details.
 </p>
 
@@ -629,8 +613,8 @@
 
 <h3 id="circular">Circular dependencies</h3>
 <p>
-  When we have a circular dependency then we need to use <a href="#field">field injection</a>
-  on one of the dependencies.
+  When we have a circular dependency then we need to use either <a href="#field">field injection</a>
+  or <a href="#method">method injection</a> on one of the dependencies.
 </p>
 <p>
   For example, lets say we have A and B where A depends on B and B depends on A. In this case
@@ -663,7 +647,7 @@
 </p>
 <p>
   We can not use constructor injection for both A and B and instead we must use
-  field injection on either A or B like:
+  either field injection or method injection on either A or B like:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
@@ -681,14 +665,14 @@
 </pre></div>
 </div>
 <p>
-  The reason this works is that field injection occurs later after all the
+  The reason this works is that field injection and method injection occurs later after all the
   dependencies are constructed. <em>avaje-inject</em> uses 2 phases to
   "wire" the beans and then a 3rd phase to execute the <code>@PostConstruct</code>
   lifecycle methods:
 </p>
 <ul>
   <li>Phase 1: Construct all the beans in order based on constructor dependencies</li>
-  <li>Phase 2: Apply field injection on all beans</li>
+  <li>Phase 2: Apply field injection and method injection on all beans</li>
   <li>Phase 3: Execute all <code>@PostConstruct</code> lifecycle methods</li>
 </ul>
 <p>
@@ -702,7 +686,8 @@
 </ul>
 <p>
   With A, B, C above they combine to create a circular dependency. To handle this
-  we need to use <a href="#field">field injection</a> on one of the dependencies.
+  we need to use <a href="#field">field injection</a> or <a href="#method">method injection</a>
+  on one of the dependencies.
 </p>
 
 <h3 id="optional">Optional</h3>
@@ -807,7 +792,7 @@
   be used in injection.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">FooProvider</span> <span class="kd">implements</span> <span class="n">Provider</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span> <span class="o">{</span>
+<span class="kd">class</span> <span class="nc">FooProvider</span> <span class="kd">implements</span> <span class="n">Provider</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Bazz</span> <span class="n">bazz</span><span class="o">;</span>
 
@@ -824,15 +809,48 @@
 </pre></div>
 </div>
 <p>
-  Note that the alternative to using the <code>javax.inject.Provider&lt;T&gt;</code> interface is
+  We can then have another bean that has <code>Provider&lt;T&gt;</code> injected into it.
+  It calls <code>get()</code> to get an instance to then use.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">UseFoo</span>  <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Provider</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span> <span class="n">fooProvider</span><span class="o">;</span>
+
+  <span class="n">UseFoo</span><span class="o">(</span><span class="n">Provider</span><span class="o">&lt;</span><span class="n">Foo</span><span class="o">&gt;</span> <span class="n">fooProvider</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">fooProvider</span> <span class="o">=</span> <span class="n">fooProvider</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kt">void</span> <span class="nf">doStuff</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="c1">// get a Foo instance and use it</span>
+    <span class="n">Foo</span> <span class="n">foo</span> <span class="o">=</span> <span class="n">fooProvider</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  When using <code>Provider&lt;T&gt;</code> <code>get()</code> we can get a new instance each time we
+  call <code>get()</code>. In the above example, the <code>FooProvider.get()</code> method
+  returns a new instance each time <code>get()</code> is called. This is effectively the
+  same as <em>Prototype scope</em>.
+</p>
+<p>
+  Note that the alternative to implementing the <code>Provider&lt;T&gt;</code> interface is
   to instead use <code><a href="#factory">@Factory</a></code> and <code><a href="#bean">@Bean</a></code>
-  as it is more flexible and convenient than the the provider interface.
+  as it is more flexible and convenient than implementing the provider interface.
 </p>
 <h5>Spring DI Note</h5>
 <p>
   The JSR 330 <code>javax.inject.Provider&lt;T&gt;</code> interface is functionally the same
   as Spring DI <code>FactoryBean&lt;T&gt;</code>.
 </p>
+
+
+<h3 id="prototype">@Prototype</h3>
 
 
 <h3 id="factory">@Factory</h3>
@@ -1851,7 +1869,7 @@ The classic use case for this is registering controllers or routes to
 <h3>Only static fields</h3>
 <p>
   When a test only has static fields with <em>@Inject, @Mock or @Spy</em> then the global test scope (if defined)
-  is the parent of the static/all scope. This is used by all the tests that run.
+  is the parent of the static/all scope. This static/all scope is used by all the tests that run.
 </p>
 <p>
   In this case, <code>@InjectTest</code> detects that there are no instance fields to wire and will not create a BeanScope for
@@ -1864,11 +1882,12 @@ The classic use case for this is registering controllers or routes to
 <p>&nbsp;</p>
 <h2 id="test-scope">@TestScope - global test scope</h2>
 <p>
-  Test scope is a special scope used for testing that spans <em>ALL TESTS</em>. It effectively
-  provides <em>default dependencies to use for ALL tests</em>. As such we can think of it as the "global test scope".
+  When we use <code>@TestScope</code> we create a special bean scope used for testing that spans <em>ALL TESTS</em>.
+  It effectively provides <em>default dependencies to use for ALL tests</em>. As such we can think of it as the
+  "global test scope".
 </p>
 <p>
-  Under the hood, the test BeanScope is created when junit starts, the test BeanScope holds all the beans
+  Under the hood, the global test BeanScope is created when junit starts, this test BeanScope holds all the beans
   that we put in <code>@TestScope</code> and this scope is used as the parent BeanScope for <code>@InjectTest</code>
   tests.
 </p>
@@ -1880,7 +1899,7 @@ The classic use case for this is registering controllers or routes to
 <p>
   In <code>src/test</code> create a factory bean that we dedicate to creating test scope dependencies.
   Put <code>@TestScope</code> on this factory bean, the beans this factory creates are in our "test scope"
-  and will be wired into tests that use avaje-inject
+  and will be wired into tests that use <code>@InjectTest</code>.
 </p>
 
 <h4>Example - AmazonDynamoDB</h4>
@@ -2470,11 +2489,6 @@ The classic use case for this is registering controllers or routes to
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
-
-
-
-
-
 
 
 
