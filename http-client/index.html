@@ -27,7 +27,7 @@
 </li>
 <li><a href="#jdk-intro">JDK HttpClient Intro</a>
 </li>
-<li><a href="#quick-overview">Quick overview</a>
+<li><a href="#quick-overview">Quick Overview</a>
 </li>
 <li><a href="#sync-async">Sync and Async</a>
 </li>
@@ -37,12 +37,12 @@
     <ul>
       <li><a href="#json-jackson">Jackson</a></li>
       <li><a href="#json-gson">Gson</a></li>
-      <li><a href="#json-jsonb">avaje-jsonb</a></li>
+      <li><a href="#json-jsonb">Avaje-Jsonb</a></li>
     </ul>
 </li>
-<li><a href="#request-body">Request body</a>
+<li><a href="#request-body">Request Body</a>
     <ul>
-      <li><a href="#req-json">object JSON</a></li>
+      <li><a href="#req-json">Object JSON</a></li>
       <li><a href="#req-formparam">formParam</a></li>
       <li><a href="#req-path">path (file)</a></li>
       <li><a href="#req-inputStream">inputStream</a></li>
@@ -70,7 +70,9 @@
 </li>
 <li><a href="#httpCall">HttpCall</a>
 </li>
-<li><a href="#auth">Authorisation</a>
+<li><a href="#retry">Retry</a>
+</li>
+<li><a href="#auth">Authorization</a>
     <ul>
       <li><a href="#auth-basic">basic auth</a></li>
       <li><a href="#auth-bearer">bearer token</a></li>
@@ -93,12 +95,12 @@
       <li><a href="#api-request-body">BodyPublisher</a></li>
       <li><a href="#path">@Path</a></li>
       <li><a href="#pathParameters">Path parameters</a></li>
+      <li><a href="#header">@Header</a></li>
       <li><a href="#queryParam">@QueryParam</a></li>
       <li><a href="#beanParam">@BeanParam</a></li>
       <li><a href="#form">@Form</a></li>
       <li><a href="#formParam">@FormParam</a></li>
       <li><a href="#formBeans">Form beans</a></li>
-      <li><a href="#header">@Header</a></li>
     </ul>
 </li>
 <li><a href="#10k">10k requests & Loom</a>
@@ -124,7 +126,7 @@
     </header>
     
 
-<h1 id="overview">avaje http client</h1>
+<h1 id="overview">Avaje Http Client</h1>
 
 <table style="width: 100%;">
   <tr>
@@ -139,16 +141,9 @@
     <td><a target="_blank" href="https://github.com/avaje/avaje-http-client">Github</a></td>
     <td><a target="_blank" href="/apidocs/avaje-http-client">Javadoc</a></td>
     <td><a target="_blank" href="https://github.com/avaje/avaje-http-client/issues">Github</a></td>
-    <td><a target="_blank" href="https://github.com/avaje/avaje-http-client/releases">Latest 1.19</a></td>
+    <td><a href="https://github.com/avaje/avaje-http-client/releases"><img src="https://img.shields.io/maven-central/v/io.avaje/avaje-http-client.svg?label=Maven%20Central"></a></td>
   </tr>
 </table>
-<p>&nbsp;</p>
-<p>
-  <a href="https://mvnrepository.com/artifact/io.avaje/avaje-http-client"><img src="https://img.shields.io/maven-central/v/io.avaje/avaje-http-client.svg?label=Maven%20Central"></a>
-  <a href="https://github.com/avaje/avaje-http-client/actions/workflows/build.yml"><img src="https://github.com/avaje/avaje-http-client/actions/workflows/build.yml/badge.svg" alt="Build"></a>
-  <a href="https://github.com/avaje/avaje-http-client/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
-</p>
-<p>&nbsp;</p>
 
 <h3>Wrap JDK HttpClient</h3>
 <p>
@@ -243,7 +238,7 @@
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-http-client<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.19<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.http.client.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -255,7 +250,7 @@
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-http-api<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.17<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.http.api.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -269,7 +264,7 @@
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-http-client-generator<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.19<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.http.api.version}<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
@@ -288,7 +283,7 @@
       <span class="nt">&lt;path&gt;</span>
         <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
         <span class="nt">&lt;artifactId&gt;</span>avaje-http-client-generator<span class="nt">&lt;/artifactId&gt;</span>
-        <span class="nt">&lt;version&gt;</span>1.19<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;version&gt;</span>&#36;{avaje.http.api.version}<span class="nt">&lt;/version&gt;</span>
       <span class="nt">&lt;/path&gt;</span>
       <span class="nt">&lt;path&gt;</span>
           ... other annotation processor ...
@@ -350,17 +345,7 @@
   <li>Javadoc for <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html">JDK HttpClient</a> </li>
 </ul>
 
-<h3 id="other-projects">Other JDK HttpClient projects</h3>
-<p>
-  Methanol is another project based on JDK HttpClient. Let me know of others and
-  I'll add them to the list below.
-</p>
-<ul>
-  <li><a target="_blank" href="https://github.com/mizosoft/methanol/">Methanol</a></li>
-</ul>
-
-
-<h3 id="quick-overview">Quick overview</h3>
+<h3 id="quick-overview">Quick Overview</h3>
 
 <h4>HttpClientContext</h4>
 <p>
@@ -421,11 +406,11 @@
 
 <h2 id="sync-async">Sync and Async</h2>
 <p>
-  We can make requests in simple blocking manor or via <code>async()</code>
+  We can make requests in simple blocking manner or via <code>async()</code>
   in an asynchronous style using <code>CompletableFuture</code>.
 </p>
 <p>
-  JDK HttpClient provides a number of <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpResponse.BodyHandler.html">BodyHandlers</a>
+  The JDK HttpClient provides a number of <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpResponse.BodyHandler.html">BodyHandlers</a>
   including reactive Flow based subscribers. When executing the requests in
   asynchronous style the responses are processed in a reactive way. Generally
   <code>CompletableFuture.whenComplete()</code> will be called only when the
@@ -450,7 +435,7 @@
 <h2 id="httpClientContext">HttpClientContext</h2>
 <p>
   HttpClientContext is effectively a wrapper of <code>java.net.http.HttpClient</code>
-  with extra features for request interceptors, body adapters, retry.
+  with extra features for request interceptors, body adapters, retry, etc.
 </p>
 <p>
   Create a HttpClientContext with a base URL plus BodyAdapter (e.g. JacksonBodyAdapter).
@@ -485,7 +470,7 @@
   <em>avaje-http-client</em> provides a
   <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/BodyAdapter.html">BodyAdapter</a> interface
   with implementations for <a href="https://github.com/FasterXML/jackson">Jackson</a>,
-  <a href="https://github.com/google/gson">Gson</a> and <a href="https://github.com/avaje/avaje-jsonb">avaje-jsonb</a> to
+  <a href="https://github.com/google/gson">Gson</a> and <a href="https://github.com/avaje/avaje-jsonb">Avaje-Jsonb</a> to
   adapt request and response body content from JSON to java types and from java types to JSON.
 </p>
 
@@ -540,7 +525,7 @@
 </pre></div>
 </div>
 
-<h3 id="json-jsonb">Using avaje-jsonb</h3>
+<h3 id="json-jsonb">Using Avaje-Jsonb</h3>
 <p>
   To use <em>avaje-jsonb</em> for serialisation of request and response body content to and from JSON we need to:
 </p>
@@ -548,7 +533,7 @@
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-jsonb<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.15<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.jsonb.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -584,7 +569,7 @@
   to convert body content to/from JSON and java beans/types.
 </p>
 
-<h5>Request body</h5>
+<h5>Request Body</h5>
 <ul>
   <li>Object which is written by the BodyAdapter, e.g. JacksonBodyAdapter writes as JSON content</li>
   <li>formParam() for url encoded form</li>
@@ -996,7 +981,47 @@
 </div>
 
 
-<h2 id="auth">Authorisation</h2>
+<h2 id="retry">Retry (Sync Requests Only)</h2>
+<p>
+  To add Retry funtionality, use <code>.retryHandler(yourhandler)</code> on the builder to provide your retry handler.
+</p>
+<p>
+  The RetryHandler interface provides two methods, one for status exceptions (e.g. you get a 4xx/5xx from the server) and another for exceptions thrown by the underlying client (e.g. server times out or client couldn't send request).
+  <br></br>Here is example implementation of RetryHandler.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">ExampleRetry</span> <span class="kd">implements</span> <span class="n">RetryHandler</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">MAX_RETRIES</span> <span class="o">=</span> <span class="mi">2</span><span class="o">;</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isRetry</span><span class="o">(</span><span class="kt">int</span> <span class="n">retryCount</span><span class="o">,</span> <span class="n">HttpResponse</span><span class="o">&lt;?&gt;</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="kd">final</span> <span class="k">var</span> <span class="n">code</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="na">statusCode</span><span class="o">();</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">retryCount</span> <span class="o">&gt;=</span> <span class="n">MAX_RETRIES</span> <span class="o">||</span> <span class="n">code</span> <span class="o">&lt;=</span> <span class="mi">400</span><span class="o">)</span> <span class="o">{</span>
+
+      <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isExceptionRetry</span><span class="o">(</span><span class="kt">int</span> <span class="n">retryCount</span><span class="o">,</span> <span class="n">HttpException</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">//unwrap the exception</span>
+    <span class="kd">final</span> <span class="k">var</span> <span class="n">cause</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="na">getCause</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">retryCount</span> <span class="o">&gt;=</span> <span class="n">MAX_RETRIES</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">cause</span> <span class="k">instanceof</span> <span class="n">ConnectException</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+  <span class="o">}</span>
+</pre></div>
+</div>
+
+<h2 id="auth">Authorization</h2>
 <p>
   <em>avaje-http-client</em> has built in support for <a href="#auth-basic">basic auth</a> and
   <a href="#auth-bearer">bearer token</a> based authorisation.
@@ -1414,6 +1439,55 @@
 </p>
 
 
+<h3 id="header">@Header</h3>
+<p>
+  Use <code>@Header</code> for a header parameter.
+  It the header parameter name is not explicitly specified then
+  it is the <em>init caps snake case</em> of the parameter name.
+</p>
+<p>
+  <code>userAgent</code> -> <code>User-Agent</code>
+</p>
+<p>
+  <code>lastModified</code> -> <code>Last-Modified</code>
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span>
+<span class="nx">Bar</span> <span class="nf">postIt</span><span class="o">(</span><span class="nx">Foo</span> <span class="nx">payload</span><span class="o">,</span> <span class="nd">@Header</span><span class="o">(</span><span class="s">&quot;User-Agent&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">userAgent</span><span class="o">);</span> <span class="c1">// explicit</span>
+
+<span class="nd">@Post</span>
+<span class="nx">Bar</span> <span class="nf">postIt</span><span class="o">(</span><span class="nx">Foo</span> <span class="nx">payload</span><span class="o">,</span> <span class="nd">@Header</span> <span class="nx">String</span> <span class="nx">userAgent</span><span class="o">);</span> <span class="c1">// User-Agent</span>
+
+<span class="nd">@Get</span>
+<span class="nx">Bazz</span> <span class="nf">find</span><span class="o">(</span><span class="nd">@Header</span> <span class="nx">String</span> <span class="nx">lastModified</span><span class="o">);</span> <span class="c1">// Last-Modified</span>
+</pre></div>
+</div>
+
+<h4>@Header Map&lt;String, ?&gt;</h4>
+<p>
+  We can use <code>@Header</code> with a <code>Map&lt;String, ?&gt;</code>, <code>Map&lt;String, String&gt;</code>
+  or <code>Map&lt;String, Object&gt;</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;{type}&quot;</span><span class="o">)</span>
+<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">searchByType</span><span class="o">(</span><span class="nx">String</span> <span class="nx">type</span><span class="o">,</span> <span class="nx">String</span> <span class="nx">query</span><span class="o">,</span> <span class="nd">@Header</span> <span class="nx">Map</span><span class="o">&lt;</span><span class="nx">String</span><span class="o">,</span> <span class="o">?&gt;</span> <span class="nx">myHeaders</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  The generated code includes <code>.header(myHeaders)</code>
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET {type}</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Cat</span><span class="o">&gt;</span> <span class="nf">searchByType</span><span class="o">(</span><span class="n">String</span> <span class="n">type</span><span class="o">,</span> <span class="n">String</span> <span class="n">query</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,?&gt;</span> <span class="n">myHeaders</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="n">myHeaders</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;api&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;cats&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">type</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;query&quot;</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Cat</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
 <h3 id="queryParam">@QueryParam</h3>
 <p>
   We explicitly specify query parameters using <code>@QueryParam</code>.
@@ -1713,56 +1787,6 @@ The generated code for the above is:
 </pre></div>
 </div>
 
-
-<h3 id="header">@Header</h3>
-<p>
-  Use <code>@Header</code> for a header parameter.
-  It the header parameter name is not explicitly specified then
-  it is the <em>init caps snake case</em> of the parameter name.
-</p>
-<p>
-  <code>userAgent</code> -> <code>User-Agent</code>
-</p>
-<p>
-  <code>lastModified</code> -> <code>Last-Modified</code>
-</p>
-
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span>
-<span class="nx">Bar</span> <span class="nf">postIt</span><span class="o">(</span><span class="nx">Foo</span> <span class="nx">payload</span><span class="o">,</span> <span class="nd">@Header</span><span class="o">(</span><span class="s">&quot;User-Agent&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">userAgent</span><span class="o">);</span> <span class="c1">// explicit</span>
-
-<span class="nd">@Post</span>
-<span class="nx">Bar</span> <span class="nf">postIt</span><span class="o">(</span><span class="nx">Foo</span> <span class="nx">payload</span><span class="o">,</span> <span class="nd">@Header</span> <span class="nx">String</span> <span class="nx">userAgent</span><span class="o">);</span> <span class="c1">// User-Agent</span>
-
-<span class="nd">@Get</span>
-<span class="nx">Bazz</span> <span class="nf">find</span><span class="o">(</span><span class="nd">@Header</span> <span class="nx">String</span> <span class="nx">lastModified</span><span class="o">);</span> <span class="c1">// Last-Modified</span>
-</pre></div>
-</div>
-
-<h4>@Header Map&lt;String, ?&gt;</h4>
-<p>
-  We can use <code>@Header</code> with a <code>Map&lt;String, ?&gt;</code>, <code>Map&lt;String, String&gt;</code>
-  or <code>Map&lt;String, Object&gt;</code>.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;{type}&quot;</span><span class="o">)</span>
-<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">searchByType</span><span class="o">(</span><span class="nx">String</span> <span class="nx">type</span><span class="o">,</span> <span class="nx">String</span> <span class="nx">query</span><span class="o">,</span> <span class="nd">@Header</span> <span class="nx">Map</span><span class="o">&lt;</span><span class="nx">String</span><span class="o">,</span> <span class="o">?&gt;</span> <span class="nx">myHeaders</span><span class="o">);</span>
-</pre></div>
-</div>
-<p>
-  The generated code includes <code>.header(myHeaders)</code>
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET {type}</span>
-<span class="nd">@Override</span>
-<span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Cat</span><span class="o">&gt;</span> <span class="nf">searchByType</span><span class="o">(</span><span class="n">String</span> <span class="n">type</span><span class="o">,</span> <span class="n">String</span> <span class="n">query</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,?&gt;</span> <span class="n">myHeaders</span><span class="o">)</span> <span class="o">{</span>
-  <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="n">myHeaders</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;api&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;cats&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">type</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;query&quot;</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Cat</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-
 <h2 id="10k">10K requests - Loom vs Async</h2>
 <p>
   The following is a very quick and rough comparison of running 10,000 requests
@@ -1803,7 +1827,6 @@ The generated code for the above is:
   <span class="o">});</span>
 </pre></div>
 </div>
-
 
 <h3 id="10k-async">10K requests using Async and reactive streams</h3>
 <p>
