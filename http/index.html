@@ -19,6 +19,10 @@
 <ul>
   <li><a href="#overview">Overview</a>
 </li>
+<li><a href="#quick-start">Quick-Start</a>
+</li>
+<li><a href="#usage">Usage</a>
+</li>
 <li><a href="#dependencies">Dependencies</a>
     <ul>
       <li><a href="#maven">Maven</a></li>
@@ -37,6 +41,7 @@
       <li><a href="#form">@Form</a></li>
       <li><a href="#form-param">@FormParam</a></li>
       <li><a href="#form-beans">Form beans</a></li>
+      <li><a href="#produces">@Produces</a></li>
       <li><a href="#header">@Header</a></li>
       <li><a href="#cookie">@Cookie</a></li>
       <li><a href="#get">@Get</a></li>
@@ -76,7 +81,7 @@
 <header>
   <nav id="top">
     <div class="breadcrumb">
-      <a href="/" title="home">avaje</a> &nbsp;&nbsp;/&nbsp;&nbsp;http
+      <a href="/" title="home">Avaje</a> &nbsp;&nbsp;/&nbsp;&nbsp;HTTP
     </div>
     <ul>
       <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
@@ -85,9 +90,10 @@
     </ul>
   </nav>
 </header>
-<h1 id="overview">avaje http servers & client</h1>
+<h1 id="overview">Avaje HTTP Server & Client</h1>
 <p>
-  The goal is to be better than JAX-RS by using source code generation (via Java annotation processing).
+Library that generates extremely fast adapter code
+for Javalin and Helidon SE/Nima APIs via Annotation Processing.
 </p>
 <table width="100%">
   <tr>
@@ -102,29 +108,28 @@
     <td><a target="_blank" href="https://github.com/avaje/avaje-http">Github</a></td>
     <td><a target="_blank" href="/apidocs/avaje-http">Javadoc</a></td>
     <td><a target="_blank" href="https://github.com/avaje/avaje-http/issues">Github</a></td>
-    <td><a target="_blank" href="https://github.com/avaje/avaje-http/releases">Latest 1.11</a></td>
+    <td><a href="https://github.com/avaje/avaje-http/releases"><img src="https://img.shields.io/maven-central/v/io.avaje/avaje-http-api.svg?label=Maven%20Central"></a></td>
   </tr>
 </table>
 <p>&nbsp;</p>
 <p>
-  Better in terms of being much lighter and faster at runtime by using source code generation
+ This library enables your service to be fast and light at runtime by using source code generation
   (java annotation processors) to adapt annotated rest controllers with (<code>@Path, @Get, @Post etc</code>)
   to <a target="_blank" href="https://javalin.io">Javalin</a>, <a target="_blank" href="https://helidon.io">Helidon SE</a>
   and similar web routing http servers.
 </p>
 <p>
   Effectively we are replacing Jersey or RestEasy with source code generation and the capabilities
-  of <a target="_blank" href="https://javalin.io">Javalin</a> and <a target="_blank" href="https://helidon.io">Helidon SE</a>
+  of <a target="_blank" href="https://javalin.io">Javalin</a> or <a target="_blank" href="https://helidon.io">Helidon SE</a>
   (web routing).
 </p>
 <p>
-  Better also in terms of being simpler when compared with the internals of Jersey or RestEasy. It turns
-  out we don't need to generate much code at all and that the generated code is very simple, readable
-  and of course developers can navigate to it, add break points and debug just as if we wrote it all
+ It turns out we don't need to generate much code at all and that the generated code is very simple and readable.
+  Developers can navigate to it, add break points and debug just as if we wrote it all
   manually ourselves.
 </p>
 <p>
-  What we <b>lose</b> in doing this is built in
+  What we <b>lose</b> in doing this is automatic
   <a target="_blank" href="https://en.wikipedia.org/wiki/Content_negotiation">Content negotiation</a>. For example, if
   we need endpoints that serve response content as <i>either</i> JSON or XML content based on request headers
   then we would to handle this ourselves.
@@ -132,84 +137,72 @@
 
 <h4>Summary</h4>
 <ul>
-  <li>Provide a similar programming style to JAX-RS and Spring MVC</li>
+  <li>Provides a similar programming style to JAX-RS and Spring MVC</li>
   <li>Light weight by using code generation - no reflection, no extra overhead</li>
-  <li>Automatically generate <a href="#openapi">Swagger/OpenAPI</a> documentation</li>
-  <li>Use Javalin Context, Helidon request and response as needed</li>
-  <li>Support request scope injection of Javalin Context, Helidon request and response</li>
-  <li>Support using <a href="#bean-validation">Bean validation</a> on request payloads</li>
-  <li>Controllers should be nice and readable - avoid annotation overload</li>
+  <li>Automatically generates <a href="#openapi">Swagger/OpenAPI</a> documentation</li>
+  <li>Allows use of underlying Javalin/Helidon request/response constructs as needed</li>
+  <li>Supports request scope injection of Javalin Context, Helidon request and response</li>
+  <li>Supports using <a href="#bean-validation">Bean validation</a> on request payloads</li>
+  <li>Requires Fewer annotations than typical JAX-RS - avoid annotation overload</li>
 </ul>
 
 <h4>JAX-RS Annotations</h4>
 <p>
-  As we are using Java annotation processing we our generators are exposed to more information
+  As we are using Java annotation processing our generators are exposed to more information
   than is obtained via reflection at runtime. This means we can reduce annotation verbosity
   making nicer cleaner API's.
 </p>
 <p>
-  For a comparison with JAX-RS goto here.
-</p>
-<p>
   A design decision has been to not use JAX-RS annotations at this stage. This is because
   the JAX-RS annotations are a lot more verbose than we desire and because they are not provided
-  as a nice clean separate dependency. The JAX-RS API has a lot of stuff that we do not need.
+  as a nice clean separate dependency. The JAX-RS API has a lot of extra weight that we do not need.
 </p>
 
-<h2>Http client</h2>
+<h2>HTTP Client</h2>
 <p>
   Avaje <a href="/http-client/">http client</a> is a lightweight wrapper of JDK HttpClient
   that also supports Client API with annotation processing to generate source to implement
   the API.
 </p>
 
-<h2 id="dependencies">Dependencies</h2>
-
-<h3 id="maven">Maven</h3>
+<h2 id="quick-start">Quick Start</h2>
 <p>
-  Add <em>avaje-inject</em> and <em>avaje-http-api</em> dependencies.
+  1. Add <em>avaje-inject</em> and <em>avaje-http-api</em> dependencies.
 </p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>6.1<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje-inject.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-http-api<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.11<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje-http.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
 
-<h4>Annotation processors</h4>
 <p>
-  Add the annotation processors <em>avaje-inject-generator</em> and either
-  <em>avaje-http-javalin-generator</em> to target <a target="_blank" href="https://javalin.io">Javalin</a>
-  or <em>avaje-http-helidon-generator</em> to target <a target="_blank" href="https://helidon.io">Helidon SE</a>.
-</p>
-<p>
-  We typically use <em>provided</em> scope for annotation processors.
+2. Add the generator module for your desired microframework as a annotation processor.
 </p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Annotation processors --&gt;</span>
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>6.1<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje-inject.version}<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-http-javalin-generator<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>1.11<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje-http.version}<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
-
 <p>
-  Note that if there are other annotation processors and they are specified via
+  2a. Note that if there are other annotation processors and they are specified via
   <em>maven-compiler-plugin</em> <em>annotationProcessorPaths</em>
   then we add <em>avaje-http-javalin-generator</em> there instead.
 </p>
@@ -221,12 +214,12 @@
       <span class="nt">&lt;path&gt;</span>
         <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
         <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
-        <span class="nt">&lt;version&gt;</span>6.1<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;version&gt;</span>&#36;{avaje-inject.version}<span class="nt">&lt;/version&gt;</span>
       <span class="nt">&lt;/path&gt;</span>
       <span class="nt">&lt;path&gt;</span>
         <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
         <span class="nt">&lt;artifactId&gt;</span>avaje-http-javalin-generator<span class="nt">&lt;/artifactId&gt;</span>
-        <span class="nt">&lt;version&gt;</span>1.11<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;version&gt;</span>&#36;{avaje-http.version}<span class="nt">&lt;/version&gt;</span>
       <span class="nt">&lt;/path&gt;</span>
       <span class="nt">&lt;path&gt;</span>
           ... other annotation processor ...
@@ -237,7 +230,106 @@
 </pre></div>
 </div>
 
+<p>3. Define a Controller (These APT processors work with both Java and Kotlin.)</p>
 
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.hello</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Controller</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Get</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Path</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+
+<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/widgets&quot;</span><span class="o">)</span>
+<span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">WidgetController</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">HelloComponent</span> <span class="n">hello</span><span class="o">;</span>
+  <span class="kd">public</span> <span class="nf">WidgetController</span><span class="o">(</span><span class="n">HelloComponent</span> <span class="n">hello</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">hello</span> <span class="o">=</span> <span class="n">hello</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+  <span class="n">Widget</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Widget</span><span class="o">(</span><span class="n">id</span><span class="o">,</span> <span class="s">&quot;you got it&quot;</span><span class="o">+</span> <span class="n">hello</span><span class="o">.</span><span class="na">hello</span><span class="o">());</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">()</span>
+  <span class="n">List</span><span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;</span> <span class="nf">getAll</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">List</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="k">new</span> <span class="n">Widget</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="s">&quot;Rob&quot;</span><span class="o">),</span> <span class="k">new</span> <span class="n">Widget</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="s">&quot;Fi&quot;</span><span class="o">));</span>
+  <span class="o">}</span>
+
+  <span class="n">record</span> <span class="nf">Widget</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">){};</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h2 id=usage>Usage</h2>
+<p>
+  The natural way to use the generated adapters is to
+  get a DI library to find and wire them. This is what the below examples do and
+  they use <em>Avaje</em> to do this.
+</p>
+<p>
+  Note that there isn't a requirement to use Avaje for dependency injection.
+  Any DI library that can find and wire the generated <em>@Singleton</em> beans can
+  be used. You can even use Dagger2 or Guice to wire the controllers if you so desire.
+</p>
+
+<h4>Usage with Javalin</h2>
+
+<p>The annotation processor will generate controller classes implementing the WebRoutes interface, which means we can
+get all the WebRoutes and register them with Javalin using:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+<span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">routes</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">routes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">::</span><span class="n">registerRoutes</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<h4> Usage with Helidon SE </h2>
+<p>
+The annotation processor will generate controller classes implementing the Helidon Service interface, which we can use
+get all the Services and register them with Helidon `RoutingBuilder`.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">Service</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="k">var</span> <span class="n">routingBuilder</span> <span class="o">=</span> <span class="n">Routing</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">register</span><span class="o">(</span><span class="n">routes</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">toArray</span><span class="o">(</span><span class="n">Service</span><span class="o">[]::</span><span class="k">new</span><span class="o">));</span>
+<span class="n">WebServer</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">addMediaSupport</span><span class="o">(</span><span class="n">JacksonSupport</span><span class="o">.</span><span class="na">create</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">routing</span><span class="o">(</span><span class="n">routingBuilder</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<h4>Helidon Nima Usage</h4>
+
+<p>
+The annotation processor will generate controller classes implementing the Helidon HttpService interface, which we can use
+get all the services and register them with the Helidon `HttpRouting`.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">HttpService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="kd">final</span> <span class="k">var</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">HttpRouting</span><span class="o">.</span><span class="na">builder</span><span class="o">();</span>
+
+<span class="k">for</span> <span class="o">(</span><span class="kd">final</span> <span class="n">HttpService</span> <span class="n">httpService</span> <span class="o">:</span> <span class="n">routes</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">httpService</span><span class="o">.</span><span class="na">routing</span><span class="o">(</span><span class="n">builder</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="n">WebServer</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+         <span class="o">.</span><span class="na">addRouting</span><span class="o">(</span><span class="n">builder</span><span class="o">.</span><span class="na">build</span><span class="o">())</span>
+         <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+         <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<h2 id="dependencies">Dependencies</h2>
+
+<h3 id="maven">Maven</h3>
+<p>
+  See the <a href="#quick-start">quick start example </a>
+</p>
 
 <h3 id="gradle">Gradle</h3>
 <p>
@@ -272,11 +364,11 @@
 
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:6.1&#39;</span><span class="o">)</span>
-  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-http-api:1.11&#39;</span><span class="o">)</span>
+  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:8.10&#39;</span><span class="o">)</span>
+  <span class="n">compile</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-http-api:1.20&#39;</span><span class="o">)</span>
 
-  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:6.1&#39;</span><span class="o">)</span>
-  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-http-javalin-generator:1.11&#39;</span><span class="o">)</span>
+  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:8.10&#39;</span><span class="o">)</span>
+  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-http-javalin-generator:1.20&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -288,8 +380,8 @@
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:6.1&#39;</span><span class="o">)</span>
-  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-http-javalin-generator:1.11&#39;</span><span class="o">)</span>
+  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:8.10&#39;</span><span class="o">)</span>
+  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-http-javalin-generator:1.20&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -405,7 +497,7 @@
 </pre></div>
 </div>
 <p>
-  The controllers can have dependencies injected. The ContactController above will
+  The controllers can have dependencies injected. The ContactController above can easily
   have the ContactService dependency injected by <a href="/inject">avaje-inject</a>.
 </p>
 
@@ -437,14 +529,14 @@ GET /foo
 <span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">RootController</span> <span class="o">{</span>
 
-  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">MediaType</span><span class="o">.</span><span class="na">TEXT_PLAIN</span><span class="o">)</span>
   <span class="nd">@Get</span>
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">MediaType</span><span class="o">.</span><span class="na">TEXT_PLAIN</span><span class="o">)</span>
   <span class="n">String</span> <span class="nf">hello</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="s">&quot;Hello world&quot;</span><span class="o">;</span>
   <span class="o">}</span>
 
-  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">MediaType</span><span class="o">.</span><span class="na">TEXT_PLAIN</span><span class="o">)</span>
   <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">)</span>
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">MediaType</span><span class="o">.</span><span class="na">TEXT_PLAIN</span><span class="o">)</span>
   <span class="n">String</span> <span class="nf">helloFoo</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="s">&quot;Hello Foo&quot;</span><span class="o">;</span>
   <span class="o">}</span>
@@ -650,8 +742,6 @@ GET /products/chair/commercial;style=classical
 <span class="o">}</span>
 </pre></div>
 </div>
-
-
 
 <h3>Query parameter types</h3>
 <p>
@@ -972,6 +1062,49 @@ The generated Javalin code for the above is.
 <span class="o">});</span>
 </pre></div>
 </div>
+<h2 id="produces">@Produces</h2>
+<p>
+  Use <code>@Produces</code> to modify the response content type and generated OpenAPI definition.
+  When not specified, we default to <code>application/json</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">)</span>
+<span class="nd">@Controller</span>
+<span class="kd">class</span> <span class="nc">RootController</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="n">Service</span> <span class="n">service</span><span class="o">;</span>
+
+  <span class="c1">//send plain text</span>
+  <span class="nd">@Get</span>
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">MediaType</span><span class="o">.</span><span class="na">TEXT_PLAIN</span><span class="o">)</span>
+  <span class="n">String</span> <span class="nf">hello</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">&quot;Hello world&quot;</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="c1">// default json</span>
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;obj&quot;</span><span class="o">)</span>
+  <span class="n">Example</span> <span class="nf">helloObj</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Example</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="c1">// we can also send our data as a byte array</span>
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;png&quot;</span><span class="o">)</span>
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">MediaType</span><span class="o">.</span><span class="na">IMAGE_PNG</span><span class="o">)</span>
+  <span class="kt">byte</span><span class="o">[]</span> <span class="nf">helloByte</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">service</span><span class="o">.</span><span class="na">getPNG</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="c1">// use Javalin Context for our response</span>
+  <span class="c1">// in this case Produces is only needed for the OpenAPI generation</span>
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;ctx&quot;</span><span class="o">)</span>
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">MediaType</span><span class="o">.</span><span class="na">IMAGE_PNG</span><span class="o">)</span>
+  <span class="kt">void</span> <span class="nf">helloCTX</span><span class="o">(</span><span class="n">Context</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">service</span><span class="o">.</span><span class="na">writeResponseDirectly</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">outputStream</span><span class="o">());</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
 <h2 id="header">@Header</h2>
 <p>
   Use <code>@Header</code> for a header parameter.
@@ -1543,10 +1676,15 @@ The generated Javalin code for the above is.
 
 <h3>Javadoc</h3>
 <p>
-  The annotation processor reads the javadoc (and Kotlin documentation)
-  for the controller methods and the description, @param and @return
-  documentation is all used in the OpenAPI definition. The processor
+  The annotation processor reads the javadoc (and Kotlin documentation) of the controller methods to generate the openAPI definition.
+  The javadoc summary, description, @param and @return
+  documentation are used to create the OpenAPI Operation summary, description, body content, and response content respectively. The processor
   reads all the request and response types as OpenAPI component schema.
+</p>
+
+<h3>Avaje Annotation</h3>
+<p>
+  The various annotations like <code>@Header</code>,<code>@Param</code>, and <code>@Produces</code> also modify the generated OpenAPI docs.
 </p>
 
 <h3>Validation annotations - @NotNull, @Size, @Email etc</h3>
@@ -1584,6 +1722,11 @@ The generated Javalin code for the above is.
 <p>
   Put <code>@Hidden</code> on controller methods that we want to exclude
   from the OpenAPI documentation.
+</p>
+
+<h4>@Tags</h4>
+<p>
+  Put <code>@Tags</code> on controller methods to add tags to the OpenAPI Operation documentation.
 </p>
 
 <h3>Gradle plugin</h3>
