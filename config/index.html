@@ -186,9 +186,9 @@
       files to load.
     </p>
 
-    <h5>example</h5>
-    <div class="syntax yml"><div class="highlight"><pre><span></span><span class="c1">## in application.yaml</span>
-<span class="nt">load.properties</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/etc/config/myapp.properties /etc/other.yaml</span>
+    <h5>example in application.yaml</h5>
+    <div class="syntax yml"><div class="highlight"><pre><span></span><span class="c1">## we don&#39;t need to specify path if it&#39;s in src/main/resources</span>
+<span class="nt">load.properties</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local.properties /etc/other.yaml</span>
 </pre></div>
 </div>
     <p>

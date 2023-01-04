@@ -157,6 +157,9 @@
 
 <span class="n">JsonType</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="n">customerType</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
+<span class="c1">// If the type is generic we can specify</span>
+<span class="c1">// JsonType&lt;Customer&lt;T1,T2,...&gt;&gt; customerType = jsonb.type(Types.newParameterizedType(Customer.class, T1.class,T2.class, ...);</span>
+
 <span class="n">Customer</span> <span class="n">customer</span> <span class="o">=</span> <span class="o">...;</span>
 
 <span class="c1">// serialize to json</span>

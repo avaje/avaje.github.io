@@ -50,6 +50,7 @@
     <li><a href="#bean">@Bean</a></li>
     <li><a href="#primary">@Primary</a></li>
     <li><a href="#secondary">@Secondary</a></li>
+    <li><a href="#prototype">@Prototype</a></li>
   </ul>
 </li>
 <li><a href="#qualifiers">Qualifiers</a>
@@ -74,6 +75,19 @@
     <li><a href="#bean-scope">BeanScope</a></li>
   </ul>
 </li>
+<li><a href="#modules">Modules</a>
+  <ul>
+    <li><a href="#unnamed-module">Unnamed Module</a></li>
+    <li><a href="#single-module">Single Module</a></li>
+    <li><a href="#multi-module">Multi-module</a></li>
+    <li><a href="#inject-module">@InjectModule</a></li>
+  </ul>
+</li>
+<li><a href="#aop">AOP</a>
+  <ul>
+    <li><a href="#aspect">@Aspect</a></li>
+  </ul>
+</li>
 <li><a href="#testing">Testing</a>
   <ul>
     <li><a href="#unit-testing">Unit Testing</a></li>
@@ -85,14 +99,6 @@
     <li><a href="#inject-test">@InjectTest</a></li>
     <li><a href="#test-scope">@TestScope</a></li>
     <li><a href="#programmatic-testing">Programmatic Testing</a></li>
-  </ul>
-</li>
-<li><a href="#modules">Modules</a>
-  <ul>
-    <li><a href="#unnamed-module">Unnamed Module</a></li>
-    <li><a href="#single-module">Single Module</a></li>
-    <li><a href="#multi-module">Multi-module</a></li>
-    <li><a href="#inject-module">@InjectModule</a></li>
   </ul>
 </li>
 <li><a href="#why">Why avaje-inject exists?</a>
@@ -109,12 +115,14 @@
 </li>
 <li><a href="#spring">Spring DI</a>
 </li>
+<li><a href="#value">Why no @Value?</a>
+</li>
 </ul>
 <p>&nbsp;</p>
     </nav>
   </aside>
   <article id="main-content">
-     
+    
 <header>
   <nav id="top">
     <div class="breadcrumb">
@@ -187,6 +195,7 @@
         <li><a href="#factory">@Factory + @Bean</a></li>
         <li><a href="#primary">@Primary + @Secondary</a></li>
         <li><a href="#test-scope">Test scope</a> component testing</li>
+        <li><a href="#aspect">Aspect Oriented Programming</a> around method advice</li>
       </ul>
     </td>
     <td>
@@ -1063,6 +1072,29 @@
   and we use <em>@Primary</em> to indicate the best implementation to use when it is available.
   <em>avaje-inject</em> DI will then wire depending on which modules (jars) are included in the classpath.
 </p>
+
+<h3 id="prototype">@Prototype</h3>
+<p>When the <em>@Prototype</em> annotation is added to a class/factory bean method, a new instance of the bean will be created each time it is requested or wired.</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Prototype</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Proto</span> <span class="o">{</span>
+  <span class="c1">//every time this bean is requested, the constructor is called to provide another instance</span>
+  <span class="o">...</span>
+  <span class="o">}</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
+<span class="kd">class</span> <span class="nc">ProtoFactory</span> <span class="o">{</span>
+  <span class="c1">//every time this bean is requested, the factory method is called to provide another instance</span>
+  <span class="nd">@Bean</span>
+  <span class="nd">@Prototype</span>
+  <span class="n">Example</span> <span class="nf">proto</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Example</span><span class="o">();</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
 <h2 id="qualifiers">Qualifiers</h2>
 
 <h3 id="named">@Named</h3>
@@ -1547,6 +1579,282 @@ The classic use case for this is registering controllers or routes to
   See <a href="#testing">Testing</a> for more on wiring with test doubles.
 </p>
 
+
+<h2 id="modules">Modules</h2>
+<p>
+  To wire all the beans into a scope, <i>avaje-inject</i> generates module classes that run all the constructors/factory methods and adds all beans to the <i>scope</i>.
+</p>
+<h3 id="unnamed-module">Unnamed Modules</h3>
+<p>
+  When we don't specify <em>@InjectModule</em> on a module it is an <em>unnamed module</em>.
+  In effect, the module name is derived from the top most package and that module has no
+  <em>provides</em> or <em>requires</em> specified.
+</p>
+<p>
+  For example, if the top level package is determined to be <code>org.foo.coffee</code> then
+  the module is called <code>CoffeeModule</code>. In <code>target/generated-sources/annotations</code>
+  we will see the generated <code>org.foo.coffee.CoffeeModule</code>.
+</p>
+
+<h3 id="single-module">Single Module Apps</h3>
+<p>
+  When we are wiring dependencies that are all part of a single jar/module then we don't
+  really care about <em>module ordering</em>. All the dependencies that are being injected are known and
+  provided by the same jar/module or provided externally.
+</p>
+
+<h4>requires - external dependency</h4>
+<p>
+  We use <code>@InjectModule(requires = ...)</code> to specify an external dependency that will
+  be programmatically provided.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// at compile time, allow injection of MyExternalDependency</span>
+<span class="c1">// ... even though it doesn&#39;t exist in this module</span>
+<span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">requires</span> <span class="o">=</span> <span class="nx">MyExternalDependency</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>
+  When compiling the annotation processor checks that dependencies exist or are listed
+  in <code>requires</code> (or <code>requiresPackages)</code> meaning that they are
+  externally supplied dependencies.
+</p>
+<p>
+  When creating the BeanScope we provide the externally created dependencies using
+  <code>bean()</code>. These external dependencies are then injected where needed.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">MyExternalDependency</span> <span class="n">myExternal</span> <span class="o">=</span> <span class="o">...;</span>
+
+<span class="c1">// create with an externally provided dependency</span>
+<span class="kd">final</span> <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">MyExternalDependency</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">myExternal</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</pre></div>
+</div>
+
+
+<h4>ignoreSingleton</h4>
+<p>
+  We use <code>@InjectModule(ignoreSingleton = true)</code> in order to specify that we want
+  avaje-inject to ignore standard JSR-330 <code>@Singleton</code> - with the expectation
+  that another DI library (like Guice) is being used and we want avaje-inject to co-exist
+  and ignore anything annotated with <code>@Singleton</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">ignoreSingleton</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>
+  When using <code>ignoreSingleton = true</code> we use <a href="#component">@Component</a> instead of
+  using <code>@Singleton</code>.
+</p>
+
+<h3 id="multi-module">Multi-module Apps</h3>
+<p>
+  When we are wiring dependencies that span multiple jars/modules then we to provide more
+  control over the order in which the modules are wired. We provide this control
+  by using <code>@InjectModule</code> and the use of <code>provides</code>, and <code>requires</code>
+  or <code>requiresPackages</code>.
+</p>
+
+<h4>Example - modular coffee app</h4>
+<p>
+  See example source at <a href="https://github.com/avaje/avaje-inject-examples/tree/main/modular-coffee-app">avaje-inject-examples / modular-coffee-app</a>
+</p>
+
+<h5>module 1 - coffee-heater</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span><span class="o">=</span><span class="s">&quot;coffee-heater&quot;</span><span class="o">,</span> <span class="nx">provides</span> <span class="o">=</span> <span class="nx">Heater</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</pre></div>
+</div>
+
+<h5>module 2 - coffee-pump</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;coffee-pump&quot;</span><span class="o">,</span> <span class="nx">requires</span> <span class="o">=</span> <span class="nx">Heater</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">provides</span> <span class="o">=</span> <span class="nx">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>
+  This module expects <code>Heater</code> to be provided by another module. In effect, the
+  coffee-heater module must be wired <em>before</em> this module, and it provides the Heater
+  that is required when we wire the coffee-pump module.
+</p>
+
+<h5>module 3 - coffee-main</h5>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;coffee-main&quot;</span><span class="o">,</span> <span class="nx">requires</span> <span class="o">=</span> <span class="o">{</span><span class="nx">Heater</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
+</pre></div>
+</div>
+<p>
+  This module expects <code>Heater</code> and <code>Pump</code> to be provided by other module(s).
+  It needs other modules to be wired before and for those modules to provide the Heater and Pump.
+</p>
+<p>
+  avaje-inject determines the order in which to wire the modules based on <code>provides, requires</code>. In this example
+  it needs to wire the modules in order of: <em>coffee-heater, coffee-pump and then coffee-main</em>.
+</p>
+<p>
+  That is, in a multi-module app avaje-inject creates one BeanScope per module and needs to
+  determine the order in which the modules are wired. It does this using the module <em>provides</em>
+  and <em>requires</em>. As the modules are wired, the beans from any previously wired modules are
+  available to the module being wired.
+</p>
+
+<h3>requires vs requiresPackages</h3>
+<p>
+  We use either <code>requires</code> OR <code>requiresPackages</code>. Using requires is nice in that
+  we explicitly list each external dependency that the module requires BUT this can get onerous when this
+  is a really large list. In this case we can use <code>requiresPackages</code> instead and that makes
+  the assumption that any dependency under those packages will be provided. So using requiresPackages
+  is less strict but more practical when there is a lot of module dependencies.
+</p>
+<p>
+  When we use <code>requiresPackages</code> that means that <code>provides</code> can similarly specify
+  a class at the top level, and we don't need to list ALL the provided dependencies.
+</p>
+
+<h3 id="inject-module">@InjectModule</h3>
+
+<h4 id="module-name">name</h4>
+<p>
+  Give the module an explicit name. Otherwise, it is derived from the top level package.
+</p>
+<h4 id="module-ignoreSingleton">ignoreSingleton</h4>
+<p>
+  Set this to true in order to specify that we want
+  avaje-inject to ignore standard JSR-330 <code>@Singleton</code> with the expectation
+  that another DI library (like Guice) is being used and we want avaje-inject to co-exist
+  and ignore anything annotated with <code>@Singleton</code>.
+</p>
+
+<h4 id="module-provides">provides</h4>
+<p>
+  List the classes that this module provides. Used to order modules.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;feature-toggle&quot;</span><span class="o">,</span> <span class="nx">provides</span><span class="o">=</span><span class="nx">FeatureToggle</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</pre></div>
+</div>
+
+<h4 id="module-requires">requires</h4>
+<p>
+  Defines dependencies that the modules depends on that are provided by another module or manually.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;job-system&quot;</span><span class="o">,</span> <span class="nx">requires</span><span class="o">=</span><span class="nx">FeatureToggle</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>
+  In effect this allows the job system components to depend on <code>FeatureToggle</code> with the expectation that
+  it will be supplied by another module or supplied manually.
+</p>
+
+<h4 id="module-requiresPackages">requiresPackages</h4>
+<p>
+  If we have a LOT of dependencies provided by another module specifying each of these explicitly in <code>requires</code>
+  can get verbose. Instead of doing that we can use <code>requiresPackages</code> to define top level packages, any
+  dependency required under top level packages will be expected to be provided by another module.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// anything at or below the package of Feature is provided externally</span>
+<span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;job-system&quot;</span><span class="o">,</span> <span class="nx">requiresPackages</span><span class="o">=</span><span class="nx">Feature</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</pre></div>
+</div>
+
+<p>
+  <em>avaje-inject</em> uses provides, requires, requiresPackages to determine the order in which the modules are created
+  and wired. <em>avaje-inject</em> finds all the modules in the classpath (via Service loader) and then orders the modules
+  based on provides, requires, requiresPackages. In the example above the "feature-toggle" module must be wired first,
+  and then the  beans it contains are available when wiring the "job-system".
+</p>
+<h2 id="aop">Aspect Oriented Programming</h3>
+This library has several contructs that support Aspect Oriented Programmming
+
+<h3 id="aspect">@Aspect</h3>
+<p>
+  We can create an annotation and annotate with <code>@Aspect</code> to define an aspect annotation.
+   Aspect.target() specifies the associated type that implements <code>AspectProvider</code>.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Aspect</span><span class="o">(</span><span class="nx">target</span> <span class="o">=</span> <span class="nx">MyAroundAspect</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="nd">@Target</span><span class="o">(</span><span class="nx">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="nx">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">MyAround</span> <span class="o">{</span>
+
+  <span class="n">String</span> <span class="nf">name</span><span class="o">()</span> <span class="k">default</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>The AspectProvider should be a <code>@Singleton</code> that provides a <code>MethodInterceptor</code>. (Which will intercept the method call).</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyAroundAspect</span> <span class="kd">implements</span> <span class="n">AspectProvider</span><span class="o">&lt;</span><span class="n">MyAround</span><span class="o">&gt;,</span> <span class="n">MethodInterceptor</span> <span class="o">{</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">MethodInterceptor</span> <span class="nf">interceptor</span><span class="o">(</span><span class="n">Method</span> <span class="n">method</span><span class="o">,</span> <span class="n">MyAround</span> <span class="n">around</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">//For the sake of brevity we have made this class also implement MethodInterceptor</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">invoke</span><span class="o">(</span><span class="n">Invocation</span> <span class="n">invoke</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;before args: &quot;</span> <span class="o">+</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">invoke</span><span class="o">.</span><span class="na">arguments</span><span class="o">())</span> <span class="o">+</span> <span class="s">&quot; method: &quot;</span> <span class="o">+</span> <span class="n">invoke</span><span class="o">.</span><span class="na">method</span><span class="o">());</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="n">invoke</span><span class="o">.</span><span class="na">invoke</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+      <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;after&quot;</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+With the provider set, we can use our newly created aspect annotation on a class/method to intercept calls.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ExampleService</span> <span class="o">{</span>
+
+  <span class="nd">@MyAround</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">other</span><span class="o">(</span>
+      <span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">&quot;other &quot;</span> <span class="o">+</span> <span class="n">param0</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">param1</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  Avaje will generate a proxy class that will run the aspects for every annotated method.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Proxy</span>
+<span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;io.avaje.inject.generator&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ExampleService&#36;Proxy</span> <span class="kd">extends</span> <span class="n">ExampleService</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">MyAroundAspect</span> <span class="n">myAroundAspect</span><span class="o">;</span>
+
+  <span class="kd">private</span> <span class="n">Method</span> <span class="n">other0</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">MethodInterceptor</span> <span class="n">other0MyAround</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">ExampleService&#36;Proxy</span><span class="o">(</span><span class="n">MyAroundAspect</span> <span class="n">myAroundAspect</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">();</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">myAroundAspect</span> <span class="o">=</span> <span class="n">myAroundAspect</span><span class="o">;</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="n">other0</span> <span class="o">=</span> <span class="n">ExampleService</span><span class="o">.</span><span class="na field">class</span><span class="o">.</span><span class="na">getDeclaredMethod</span><span class="o">(</span><span class="s">&quot;other&quot;</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+      <span class="n">other0MyAround</span> <span class="o">=</span> <span class="n">myAroundAspect</span><span class="o">.</span><span class="na">interceptor</span><span class="o">(</span><span class="n">other0</span><span class="o">,</span> <span class="n">other0</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="n">MyAround</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">java</span><span class="o">.</span><span class="na field">lang</span><span class="o">.</span><span class="na">String</span> <span class="nf">other</span><span class="o">(</span><span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">call</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Invocation</span><span class="o">.</span><span class="na">Call</span><span class="o">&lt;&gt;(()</span> <span class="o">-&gt;</span> <span class="kd">super</span><span class="o">.</span><span class="na">other</span><span class="o">(</span><span class="n">param0</span><span class="o">,</span> <span class="n">param1</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">other0</span><span class="o">,</span> <span class="n">param0</span><span class="o">,</span> <span class="n">param1</span><span class="o">);</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="n">other0MyAround</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">call</span><span class="o">);</span>
+      <span class="k">return</span> <span class="n">call</span><span class="o">.</span><span class="na">finalResult</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvocationException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="n">InvocationException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 <h2 id="testing">Testing</h2>
 
 <h3 id="unit-testing">Unit Testing</h3>
@@ -1573,7 +1881,7 @@ The classic use case for this is registering controllers or routes to
 </pre></div>
 </div>
 
-<h5>Mockito junit5 extension</h5>
+<h5>Mockito JUnit5 Extension</h5>
 <p>
   Mockito provides a JUnit 5 extension <code>MockitoExtension</code> which can be used
   with JUnit <code>@ExtendWith</code>. With this extension we can annotate fields with
@@ -1610,7 +1918,7 @@ The classic use case for this is registering controllers or routes to
 
 
 
-<h2 id="component-testing">Component testing</h2>
+<h2 id="component-testing">Component Testing</h2>
 <p>
   Component testing is where we look to run tests that use most of the objects with their real
   behaviour with less mocked / stubbed behaviour. With component testing we are looking to test a scenario / piece
@@ -1627,7 +1935,7 @@ The classic use case for this is registering controllers or routes to
   <li>Unlike unit tests, test a scenario with little to no mocking or stubbing</li>
 </ul>
 
-<h3 id="test-dependency">dependency</h3>
+<h3 id="test-dependency">Dependency</h3>
 <p>
   Add <em>avaje-inject-test</em> as a test dependency.
 </p>
@@ -2114,183 +2422,6 @@ The classic use case for this is registering controllers or routes to
 </pre></div>
 </div>
 
-<h2 id="modules">Modules</h2>
-
-<h3 id="unnamed-module">Unnamed Modules</h3>
-<p>
-  When we don't specify <em>@InjectModule</em> on a module it is an <em>unnamed module</em>.
-  In effect, the module name is derived from the top most package and that module has no
-  <em>provides</em> or <em>requires</em> specified.
-</p>
-<p>
-  For example, if the top level package is determined to be <code>org.foo.coffee</code> then
-  the module is called <code>CoffeeModule</code>. In <code>target/generated-sources/annotations</code>
-  we will see the generated <code>org.foo.coffee.CoffeeModule</code>.
-</p>
-
-<h3 id="single-module">Single Module Apps</h3>
-<p>
-  When we are wiring dependencies that are all part of a single jar/module then we don't
-  really care about <em>module ordering</em>. All the dependencies that are being injected are known and
-  provided by the same jar/module or provided externally.
-</p>
-
-<h4>requires - external dependency</h4>
-<p>
-  We use <code>@InjectModule(requires = ...)</code> to specify an external dependency that will
-  be programmatically provided.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// at compile time, allow injection of MyExternalDependency</span>
-<span class="c1">// ... even though it doesn&#39;t exist in this module</span>
-<span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">requires</span> <span class="o">=</span> <span class="nx">MyExternalDependency</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-</pre></div>
-</div>
-<p>
-  When compiling the annotation processor checks that dependencies exist or are listed
-  in <code>requires</code> (or <code>requiresPackages)</code> meaning that they are
-  externally supplied dependencies.
-</p>
-<p>
-  When creating the BeanScope we provide the externally created dependencies using
-  <code>bean()</code>. These external dependencies are then injected where needed.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">MyExternalDependency</span> <span class="n">myExternal</span> <span class="o">=</span> <span class="o">...;</span>
-
-<span class="c1">// create with an externally provided dependency</span>
-<span class="kd">final</span> <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">MyExternalDependency</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">myExternal</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
-</pre></div>
-</div>
-
-
-<h4>ignoreSingleton</h4>
-<p>
-  We use <code>@InjectModule(ignoreSingleton = true)</code> in order to specify that we want
-  avaje-inject to ignore standard JSR-330 <code>@Singleton</code> - with the expectation
-  that another DI library (like Guice) is being used and we want avaje-inject to co-exist
-  and ignore anything annotated with <code>@Singleton</code>.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">ignoreSingleton</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
-</pre></div>
-</div>
-<p>
-  When using <code>ignoreSingleton = true</code> we use <a href="#component">@Component</a> instead of
-  using <code>@Singleton</code>.
-</p>
-
-<h3 id="multi-module">Multi-module Apps</h3>
-<p>
-  When we are wiring dependencies that span multiple jars/modules then we to provide more
-  control over the order in which the modules are wired. We provide this control
-  by using <code>@InjectModule</code> and the use of <code>provides</code>, and <code>requires</code>
-  or <code>requiresPackages</code>.
-</p>
-
-<h4>Example - modular coffee app</h4>
-<p>
-  See example source at <a href="https://github.com/avaje/avaje-inject-examples/tree/main/modular-coffee-app">avaje-inject-examples / modular-coffee-app</a>
-</p>
-
-<h5>module 1 - coffee-heater</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span><span class="o">=</span><span class="s">&quot;coffee-heater&quot;</span><span class="o">,</span> <span class="nx">provides</span> <span class="o">=</span> <span class="nx">Heater</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-</pre></div>
-</div>
-
-<h5>module 2 - coffee-pump</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;coffee-pump&quot;</span><span class="o">,</span> <span class="nx">requires</span> <span class="o">=</span> <span class="nx">Heater</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">provides</span> <span class="o">=</span> <span class="nx">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-</pre></div>
-</div>
-<p>
-  This module expects <code>Heater</code> to be provided by another module. In effect, the
-  coffee-heater module must be wired <em>before</em> this module, and it provides the Heater
-  that is required when we wire the coffee-pump module.
-</p>
-
-<h5>module 3 - coffee-main</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;coffee-main&quot;</span><span class="o">,</span> <span class="nx">requires</span> <span class="o">=</span> <span class="o">{</span><span class="nx">Heater</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">Pump</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
-</pre></div>
-</div>
-<p>
-  This module expects <code>Heater</code> and <code>Pump</code> to be provided by other module(s).
-  It needs other modules to be wired before and for those modules to provide the Heater and Pump.
-</p>
-<p>
-  avaje-inject determines the order in which to wire the modules based on <code>provides, requires</code>. In this example
-  it needs to wire the modules in order of: <em>coffee-heater, coffee-pump and then coffee-main</em>.
-</p>
-<p>
-  That is, in a multi-module app avaje-inject creates one BeanScope per module and needs to
-  determine the order in which the modules are wired. It does this using the module <em>provides</em>
-  and <em>requires</em>. As the modules are wired, the beans from any previously wired modules are
-  available to the module being wired.
-</p>
-
-<h3>requires vs requiresPackages</h3>
-<p>
-  We use either <code>requires</code> OR <code>requiresPackages</code>. Using requires is nice in that
-  we explicitly list each external dependency that the module requires BUT this can get onerous when this
-  is a really large list. In this case we can use <code>requiresPackages</code> instead and that makes
-  the assumption that any dependency under those packages will be provided. So using requiresPackages
-  is less strict but more practical when there is a lot of module dependencies.
-</p>
-<p>
-  When we use <code>requiresPackages</code> that means that <code>provides</code> can similarly specify
-  a class at the top level, and we don't need to list ALL the provided dependencies.
-</p>
-
-<h3 id="inject-module">@InjectModule</h3>
-
-<h4 id="module-name">name</h4>
-<p>
-  Give the module an explicit name. Otherwise, it is derived from the top level package.
-</p>
-<h4 id="module-ignoreSingleton">ignoreSingleton</h4>
-<p>
-  Set this to true in order to specify that we want
-  avaje-inject to ignore standard JSR-330 <code>@Singleton</code> with the expectation
-  that another DI library (like Guice) is being used and we want avaje-inject to co-exist
-  and ignore anything annotated with <code>@Singleton</code>.
-</p>
-
-<h4 id="module-provides">provides</h4>
-<p>
-  List the classes that this module provides. Used to order modules.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;feature-toggle&quot;</span><span class="o">,</span> <span class="nx">provides</span><span class="o">=</span><span class="nx">FeatureToggle</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-</pre></div>
-</div>
-
-<h4 id="module-requires">requires</h4>
-<p>
-  Defines dependencies that the modules depends on that are provided by another module or manually.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;job-system&quot;</span><span class="o">,</span> <span class="nx">requires</span><span class="o">=</span><span class="nx">FeatureToggle</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-</pre></div>
-</div>
-<p>
-  In effect this allows the job system components to depend on <code>FeatureToggle</code> with the expectation that
-  it will be supplied by another module or supplied manually.
-</p>
-
-<h4 id="module-requiresPackages">requiresPackages</h4>
-<p>
-  If we have a LOT of dependencies provided by another module specifying each of these explicitly in <code>requires</code>
-  can get verbose. Instead of doing that we can use <code>requiresPackages</code> to define top level packages, any
-  dependency required under top level packages will be expected to be provided by another module.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// anything at or below the package of Feature is provided externally</span>
-<span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;job-system&quot;</span><span class="o">,</span> <span class="nx">requiresPackages</span><span class="o">=</span><span class="nx">Feature</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-</pre></div>
-</div>
-
-<p>
-  <em>avaje-inject</em> uses provides, requires, requiresPackages to determine the order in which the modules are created
-  and wired. <em>avaje-inject</em> finds all the modules in the classpath (via Service loader) and then orders the modules
-  based on provides, requires, requiresPackages. In the example above the "feature-toggle" module must be wired first,
-  and then the  beans it contains are available when wiring the "job-system".
-</p>
-
 <h2 id="why">Why avaje inject exists</h2>
 
 <h3 id="why-history">Short History of DI on the JVM</h3>
@@ -2510,6 +2641,66 @@ The classic use case for this is registering controllers or routes to
   </tr>
 </table>
 
+
+<h2 id=value>Why we don't have @Value/Refreshable Scopes</h2>
+<p>
+  Both Spring and Micronaut have a <code>@Value</code> and by implication they have chosen to combine "external configuration" in with "dependency injection".
+  With avaje-inject a design decision was made to keep these two ideas separate.
+
+  In theory we could have implemented this via source code generation with avaje-inject as:
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">EngineImpl&#36;Proxy</span> <span class="kd">extends</span> <span class="n">EngineImpl</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="nf">EngineImpl&#36;Proxy</span><span class="o">()</span> <span class="o">{</span> <span class="c1">// match super constructor,</span>
+    <span class="kd">super</span><span class="o">();</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">cylinders</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="s">&quot;my.engine.cylinders&quot;</span><span class="o">,</span> <span class="mi">6</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  Our reasons for not implementing are as follows.
+</p>
+
+<h3>Timing of setting the configuration</h3>
+<p>
+  We can see that <code>cylinders</code> is only set after the <code>super()</code>.
+  Any code that tries to use <code>cylinders</code> before that would get a 0 (or null with Integer etc).
+  This is relatively obvious to experienced devs but it is a source of bugs for less experienced devs.
+  That is, <code>@Value</code> fields have delayed initialisation and this can trip people up / be a source of bugs.
+ </p>
+
+ <p>
+  If we don't use <code>@Value</code> and use <code>Config.getInt()</code> directly on the field, the behavior is completly unambiguous.
+  The values are initialised like any normal field.
+</p>
+
+<h3>Dynamic Configuration</h3>
+<p>
+ With avaje-inject we create an effectively immutable BeanScope because we expect "external dynamic configuration" to be done independently from Dependency Injection (for example, by using avaje-config).
+
+ If we go from needing the configuration read and set <i>once at startup</i> to being read each time and potentially changing (aka dynamic configuration).
+ Then we'd need to change away from using <code>@Value</code> or add a complex "Refreshable Scope" concept to this llibrary.
+</p>
+
+<p>
+When using <code>Config.getInt()</code> directly, there is more freedom. We can use it anywhere - field, final field, static final field, in a method (dynamic configuration).
+There isn't a big shift between static configuration and dynamic configuration.
+</p>
+
+<h3>Freedom</h3>
+
+<p>
+  We have an excellent configuration library in <a href="https://avaje.io/config/">avaje-config</a>.
+  It's simple, extendable, and mature as it was originally part of Ebean ORM and was extracted into it's own project.
+</p>
+
+<p>
+  Even so, we want to give our users the freedom to choose whatever they like with external configuration libraries.
+  If we supported <code>@Value</code> in avaje-inject then we would have to pick a "configuration implementation" and force our avaje-config dependency where it's potentially unwanted.
+</p>
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
