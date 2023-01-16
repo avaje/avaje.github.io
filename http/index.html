@@ -456,11 +456,20 @@ get all the services and register them with the Helidon `HttpRouting`.
 
 <h3 id="controller">@Controller</h3>
 <p>
-  Create controllers with <code>@Path</code> and <code>@Controller</code>.
-  <code>@Path("...")</code> provides the path segment that is prepended
+  Create controllers <code>@Controller</code>.
+  You can provide a path segment that is prepended
   to any path segments defined by on methods using <code>@Get</code>,
-  <code>@Post</code>, <code>@Put</code> etc.
+  <code>@Post</code>, <code>@Put</code> etc. There are three ways to prepend a path.
 </p>
+
+<h4>1. Directly put the path in the controller annotation.</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span><span class="o">(</span><span class="s">&quot;/customers&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">CustomerController</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<h4>2. Use <code>@Path</code> and <code>@Controller</code></h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
 <span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/customers&quot;</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">CustomerController</span> <span class="o">{</span>
@@ -469,13 +478,26 @@ get all the services and register them with the Helidon `HttpRouting`.
 </pre></div>
 </div>
 
+<h4>3. Use <code>@Path</code> on an Interface and <code>@Controller</code> on an implementing class</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/customers&quot;</span><span class="o">)</span>
+<span class="kd">interface</span> <span class="nc">CustomerController</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="kd">class</span> <span class="nc">CustomerControllerImpl</span> <span class="kd">implements</span> <span class="n">CustomerController</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
 <p>
-  Methods on the controller that are annotated with <code>@Get</code>,
-  <code>@Post</code>, <code>@Put</code>, <code>@Delete</code> matching HTTP verbs.
+ Web Methods on a controller are annotated with HTTP annotations like <code>@Get</code>,
+  <code>@Post</code>, <code>@Put</code>, <code>@Delete</code>.
 </p>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
-<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">ContactController</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">;</span>
@@ -1176,8 +1198,7 @@ The generated Javalin code for the above is.
   Annotate methods with <code>@Get</code> for HTTP GET web routes.
 </p>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
-<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/customers&quot;</span><span class="o">)</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span><span class="o">(</span><span class="s">&quot;/customers&quot;</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">CustomerController</span> <span class="o">{</span>
 
   <span class="nd">@Get</span>
@@ -1223,7 +1244,15 @@ The generated Javalin code for the above is.
 </p>
 
 <h4>Context as method argument</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span>
+<span class="n">Response</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// use Javalin context as desired</span>
+  <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">202</span><span class="o">);</span>
+  <span class="o">...</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="n">Response</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="nd">@Post</span>
 <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
   <span class="c1">// use Javalin context as desired</span>
   <span class="o">...</span>
@@ -1238,7 +1267,13 @@ The generated Javalin code for the above is.
   be passed as a method argument of injected as a dependency of the controller.
 </p>
 <h4>ServerRequest/ServerResponse as method argument</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span>
+<span class="n">Response</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">ServerRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// use Helidon server request or response as desired</span>
+  <span class="o">...</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="n">Response</span><span class="o">();</span>
+<span class="o">}</span>
+<span class="nd">@Post</span>
 <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">ServerRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
   <span class="c1">// use Helidon server request or response as desired</span>
   <span class="o">...</span>
@@ -1278,8 +1313,7 @@ The generated Javalin code for the above is.
 <span class="c1">//  ... because Javalin Context is a dependency</span>
 <span class="c1">//  ... controller instantiated per request</span>
 
-<span class="nd">@Controller</span>
-<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
+<span class="nd">@Controller</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">ContactController</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">;</span>
@@ -1425,7 +1459,7 @@ The generated Javalin code for the above is.
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-http-hibernate-validator<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>2.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>2.8<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -1513,13 +1547,13 @@ The generated Javalin code for the above is.
 <p>
   Example reference <a target="_blank" href="https://github.com/avaje/avaje-http/blob/master/tests/test-javalin/src/main/java/org/example/myapp/web/HelloController.java#L58">test-javalin - HelloController</a>
 </p>
-<h4>Step 1: Create an enum that implements io.avaje.jex.Role</h4>
+<h4>Step 1: Create an enum that implements io.javalin.security.RouteRole</h4>
 <p>
-  Create an enum that implements <code>io.avaje.jex.Role</code>.
+  Create an enum that implements <code>io.javalin.security.RouteRole</code>.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.javalin.core.security.Role</span><span class="o">;</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.javalin.security.RouteRole</span><span class="o">;</span>
 
-<span class="kd">public</span> <span class="kd">enum</span> <span class="n">AppRoles</span> <span class="kd">implements</span> <span class="n">Role</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="kd">enum</span> <span class="n">AppRoles</span> <span class="kd">implements</span> <span class="n">RouteRole</span> <span class="o">{</span>
   <span class="n">ANYONE</span><span class="o">,</span> <span class="n">ADMIN</span><span class="o">,</span> <span class="n">BASIC_USER</span><span class="o">,</span> <span class="n">ORG_ADMIN</span>
 <span class="o">}</span>
 </pre></div>

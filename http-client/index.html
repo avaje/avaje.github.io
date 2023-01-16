@@ -193,7 +193,7 @@
 </div>
 
 <h5>Using client API</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
   <span class="c1">//.bodyAdapter(new JacksonBodyAdapter())</span>
   <span class="o">.</span><span class="na">build</span><span class="o">();</span>
@@ -347,17 +347,17 @@
 
 <h3 id="quick-overview">Quick Overview</h3>
 
-<h4>HttpClientContext</h4>
+<h4>HttpClient</h4>
 <p>
-  Create a HttpClientContext with a base URL and BodyAdapter (plus other options as necessary like retry,
+  Create a HttpClient with a base URL and BodyAdapter (plus other options as necessary like retry,
   interceptors etc).
 </p>
 <p>
-  Use HttpClientContext to create requests. Requests can be executed synchronously or asynchronously with
+  Use HttpClient to create requests. Requests can be executed synchronously or asynchronously with
   CompletableFuture.
 </p>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
   <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
   <span class="c1">//.bodyAdapter(new GsonBodyAdapter(new Gson()))</span>
@@ -432,30 +432,31 @@
   See <a href="#10k">10K requests - Loom vs Async</a>
 </p>
 
-<h2 id="httpClientContext">HttpClientContext</h2>
+<h2 id="httpClientContext">HttpClient</h2>
 <p>
-  HttpClientContext is effectively a wrapper of <code>java.net.http.HttpClient</code>
+  HttpClient is effectively a wrapper of <code>java.net.http.HttpClient</code>
   with extra features for request interceptors, body adapters, retry, etc.
 </p>
 <p>
-  Create a HttpClientContext with a base URL plus BodyAdapter (e.g. JacksonBodyAdapter).
+  Create a HttpClient with a base URL plus BodyAdapter (e.g. JacksonBodyAdapter).
   Additionally, set other options like retry and request interceptors as necessary.
 </p>
 
 <p>
-  Reference <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/HttpClientContext.Builder.html">HttpClientContext.Builder</a>
+  Reference <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/HttpClient.Builder.html">HttpClient.Builder</a>
 </p>
 
-<h4>Creating HttpClientContext</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<h4>Creating HttpClient</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JsonbBodyAdapter</span><span class="o">())</span>
+  <span class="c1">// .bodyAdapter(new JacksonBodyAdapter())</span>
   <span class="c1">// .bodyAdapter(new GsonBodyAdapter(new Gson()))</span>
   <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
 </div>
 <p>
-  From the HttpClientContext instance we create requests and execute them.
+  From the HttpClient instance we create requests and execute them.
 </p>
 <h4>Create and execute requests</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
@@ -489,12 +490,12 @@
 
 <h4>2. Register JacksonBodyAdapter</h4>
 <p>
-  Register the JacksonBodyAdapter with the HttpClientContext builder. We often provide JacksonBodyAdapter an
+  Register the JacksonBodyAdapter with the HttpClient builder. We often provide JacksonBodyAdapter an
   ObjectMapper that has modules and configuration. For example:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">ObjectMapper</span> <span class="n">objectMapper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">().</span><span class="na">registerModule</span><span class="o">(</span><span class="k">new</span> <span class="n">JavaTimeModule</span><span class="o">());</span>
 
-<span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
   <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">(</span><span class="n">objectMapper</span><span class="o">))</span>
   <span class="o">.</span><span class="na">build</span><span class="o">();</span>
@@ -516,9 +517,9 @@
 
 <h4>2. Register GsonBodyAdapter</h4>
 <p>
-  Register the GsonBodyAdapter with the HttpClientContext builder. For example:
+  Register the GsonBodyAdapter with the HttpClient builder. For example:
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
   <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">GsonBodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">Gson</span><span class="o">()))</span>
   <span class="o">.</span><span class="na">build</span><span class="o">();</span>
@@ -540,12 +541,12 @@
 
 <h4>2. Register JsonbBodyAdapter</h4>
 <p>
-  Register the JsonbBodyAdapter with the HttpClientContext builder. We can supply a jsonb instance
+  Register the JsonbBodyAdapter with the HttpClient builder. We can supply a jsonb instance
   to JsonbBodyAdapter or just use defaults. For example:
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jsonb</span> <span class="n">jsonb</span> <span class="o">=</span> <span class="n">Jsonb</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jsonb</span> <span class="n">jsonb</span> <span class="o">=</span> <span class="n">Jsonb</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
 
-<span class="n">HttpClientContext</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
   <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JsonbBodyAdapter</span><span class="o">(</span><span class="n">jsonb</span><span class="o">))</span>
   <span class="o">.</span><span class="na">build</span><span class="o">();</span>
@@ -579,7 +580,7 @@
 
 <h3 id="req-json">Object as JSON</h3>
 <p>
-  When we create the HttpClientContext we register a message body handler.
+  When we create the HttpClient we register a message body handler.
   There is a supplied <code>JacksonBodyAdapter</code> and <code>GsonBodyAdapter</code>.
   When these are registered then when we call <code>body(object)</code> passing
   an Object this uses that body adapter to write the body content as JSON.
@@ -1034,7 +1035,7 @@
 </p>
 
 <h4>Example</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">clientContext</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
   <span class="o">...</span>
   <span class="o">.</span><span class="na">requestIntercept</span><span class="o">(</span><span class="k">new</span> <span class="n">BasicAuthIntercept</span><span class="o">(</span><span class="s">&quot;myUsername&quot;</span><span class="o">,</span> <span class="s">&quot;myPassword&quot;</span><span class="o">))</span>  <span class="o">&lt;!--</span> <span class="n">HERE</span>
@@ -1047,7 +1048,7 @@
 <p>
   For Authorization using <em>Bearer</em> tokens that are obtained and expire, implement
   <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/AuthTokenProvider.html"><code>AuthTokenProvider</code></a>
-  and register that when building the HttpClientContext.
+  and register that when building the HttpClient.
 </p>
 
 <h4>Step 1. Implement AuthTokenProvider</h4>
@@ -1071,9 +1072,9 @@
 </pre></div>
 </div>
 
-<h4>Step 2. Register with HttpClientContext</h4>
+<h4>Step 2. Register with HttpClient</h4>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClientContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://foo&quot;</span><span class="o">)</span>
   <span class="o">...</span>
   <span class="o">.</span><span class="na">authTokenProvider</span><span class="o">(</span><span class="k">new</span> <span class="n">MyAuthTokenProvider</span><span class="o">())</span> <span class="o">&lt;!--</span> <span class="n">HERE</span>
@@ -1083,7 +1084,7 @@
 
 <h4>Token obtained and set automatically</h4>
 <p>
-  All requests using the HttpClientContext will automatically get
+  All requests using the HttpClient will automatically get
   an <em>Authorization</em> header with <em>Bearer</em> token added. The token will be
   obtained for initial request and then renewed when the token has expired.
 </p>
@@ -1173,19 +1174,18 @@
 
 <h3 id="obtain-api">Obtain/use API</h3>
 <p>
-  We obtain the API implementation via <code>httpClientContext.create(T)</code> passing
+  We obtain the API implementation via <code>httpClient.create(T)</code> passing
   our client interface type <em>T</em>.
 </p>
 
 <h4 id="client-create">Example: obtain implementation</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// create HttpClientContext</span>
-<span class="kd">final</span> <span class="n">HttpClientContext</span> <span class="n">httpClientContext</span> <span class="o">=</span> <span class="n">HttpClientContext</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">()</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">final</span> <span class="n">HttpClient</span> <span class="n">httpClient</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
         <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
         <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
         <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 
 <span class="c1">// obtain API implementation</span>
-<span class="kd">final</span> <span class="n">Github</span> <span class="n">github</span> <span class="o">=</span> <span class="n">httpClientContext</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Github</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="kd">final</span> <span class="n">Github</span> <span class="n">github</span> <span class="o">=</span> <span class="n">httpClient</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">Github</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
 <span class="c1">// use it</span>
 <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="n">contributors</span> <span class="o">=</span> <span class="n">github</span><span class="o">.</span><span class="na">contributors</span><span class="o">(</span><span class="s">&quot;ebean-orm&quot;</span><span class="o">,</span> <span class="s">&quot;ebean&quot;</span><span class="o">);</span>
@@ -1214,7 +1214,7 @@
 
 
 <span class="kn">import</span> <span class="nn">io.avaje.http.api.*</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClientContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">org.example.Contributor</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">org.example.Github</span><span class="o">;</span>
@@ -1222,9 +1222,9 @@
 <span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-http-client-generator&quot;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Github&#36;HttpClient</span> <span class="kd">implements</span> <span class="n">Github</span> <span class="o">{</span>
 
-  <span class="kd">private</span> <span class="kd">final</span> <span class="n">HttpClientContext</span> <span class="n">clientContext</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">HttpClient</span> <span class="n">clientContext</span><span class="o">;</span>
 
-  <span class="kd">public</span> <span class="nf">Github&#36;HttpClient</span><span class="o">(</span><span class="n">HttpClientContext</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="nf">Github&#36;HttpClient</span><span class="o">(</span><span class="n">HttpClient</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">this</span><span class="o">.</span><span class="na">clientContext</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">;</span>
   <span class="o">}</span>
 
