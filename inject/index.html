@@ -1767,10 +1767,9 @@ This library has several contructs that support Aspect Oriented Programmming
 <h3 id="aspect">@Aspect</h3>
 <p>
   We can create an annotation and annotate with <code>@Aspect</code> to define an aspect annotation.
-   Aspect.target() specifies the associated type that implements <code>AspectProvider</code>.
 </p>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Aspect</span><span class="o">(</span><span class="nx">target</span> <span class="o">=</span> <span class="nx">MyAroundAspect</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Aspect</span>
 <span class="nd">@Target</span><span class="o">(</span><span class="nx">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
 <span class="nd">@Retention</span><span class="o">(</span><span class="nx">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
 <span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">MyAround</span> <span class="o">{</span>
@@ -1780,16 +1779,18 @@ This library has several contructs that support Aspect Oriented Programmming
 </pre></div>
 </div>
 
-<p>The AspectProvider should be a <code>@Singleton</code> that provides a <code>MethodInterceptor</code>. (Which will intercept the method call).</p>
+<p>For this aspect to work, a corresponding AspectProvider must be wired into the scope. The AspectProvider should be a <code>@Singleton</code> or <code>@Component</code> that provides a <code>MethodInterceptor</code>. (Which will intercept the method call).</p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyAroundAspect</span> <span class="kd">implements</span> <span class="n">AspectProvider</span><span class="o">&lt;</span><span class="n">MyAround</span><span class="o">&gt;,</span> <span class="n">MethodInterceptor</span> <span class="o">{</span>
+
   <span class="nd">@Override</span>
   <span class="kd">public</span> <span class="n">MethodInterceptor</span> <span class="nf">interceptor</span><span class="o">(</span><span class="n">Method</span> <span class="n">method</span><span class="o">,</span> <span class="n">MyAround</span> <span class="n">around</span><span class="o">)</span> <span class="o">{</span>
     <span class="c1">//For the sake of brevity we have made this class also implement MethodInterceptor</span>
     <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
   <span class="o">}</span>
 
+  <span class="c1">// MethodInterceptor interception method</span>
   <span class="nd">@Override</span>
   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">invoke</span><span class="o">(</span><span class="n">Invocation</span> <span class="n">invoke</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
     <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;before args: &quot;</span> <span class="o">+</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">invoke</span><span class="o">.</span><span class="na">arguments</span><span class="o">())</span> <span class="o">+</span> <span class="s">&quot; method: &quot;</span> <span class="o">+</span> <span class="n">invoke</span><span class="o">.</span><span class="na">method</span><span class="o">());</span>
