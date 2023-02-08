@@ -188,13 +188,19 @@
 
     <h5>example in application.yaml</h5>
     <div class="syntax yml"><div class="highlight"><pre><span></span><span class="c1">## we don&#39;t need to specify path if it&#39;s in src/main/resources</span>
-<span class="nt">load.properties</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local.properties /etc/other.yaml</span>
+<span class="c1">## can be combined with eval to have something like feature flags</span>
+<span class="nt">load.properties</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&#36;{ENV:local}.properties /etc/other.yaml</span>
 </pre></div>
 </div>
     <p>
       After default configuration files are loaded the <em>load.properties</em> property is
       read and if specified these configuration files are loaded.
     </p>
+    <p>
+      <code>load.properties</code> is pretty versatile and can even be chained.
+      For example, in using the above properties, you can load based on the <code>ENV</code> environment variable/<code>-Dprofile</code> JVM arg, and in the loaded property file you can add <code>load.properties</code> to load even more properties and so on.
+    </p>
+
 
     <h4>4. Plugins</h4>
     <p>
