@@ -261,7 +261,7 @@
     <h3><em>config.load.systemProperties</em></h3>
     <p>
       If we set <code>config.load.systemProperties</code> to true then all the properties that
-      have been loaded are then set into system properties.
+      have been loaded are then set into system properties. You can provide an additional property <code>system.excluded.properties</code> to provide a list of configuration properties you want to exclude from being loaded into the System Properties.
     </p>
 
     <h2 id="file-watch">File watching</h2>
@@ -415,6 +415,24 @@
 </pre></div>
 </div>
 
+    <h3 id="forPath">forPath()</h3>
+    <p>
+      Obtain a filtered configuration via <code>Config.forpath()</code>.
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//given properties like the below in application.properties</span>
+<span class="n">database</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">password</span><span class="o">=</span><span class="n">secretPassword</span>
+<span class="n">database</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">username</span><span class="o">=</span><span class="n">notSecretUsername</span>
+
+<span class="n">Configuration</span> <span class="n">dbConfiguration</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">forPath</span><span class="o">(</span><span class="s">&quot;database&quot;</span><span class="o">);</span>
+<span class="n">Configuration</span> <span class="n">dbExampleConfiguration</span> <span class="o">=</span> <span class="n">dbConfiguration</span><span class="o">.</span><span class="na">forPath</span><span class="o">(</span><span class="s">&quot;example&quot;</span><span class="o">);</span>
+<span class="c1">// or more simply</span>
+<span class="n">Configuration</span> <span class="n">dbExampleConfiguration</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">forPath</span><span class="o">(</span><span class="s">&quot;database.example&quot;</span><span class="o">);</span>
+<span class="c1">// will return secretPassword</span>
+<span class="n">dbExampleConfiguration</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;password&quot;</span><span class="o">);</span>
+<span class="c1">// will return secretPassword</span>
+<span class="n">dbExampleConfiguration</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;username&quot;</span><span class="o">);</span>
+</pre></div>
+</div>
 
     <h2 id="plugins">Plugins</h2>
     <p>
