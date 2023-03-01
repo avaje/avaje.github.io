@@ -48,15 +48,18 @@
         <li><a href="#file-watch">File watching</a></li>
         <li><a href="#config">Config</a>
           <ul>
-            <li><a href="#get-property">get property</a></li>
-            <li><a href="#setProperty">set property</a></li>
-            <li><a href="#onChange">on change</a></li>
+            <li><a href="#get-property">Get Property</a></li>
+            <li><a href="#setProperty">Set Property</a></li>
+            <li><a href="#eventbuild">Event Publishing</a></li>
+            <li><a href="#onChange">On Change</a></li>
             <li><a href="#asProperties">asProperties</a></li>
             <li><a href="#asConfiguration">asConfiguration</a></li>
+            <li><a href="#forPath">forPath</a></li>
 
           </ul>
         </li>
         <li><a href="#plugins">Plugins</a></li>
+        <li><a href="#logging">Event Logging</a></li>
       </ul>
     </nav>
   </aside>
@@ -104,7 +107,7 @@
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-config<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>2.4<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{config-version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -313,7 +316,7 @@
       properties.
     </p>
 
-    <h3 id="get-property">Get property</h3>
+    <h3 id="get-property">Get Property</h3>
     <p>
       <code>Config</code> provides method to get property values as String, int, long, boolean,
       BigDecimal, Enum and URL.
@@ -365,7 +368,7 @@
 </div>
 
 
-    <h3 id="setProperty">Set property</h3>
+    <h3 id="setProperty">Set Property</h3>
     <p>
       Use <code>setProperty()</code> to set configuration values.
     </p>
@@ -379,19 +382,52 @@
 </pre></div>
 </div>
 
+    <h3 id="eventbuild">Event Publishing</h3>
+    <p>
+      Use <code>eventBuilder()</code> to publish multiple changes at once.
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Config</span><span class="o">.</span><span class="na">eventBuilder</span><span class="o">(</span><span class="s">&quot;EventName&quot;</span><span class="o">)</span>
+   <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;someKey&quot;</span><span class="o">,</span> <span class="s">&quot;val0&quot;</span><span class="o">)</span>
+   <span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;someOther.key&quot;</span><span class="o">,</span> <span class="s">&quot;42&quot;</span><span class="o">)</span>
+   <span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">)</span>
+   <span class="o">.</span><span class="na">publish</span><span class="o">();</span>
+</pre></div>
+</div>
 
-    <h3 id="onChange">On change</h3>
+    <h3 id="onChange">On Change</h3>
     <p>
       We can register callbacks that execute when a configuration key
       has it's value changed.
     </p>
 
-    <h5>example</h5>
+    <h5>Single property onChange</h5>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Config</span><span class="o">.</span><span class="na">onChange</span><span class="o">(</span><span class="s">&quot;other.url&quot;</span><span class="o">,</span> <span class="n">newUrl</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="c1">// do something interesting with the changed</span>
   <span class="c1">// config value</span>
   <span class="o">...</span>
 <span class="o">});</span>
+</pre></div>
+</div>
+
+    <h5>Multi property onChange</h5>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Config</span><span class="o">.</span><span class="na">onChange</span><span class="o">(</span><span class="n">event</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+      <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">changedKeys</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="na">modifiedKeys</span><span class="o">();</span>
+
+      <span class="n">Configuration</span> <span class="n">updatedConfig</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="na">configuration</span><span class="o">();</span>
+
+      <span class="c1">// do something with the changed values.</span>
+    <span class="o">});</span>
+
+<span class="c1">// Filter events for specific properties</span>
+<span class="n">Config</span><span class="o">.</span><span class="na">onChange</span><span class="o">(</span><span class="n">event</span> <span class="o">-&gt;</span> <span class="o">{</span>
+
+      <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">changedKeys</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="na">modifiedKeys</span><span class="o">();</span>
+
+      <span class="n">Configuration</span> <span class="n">updatedConfig</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="na">configuration</span><span class="o">();</span>
+
+      <span class="c1">// do something with the changed values.</span>
+    <span class="o">},</span> <span class="s">&quot;someKey&quot;</span><span class="o">,</span> <span class="s">&quot;someOther.key&quot;</span><span class="o">);</span>
 </pre></div>
 </div>
 
@@ -402,7 +438,6 @@
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Properties</span> <span class="n">properties</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">asProperties</span><span class="o">();</span>
 </pre></div>
 </div>
-
 
     <h3 id="asConfiguration">asConfiguration()</h3>
     <p>
@@ -460,7 +495,45 @@
       Refer to the (silly) example plugin - <a href="https://github.com/avaje/avaje-config/blob/master/src/test/java/org/example/MyExternalLoader.java">MyExternalLoader.java</a>
     </p>
 
-  </article>
+    <h2 id="logging">Event Logging</h2>
+    <p>
+      By default, <code>avaje-config</code> will immediately log initialisation events to it's own connfigured system logger. If you want to use your own configured logger, you can extend the <code>ConfigurationLog</code> interface and
+      register via <code>ServiceLoader</code>. This means you have a
+      file at <code>src/main/resources/META-INF/services/io.avaje.config.ConfigurationLog</code>
+      which contains the class name of the implementation.
+    </p>
+    <p>
+      Custom Event loggers implement the methods
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Log an event with the given level, message, and thrown exception.</span>
+<span class="cm"> */</span>
+<span class="kt">void</span> <span class="nf">log</span><span class="o">(</span><span class="n">Level</span> <span class="n">level</span><span class="o">,</span> <span class="n">String</span> <span class="n">message</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">thrown</span><span class="o">);</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Log an event with the given level, formatted message, and arguments.</span>
+<span class="cm"> * &lt;p&gt;</span>
+<span class="cm"> * The message format is as per {@link java.text.MessageFormat#format(String, Object...)}.</span>
+<span class="cm"> */</span>
+<span class="kt">void</span> <span class="nf">log</span><span class="o">(</span><span class="n">Level</span> <span class="n">level</span><span class="o">,</span> <span class="n">String</span> <span class="n">message</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">args</span><span class="o">);</span>
+</pre></div>
+</div>
+    <p>
+      Additionally, you can implement the two default methods and provide behavior before and after the configs are loaded.
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * Invoked when the configuration is being initialised.</span>
+<span class="cm"> */</span>
+<span class="k">default</span> <span class="kt">void</span> <span class="nf">preInitialisation</span><span class="o">()</span> <span class="o">{</span>
+<span class="o">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Invoked when the initialisation of configuration has been completed.</span>
+<span class="cm"> */</span>
+<span class="k">default</span> <span class="kt">void</span> <span class="nf">postInitialisation</span><span class="o">()</span> <span class="o">{</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 
 </div>
 
