@@ -27,13 +27,13 @@
     <ul>
       <li><a href="#adapter">Generated JsonAdapter</a></li>
       <li><a href="#import">@Import</a></li>
+      <li><a href="#raw">@Raw</a></li>
       <li><a href="#property">@Property</a></li>
       <li><a href="#alias">@Alias</a></li>
       <li><a href="#iggy">@Ignore</a></li>
-      <li><a href="#value">@Value</a></li>
-      <li><a href="#raw">@Raw</a></li>
-      <li><a href="#mixin">@Mixin</a></li>
       <li><a href="#mapped">@Unmapped</a></li>
+      <li><a href="#value">@Value</a></li>
+      <li><a href="#mixin">@Mixin</a></li>
       <li><a href="#subtype">@Subtype</a></li>
     </ul>
 </li>
@@ -326,11 +326,6 @@ When a class has a constructor like the City example below, then fields in the c
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span>
 <span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">AddressJsonAdapter</span> <span class="kd">extends</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">Address</span><span class="o">&gt;</span> <span class="kd">implements</span> <span class="n">ViewBuilderAware</span> <span class="o">{</span>
 
-  <span class="c1">// naming convention Match</span>
-  <span class="c1">// street [java.lang.String] name:street setter:setStreet</span>
-  <span class="c1">// city [com.jojo.javalin.api.models.City] name:city setter:setCity</span>
-  <span class="c1">// suburb [com.jojo.javalin.api.models.Suburb] name:suburb setter:setSuburb</span>
-
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">stringJsonAdapter</span><span class="o">;</span>
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">City</span><span class="o">&gt;</span> <span class="n">cityJsonAdapter</span><span class="o">;</span>
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">Suburb</span><span class="o">&gt;</span> <span class="n">suburbJsonAdapter</span><span class="o">;</span>
@@ -357,8 +352,8 @@ When a class has a constructor like the City example below, then fields in the c
   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">build</span><span class="o">(</span><span class="n">ViewBuilder</span> <span class="n">builder</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">MethodHandle</span> <span class="n">handle</span><span class="o">)</span> <span class="o">{</span>
     <span class="n">builder</span><span class="o">.</span><span class="na">beginObject</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">handle</span><span class="o">);</span>
     <span class="n">builder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;street&quot;</span><span class="o">,</span> <span class="n">stringJsonAdapter</span><span class="o">,</span> <span class="n">builder</span><span class="o">.</span><span class="na">method</span><span class="o">(</span><span class="n">Address</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;getStreet&quot;</span><span class="o">,</span> <span class="n">java</span><span class="o">.</span><span class="na field">lang</span><span class="o">.</span><span class="na field">String</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
-    <span class="n">builder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;city&quot;</span><span class="o">,</span> <span class="n">cityJsonAdapter</span><span class="o">,</span> <span class="n">builder</span><span class="o">.</span><span class="na">method</span><span class="o">(</span><span class="n">Address</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;getCity&quot;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na field">City</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
-    <span class="n">builder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;suburb&quot;</span><span class="o">,</span> <span class="n">suburbJsonAdapter</span><span class="o">,</span> <span class="n">builder</span><span class="o">.</span><span class="na">method</span><span class="o">(</span><span class="n">Address</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;getSuburb&quot;</span><span class="o">,</span> <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na field">Suburb</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+    <span class="n">builder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;city&quot;</span><span class="o">,</span> <span class="n">cityJsonAdapter</span><span class="o">,</span> <span class="n">builder</span><span class="o">.</span><span class="na">method</span><span class="o">(</span><span class="n">Address</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;getCity&quot;</span><span class="o">,</span> <span class="n">City</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+    <span class="n">builder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;suburb&quot;</span><span class="o">,</span> <span class="n">suburbJsonAdapter</span><span class="o">,</span> <span class="n">builder</span><span class="o">.</span><span class="na">method</span><span class="o">(</span><span class="n">Address</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;getSuburb&quot;</span><span class="o">,</span> <span class="n">Suburb</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
     <span class="n">builder</span><span class="o">.</span><span class="na">endObject</span><span class="o">();</span>
   <span class="o">}</span>
 
@@ -415,6 +410,16 @@ We can put <code>@Json.Import</code> on a package or type and specify the types 
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json.Import</span><span class="o">({</span><span class="nx">Customer</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">Address</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">Order</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
 <span class="kn">package</span> <span class="nn">org.example</span><span class="o">;</span>
+</pre></div>
+</div>
+
+<h2 id="raw">@Json.Raw</h2>
+<p>
+We can use <code>@Json.Raw</code> to mark a String field as containing raw JSON content. This is then read and written (as a string containing raw json).
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json.Raw</span>
+<span class="n">String</span> <span class="n">rawJson</span>
 </pre></div>
 </div>
 
@@ -682,10 +687,10 @@ The @Json.Unmapped annotation must be on a field of type <code>Map<String, Objec
 </pre></div>
 </div>
 
-<h2 id="value">@Json.Value</h2>
+<h2 id="value">Enum Mapping with @Json.Value</h2>
 
 <p>
-We can use <code>@Json.Value</code> on Enum types to specify a method that provides the values that will be used to serialise to/from json. If the method returns a int type then it will be treated as json int and otherwise be treated as json string values.
+We can use <code>@Json.Value</code> on Enum types to specify a method that provides the values that will be used to serialise to/from json. This works for any type that can be compared with <code>.equals()</code>
 <br></br>
 In the example below the values used in the json content is "one value" and "two value" rather than the usual "ONE" and "TWO".
 </p>
@@ -709,13 +714,42 @@ In the example below the values used in the json content is "one value" and "two
 </pre></div>
 </div>
 
-<h2 id="raw">@Json.Raw</h2>
-<p>
-We can use <code>@Json.Raw</code> to mark a String field as containing raw JSON content. This is then read and written (as a string containing raw json).
-</p>
+<h4>Generated Code</h4>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json.Raw</span>
-<span class="n">String</span> <span class="n">rawJson</span>
+<p>A specialized adapter is generated to handle the enum mapping</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">MyEnumJsonAdapter</span> <span class="kd">extends</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">MyEnum</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">MyEnum</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">toValue</span> <span class="o">=</span> <span class="k">new</span> <span class="n">EnumMap</span><span class="o">&lt;&gt;(</span><span class="n">MyEnum</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">MyEnum</span><span class="o">&gt;</span> <span class="n">toEnum</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">adapter</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">MyEnumJsonAdapter</span><span class="o">(</span><span class="n">Jsonb</span> <span class="n">jsonb</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">adapter</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">adapter</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="k">if</span><span class="o">(!</span><span class="n">toValue</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="k">return</span><span class="o">;</span>
+    <span class="k">for</span><span class="o">(</span><span class="kd">final</span> <span class="k">var</span> <span class="n">enumConst</span> <span class="o">:</span> <span class="n">MyEnum</span><span class="o">.</span><span class="na">values</span><span class="o">())</span> <span class="o">{</span>
+      <span class="k">var</span> <span class="k">val</span> <span class="o">=</span> <span class="n">enumConst</span><span class="o">.</span><span class="na">getCode</span><span class="o">();</span>
+      <span class="n">toValue</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">enumConst</span><span class="o">,</span> <span class="k">val</span><span class="o">);</span>
+      <span class="k">if</span><span class="o">(</span><span class="n">toEnum</span><span class="o">.</span><span class="na">containsKey</span><span class="o">(</span><span class="k">val</span><span class="o">))</span> <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&quot;Duplicate value &quot;</span><span class="o">+</span> <span class="k">val</span> <span class="o">+</span> <span class="s">&quot; from enum method value. @Json.Value methods must return unique values&quot;</span><span class="o">);</span>
+      <span class="n">toEnum</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="k">val</span><span class="o">,</span> <span class="n">enumConst</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">toJson</span><span class="o">(</span><span class="n">JsonWriter</span> <span class="n">writer</span><span class="o">,</span> <span class="n">MyEnum</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">adapter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">writer</span><span class="o">,</span> <span class="n">toValue</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">value</span><span class="o">));</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">MyEnum</span> <span class="nf">fromJson</span><span class="o">(</span><span class="n">JsonReader</span> <span class="n">reader</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">final</span> <span class="k">var</span> <span class="n">value</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="na">fromJson</span><span class="o">(</span><span class="n">reader</span><span class="o">);</span>
+    <span class="kd">final</span> <span class="k">var</span> <span class="n">enumConstant</span> <span class="o">=</span> <span class="n">toEnum</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">enumConstant</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="n">JsonDataException</span><span class="o">(</span><span class="s">&quot;Unable to determine MyEnum enum value for &quot;</span> <span class="o">+</span> <span class="n">value</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">enumConstant</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 
@@ -812,14 +846,60 @@ We can use <code>@Json.Raw</code> to mark a String field as containing raw JSON 
 
 <h2 id="subtype">@Json.Subtype</h2>
 
-<p>
-For mapping polymorphic types we specify on the parent type a <code>@Json.Subtype</code> for each concrete sub-type that can represent that type.
+<p>For mapping polymorphic types we specify on the parent type a <code>@Json.Subtype</code> for each concrete sub-type that can represent that type.
+
+<p>By default the "type property" that specifies the type in json is <code>"@type"</code>. Use <code>@Json(typeProperty=...)</code> to specify the name of the type property.</p>
 
 Note: There is a current limitation that polymorphic types do not yet support "Json Views".</p>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// By default the &quot;type property&quot; that specifies the type in json is @type. Use @Json(typeProperty=...) to specify the name of the type property.</span>
-<span class="nd">@Json</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
 <span class="nd">@Json.SubType</span><span class="o">(</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">Car</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;CAR&quot;</span><span class="o">)</span>
+<span class="nd">@Json.SubType</span><span class="o">(</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">Truck</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;TRUCK&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Vehicle</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">engine</span><span class="o">;</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <p>If desired, you can define the type parameter yourself for your own use. For interfaces, the typeProperty needs to be defined in the subClasses</p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span><span class="o">(</span><span class="nx">typeProperty</span><span class="o">=</span><span class="s">&quot;type&quot;</span><span class="o">)</span>
+<span class="nd">@Json.SubType</span><span class="o">(</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">Car</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;CAR&quot;</span><span class="o">)</span>
+<span class="nd">@Json.SubType</span><span class="o">(</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">Truck</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;TRUCK&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Vehicle</span> <span class="o">{</span>
+  <span class="c1">//can use getters/setters on the typeProperty</span>
+  <span class="c1">//the value will be for deserialization only</span>
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">type</span><span class="o">;</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+   <p>Additionally, you can deserialize the typeProperty to an enum.</p>
+
+   <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">enum</span> <span class="n">TypeEnum</span> <span class="o">{</span>
+  <span class="n">CAR</span><span class="o">,</span>
+  <span class="n">TRUCK</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="nd">@Json</span><span class="o">(</span><span class="nx">typeProperty</span><span class="o">=</span><span class="s">&quot;type&quot;</span><span class="o">)</span>
+<span class="c1">//the subType names must correspond to an enum constant</span>
+<span class="nd">@Json.SubType</span><span class="o">(</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">Car</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;CAR&quot;</span><span class="o">)</span>
+<span class="nd">@Json.SubType</span><span class="o">(</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">Truck</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;TRUCK&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Vehicle</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="n">TypeEnum</span> <span class="n">type</span><span class="o">;</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h4>Generated Code</h4>
+
+  <p>Given this class:</p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
+<span class="nd">@Json.SubType</span><span class="o">(</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">Car</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="nd">@Json.SubType</span><span class="o">(</span><span class="nx">type</span> <span class="o">=</span> <span class="nx">Truck</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;TRUCK&quot;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">Vehicle</span> <span class="o">{</span>
   <span class="kd">private</span> <span class="n">String</span> <span class="n">engine</span><span class="o">;</span>
@@ -838,9 +918,7 @@ Note: There is a current limitation that polymorphic types do not yet support "J
 </pre></div>
 </div>
 
-  <h4>Generated Code</h4>
-
-  <p><code>@Json.Subtype</code> makes generates a JsonAdapter for the abstract class/interface <code>Vehicle</code>:</p>
+  <p>The below adapter will be generated:</p>
 
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span>
 <span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">VehicleJsonAdapter</span> <span class="kd">extends</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">Vehicle</span><span class="o">&gt;</span> <span class="o">{</span>
@@ -858,17 +936,17 @@ Note: There is a current limitation that polymorphic types do not yet support "J
   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">toJson</span><span class="o">(</span><span class="n">JsonWriter</span> <span class="n">writer</span><span class="o">,</span> <span class="n">Vehicle</span> <span class="n">vehicle</span><span class="o">)</span> <span class="o">{</span>
     <span class="n">writer</span><span class="o">.</span><span class="na">beginObject</span><span class="o">();</span>
     <span class="n">writer</span><span class="o">.</span><span class="na">names</span><span class="o">(</span><span class="n">names</span><span class="o">);</span>
-    <span class="k">if</span> <span class="o">(</span><span class="n">vehicle</span> <span class="k">instanceof</span> <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Car</span><span class="o">)</span> <span class="o">{</span>
-      <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Car</span> <span class="n">sub</span> <span class="o">=</span> <span class="o">(</span><span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Car</span><span class="o">)</span><span class="n">vehicle</span><span class="o">;</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">vehicle</span> <span class="k">instanceof</span> <span class="n">Car</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">Car</span> <span class="n">sub</span> <span class="o">=</span> <span class="o">(</span><span class="n">Car</span><span class="o">)</span> <span class="n">vehicle</span><span class="o">;</span>
       <span class="n">writer</span><span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
-      <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">writer</span><span class="o">,</span> <span class="s">&quot;CAR&quot;</span><span class="o">);</span>
+      <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">writer</span><span class="o">,</span> <span class="s">&quot;Car&quot;</span><span class="o">);</span>
       <span class="n">writer</span><span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
       <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">writer</span><span class="o">,</span> <span class="n">sub</span><span class="o">.</span><span class="na">getEngine</span><span class="o">());</span>
       <span class="n">writer</span><span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
       <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">writer</span><span class="o">,</span> <span class="n">sub</span><span class="o">.</span><span class="na">getCarField</span><span class="o">());</span>
     <span class="o">}</span>
-    <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">vehicle</span> <span class="k">instanceof</span> <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Truck</span><span class="o">)</span> <span class="o">{</span>
-      <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Truck</span> <span class="n">sub</span> <span class="o">=</span> <span class="o">(</span><span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Truck</span><span class="o">)</span><span class="n">vehicle</span><span class="o">;</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">vehicle</span> <span class="k">instanceof</span> <span class="n">Truck</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">Truck</span> <span class="n">sub</span> <span class="o">=</span> <span class="o">(</span><span class="n">Truck</span><span class="o">)</span> <span class="n">vehicle</span><span class="o">;</span>
       <span class="n">writer</span><span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
       <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">writer</span><span class="o">,</span> <span class="s">&quot;TRUCK&quot;</span><span class="o">);</span>
       <span class="n">writer</span><span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
@@ -917,14 +995,14 @@ Note: There is a current limitation that polymorphic types do not yet support "J
     <span class="k">if</span> <span class="o">(</span><span class="n">type</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
       <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span><span class="s">&quot;Missing @type property which is required?&quot;</span><span class="o">);</span>
     <span class="o">}</span>
-    <span class="k">if</span> <span class="o">(</span><span class="s">&quot;CAR&quot;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">type</span><span class="o">))</span> <span class="o">{</span>
-      <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Car</span> <span class="n">_&#36;vehicle</span> <span class="o">=</span> <span class="k">new</span> <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Car</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="s">&quot;Car&quot;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">type</span><span class="o">))</span> <span class="o">{</span>
+      <span class="n">Car</span> <span class="n">_&#36;vehicle</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Car</span><span class="o">();</span>
       <span class="k">if</span> <span class="o">(</span><span class="n">_set&#36;engine</span><span class="o">)</span> <span class="n">_&#36;vehicle</span><span class="o">.</span><span class="na">setEngine</span><span class="o">(</span><span class="n">_val&#36;engine</span><span class="o">);</span>
       <span class="k">if</span> <span class="o">(</span><span class="n">_set&#36;carField</span><span class="o">)</span> <span class="n">_&#36;vehicle</span><span class="o">.</span><span class="na">setCarField</span><span class="o">(</span><span class="n">_val&#36;carField</span><span class="o">);</span>
       <span class="k">return</span> <span class="n">_&#36;vehicle</span><span class="o">;</span>
     <span class="o">}</span>
     <span class="k">if</span> <span class="o">(</span><span class="s">&quot;TRUCK&quot;</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">type</span><span class="o">))</span> <span class="o">{</span>
-      <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Truck</span> <span class="n">_&#36;vehicle</span> <span class="o">=</span> <span class="k">new</span> <span class="n">com</span><span class="o">.</span><span class="na field">jojo</span><span class="o">.</span><span class="na field">javalin</span><span class="o">.</span><span class="na field">api</span><span class="o">.</span><span class="na field">models</span><span class="o">.</span><span class="na">Truck</span><span class="o">();</span>
+      <span class="n">Truck</span> <span class="n">_&#36;vehicle</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Truck</span><span class="o">();</span>
       <span class="k">if</span> <span class="o">(</span><span class="n">_set&#36;engine</span><span class="o">)</span> <span class="n">_&#36;vehicle</span><span class="o">.</span><span class="na">setEngine</span><span class="o">(</span><span class="n">_val&#36;engine</span><span class="o">);</span>
       <span class="k">if</span> <span class="o">(</span><span class="n">_set&#36;truckfield</span><span class="o">)</span> <span class="n">_&#36;vehicle</span><span class="o">.</span><span class="na">setTruckfield</span><span class="o">(</span><span class="n">_val&#36;truckfield</span><span class="o">);</span>
       <span class="k">return</span> <span class="n">_&#36;vehicle</span><span class="o">;</span>
