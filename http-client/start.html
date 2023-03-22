@@ -205,29 +205,6 @@
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
-<p>
-  If there are other annotation processors and they are specified via
-  <em>build / plugins / maven-compiler-plugin / annotationProcessorPaths</em>
-  then we add <em>avaje-http-client-generator</em> there instead.
-</p>
-<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;annotationProcessorPaths&gt;</span> <span class="c">&lt;!-- All annotation processors specified here --&gt;</span>
-      <span class="nt">&lt;path&gt;</span>
-        <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-        <span class="nt">&lt;artifactId&gt;</span>avaje-http-client-generator<span class="nt">&lt;/artifactId&gt;</span>
-        <span class="nt">&lt;version&gt;</span>&#36;{avaje.http.version}<span class="nt">&lt;/version&gt;</span>
-      <span class="nt">&lt;/path&gt;</span>
-      <span class="nt">&lt;path&gt;</span>
-          ... other annotation processor ...
-      <span class="nt">&lt;/path&gt;</span>
-    <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
-</pre></div>
-</div>
 
 <h4>Gradle</h4>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>

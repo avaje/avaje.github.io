@@ -210,34 +210,6 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
-<p>
-  2a. Note that if there are other annotation processors and they are specified via
-  <em>maven-compiler-plugin</em> <em>annotationProcessorPaths</em>
-  then we add <em>avaje-http-javalin-generator</em> there instead.
-</p>
-<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;annotationProcessorPaths&gt;</span> <span class="c">&lt;!-- All annotation processors specified here --&gt;</span>
-      <span class="nt">&lt;path&gt;</span>
-        <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-        <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
-        <span class="nt">&lt;version&gt;</span>&#36;{avaje-inject.version}<span class="nt">&lt;/version&gt;</span>
-      <span class="nt">&lt;/path&gt;</span>
-      <span class="nt">&lt;path&gt;</span>
-        <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-        <span class="nt">&lt;artifactId&gt;</span>avaje-http-javalin-generator<span class="nt">&lt;/artifactId&gt;</span>
-        <span class="nt">&lt;version&gt;</span>&#36;{avaje-http.version}<span class="nt">&lt;/version&gt;</span>
-      <span class="nt">&lt;/path&gt;</span>
-      <span class="nt">&lt;path&gt;</span>
-          ... other annotation processor ...
-      <span class="nt">&lt;/path&gt;</span>
-    <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
-</pre></div>
-</div>
 
 <p>3. Define a Controller (These APT processors work with both Java and Kotlin.)</p>
 
