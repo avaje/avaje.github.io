@@ -99,6 +99,7 @@
       <li><a href="#timeout">@RequestTimeout</a></li>
       <li><a href="#header">@Header</a></li>
       <li><a href="#queryParam">@QueryParam</a></li>
+      <li><a href="#bodystring">@BodyString</a></li>
       <li><a href="#beanParam">@BeanParam</a></li>
       <li><a href="#form">@Form</a></li>
       <li><a href="#formParam">@FormParam</a></li>
@@ -121,7 +122,7 @@
         <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><a href="/http">http</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">client</span></div>
         <ul>
           <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
-          <li><a href="https://github.com/avaje/avaje-http-client" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-http/tree/master/http-client" title="github source"><i class="fab fa-github"></i></a></li>
           <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
         </ul>
       </nav>
@@ -1479,7 +1480,6 @@
 </pre></div>
 </div>
 
-
 <h3 id="header">@Header</h3>
 <p>
   Use <code>@Header</code> for a header parameter.
@@ -1606,6 +1606,26 @@
     <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">cat</span><span class="o">)</span>
     <span class="o">.</span><span class="na">POST</span><span class="o">()</span>
     <span class="o">.</span><span class="na">asVoid</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="bodystring">@BodyString</h3>
+
+  We can specify that a string parameter is a body using <code>@BodyString</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;/stringbody&quot;</span><span class="o">)</span>
+<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">addCats</span><span class="o">(</span><span class="nd">@BodyString</span> <span class="nx">String</span> <span class="nx">body</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>The generated code will be:</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Cat</span><span class="o">&gt;</span> <span class="nf">addCats</span><span class="o">(</span><span class="n">String</span> <span class="n">body</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;stringbody&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">body</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Cat</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="o">}</span>
 </pre></div>
 </div>
