@@ -423,9 +423,13 @@
 </ol>
 
 <h5>Example module-info</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.avaje.inject.spi.Module</span><span class="o">;</span>
+
+<span class="n">module</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
+
   <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">inject</span><span class="o">;</span>
-  <span class="n">provides</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">Module</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">ExampleModule</span><span class="o">;</span>
+  <span class="c1">// you must define the fully qualified class name of the generated classes. if you use an import statement, compilation will fail</span>
+  <span class="n">provides</span> <span class="n">Module</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">ExampleModule</span><span class="o">;</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -1394,8 +1398,7 @@ These annotation can be placed on beans to easily share conditions.
 
 Additionally, meta annotation can be placed on other meta annotation to easily compose multiple related conditions.
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
-<span class="nd">@FirstFlame</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@FirstFlame</span>
 <span class="nd">@RequiresProperty</span><span class="o">(</span><span class="nx">value</span> <span class="o">=</span> <span class="s">&quot;abyss&quot;</span><span class="o">,</span> <span class="nx">equalTo</span><span class="o">=</span><span class="s">&quot;sealed&quot;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">AgeOfFire</span> <span class="o">{}</span>
 </pre></div>
@@ -1403,6 +1406,11 @@ Additionally, meta annotation can be placed on other meta annotation to easily c
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="nd">@AgeOfFire</span>
+<span class="c1">// AgeOfFire adds the following conditions</span>
+<span class="c1">// @RequiresProperty(value = &quot;abyss&quot;, equalTo=&quot;sealed&quot;)</span>
+<span class="c1">// @RequiresBean(Flame.class)</span>
+<span class="c1">// @RequiresBean(value = Kindling.class, missing = Dark.class)</span>
+<span class="c1">// @RequiresProperty(value = &quot;flame.state&quot;, notEqualTo = &quot;fading&quot;)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sun</span> <span class="o">{</span>
    <span class="o">...</span>
 <span class="o">}</span>
