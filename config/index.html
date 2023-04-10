@@ -58,7 +58,7 @@
 
           </ul>
         </li>
-        <li><a href="#plugins">Plugins</a></li>
+        <li><a href="#plugins">ConfigurationSource</a></li>
         <li><a href="#logging">Event Logging</a></li>
       </ul>
     </nav>
@@ -319,9 +319,9 @@
     <h3 id="get-property">Get Property</h3>
     <p>
       <code>Config</code> provides method to get property values as String, int, long, boolean,
-      BigDecimal, Enum and URL.
+      BigDecimal, Enum, URI and Duration.
     </p>
-    <h5>examples</h5>
+    <h5>Examples</h5>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// get a String property</span>
 <span class="n">String</span> <span class="n">value</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;myapp.foo&quot;</span><span class="o">);</span>
 
@@ -353,8 +353,8 @@
 <span class="n">MyEnum</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getEnum</span><span class="o">(</span><span class="n">MyEnum</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;myapp.code&quot;</span><span class="o">,</span> <span class="n">MyEnum</span><span class="o">.</span><span class="na">DEFAULT</span><span class="o">);</span>
 </pre></div>
 </div>
-    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">URL</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getURL</span><span class="o">(</span><span class="s">&quot;other.url&quot;</span><span class="o">);</span>
-<span class="n">URL</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getURL</span><span class="o">(</span><span class="s">&quot;other.url&quot;</span><span class="o">,</span> <span class="s">&quot;https://other:8090&quot;</span><span class="o">);</span>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">URI</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getURI</span><span class="o">(</span><span class="s">&quot;other.url&quot;</span><span class="o">);</span>
+<span class="n">URI</span> <span class="k">val</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getURI</span><span class="o">(</span><span class="s">&quot;other.url&quot;</span><span class="o">,</span> <span class="s">&quot;https://other:8090&quot;</span><span class="o">);</span>
 </pre></div>
 </div>
     <h5>List and Set</h5>
@@ -479,7 +479,7 @@
 </pre></div>
 </div>
 
-    <h2 id="plugins">Plugins</h2>
+    <h2 id="plugins">ConfigurationSource Plugins</h2>
     <p>
       Plugins implement the <code>ConfigurationSource</code> interface and found
       and registered via <code>ServiceLoader</code>. This means they have a
@@ -502,7 +502,7 @@
       their expressions evaluated as part of <em>setProperty</em>.
     </p>
     <p>
-      Refer to the (silly) example plugin - <a href="https://github.com/avaje/avaje-config/blob/master/src/test/java/org/example/MyExternalLoader.java">MyExternalLoader.java</a>
+      Refer to the (silly) example plugin - <a href="https://github.com/avaje/avaje-config/blob/master/avaje-config/src/test/java/org/example/MyExternalLoader.java">MyExternalLoader.java</a>
     </p>
 
     <h2 id="logging">Event Logging</h2>
