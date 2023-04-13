@@ -25,13 +25,11 @@
 </li>
 <li><a href="#limitations">Limitations</a>
 </li>
-<li><a href="#jdk-intro">JDK HttpClient Intro</a>
-</li>
 <li><a href="#quick-overview">Quick Overview</a>
 </li>
 <li><a href="#sync-async">Sync and Async</a>
 </li>
-<li><a href="#httpClientContext">HttpClientContext</a>
+<li><a href="#httpClientContext">HttpClient</a>
 </li>
 <li><a href="#json-bodyAdapter">JSON BodyAdapter</a>
     <ul>
@@ -148,13 +146,13 @@
   </tr>
 </table>
 
-<h3>Wrap JDK HttpClient</h3>
 <p>
+  <br>
   A lightweight wrapper to the <a target="_blank" href="http://openjdk.java.net/groups/net/httpclient/intro.html">JDK 11+ Java Http Client</a>.
 </p>
 <ul>
-  <li>Requires Java 11+ (recommend 11.0.8+)</li>
-  <li>Adds a fluid API for building URL and payload</li>
+  <li>Requires Java 11+</li>
+  <li>Adds a fluid API for building URLs and payloads</li>
   <li>Adds JSON marshalling/unmarshalling of request and response using
     <a href="https://github.com/FasterXML/jackson">Jackson</a>,
     <a href="https://github.com/google/gson">Gson</a> or <a href="https://github.com/avaje/avaje-jsonb">avaje-jsonb</a>
@@ -162,13 +160,23 @@
   <li>Gzip encoding/decoding</li>
   <li>Logging of request/response logging</li>
   <li>Interception of request/response</li>
-  <li>Built in support for authorization via Basic Auth and Bearer Token</li>
+  <li>Built in support for authorization via Basic Auth and Bearer Tokens</li>
   <li>Provides async and sync API</li>
+</ul>
+
+<h3 id="jdk-intro">JDK HttpClient Introduction</h3>
+<p>
+  Some introductions to the JDK HttpClient:
+</p>
+<ul>
+  <li>OpenJDK HttpClient <a target="_blank" href="http://openjdk.java.net/groups/net/httpclient/intro.html">Introduction</a></li>
+  <li>A closer look at the <a target="_blank" href="https://golb.hplar.ch/2019/01/java-11-http-client.html">Java 11 HTTP Client</a></li>
+  <li>Javadoc for <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html">JDK HttpClient</a> </li>
 </ul>
 
 <h3>Client API generation</h3>
 <p>
-  Optionally we can define a java interface with annotations and have a Java
+  Optionally, we can define a java interface with annotations and have a Java
   annotation processor generate the client implementation (similar to Retrofit,
   Feign and JAX-RS client).
 </p>
@@ -178,11 +186,8 @@
   <li>Targets <em>avaje-http-client / JDK HttpClient</em> only</li>
 </ul>
 <p>
-  This is similar to <a target="_blank" href="https://github.com/square/retrofit">Retrofit</a>,
-  <a target="_blank" href="https://github.com/OpenFeign/feign">Feign</a> and JAX-RS client for people familiar with
-  those projects. This client API generation targets <em>avaje-http-client / JDK HttpClient</em> only
-  and uses source code generation via annotation processing so there is no use of reflection and no
-  use of dynamic proxies.
+  This client API generation targets <em>avaje-http-client / JDK HttpClient</em> only
+  and uses source code generation via annotation processing so there is no use of reflection/dynamic proxies.
 </p>
 
 <h5>Example client API</h5>
@@ -198,7 +203,7 @@
 <h5>Using client API</h5>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
-  <span class="c1">//.bodyAdapter(new JacksonBodyAdapter())</span>
+  <span class="c1">//.bodyAdapter(new JsonbBodyAdapter())</span>
   <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 
 <span class="c1">// obtain API implementation</span>
@@ -229,13 +234,6 @@
 <span class="o">}</span>
 </pre></div>
 </div>
-<p>
-  The client API can also be a useful target given a openapi/swagger spec.
-  Given a openapi spec generate a client API (or client and server API).
-  The plan is to add a maven plugin that takes an openapi spec and generates
-  the associated API but this does not exist just yet.
-</p>
-
 
 <h2 id="getting-started">Getting started</h2>
 <ul>
@@ -259,7 +257,7 @@
 
 <h4>Client API generation</h4>
 <p>
-  For the client API generation we need to add <em>avaje-http-api</em> as a dependency.
+  For the client API generation, we need to add <em>avaje-http-api</em> as a dependency.
 </p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
@@ -272,7 +270,6 @@
 <h4>Client API - Annotation processor</h4>
 <p>
   Add the <em>avaje-http-client-generator</em> annotation processor.
-  We can add it as a <em>provided</em> scope dependency or ...
 </p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Annotation processors --&gt;</span>
 <span class="nt">&lt;dependency&gt;</span>
@@ -284,53 +281,29 @@
 </pre></div>
 </div>
 
-<p>
-  If there are other annotation processors and they are specified via
-  <em>maven-compiler-plugin</em> <em>annotationProcessorPaths</em>
-  then we add <em>avaje-http-client-generator</em> there instead.
-</p>
-<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;annotationProcessorPaths&gt;</span> <span class="c">&lt;!-- All annotation processors specified here --&gt;</span>
-      <span class="nt">&lt;path&gt;</span>
-        <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-        <span class="nt">&lt;artifactId&gt;</span>avaje-http-client-generator<span class="nt">&lt;/artifactId&gt;</span>
-        <span class="nt">&lt;version&gt;</span>&#36;{avaje.http.api.version}<span class="nt">&lt;/version&gt;</span>
-      <span class="nt">&lt;/path&gt;</span>
-      <span class="nt">&lt;path&gt;</span>
-          ... other annotation processor ...
-      <span class="nt">&lt;/path&gt;</span>
-    <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
-</pre></div>
-</div>
-
 <h3 id="gradle">Gradle</h3>
 <p>
   Add dependencies for <em>avaje-http-client</em> and <em>jackson-databind</em>.
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
 
-  <span class="n">implementation</span> <span class="s1">&#39;com.fasterxml.jackson.core:jackson-databind:2.12.3&#39;</span>
-  <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-client:1.19&#39;</span>
+  <span class="n">implementation</span> <span class="s1">&#39;com.fasterxml.jackson.core:jackson-databind:2.14.2&#39;</span>
+  <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-client:1.35&#39;</span>
   <span class="o">...</span>
 <span class="o">}</span>
 </pre></div>
 </div>
 
 <p>
-  When using Client API we additionally need <em>avaje-http-api</em> and
+  When using Client API we additionally need <em>avaje-http-api</em> and the
   <em>avaje-http-client-generator</em> annotation processor.
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
-    <span class="n">implementation</span> <span class="s1">&#39;com.fasterxml.jackson.core:jackson-databind:2.12.3&#39;</span>
-    <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-client:1.19&#39;</span>
+    <span class="n">implementation</span> <span class="s1">&#39;com.fasterxml.jackson.core:jackson-databind:2.14.2&#39;</span>
+    <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-client:1.35&#39;</span>
 
     <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-api:1.17&#39;</span>
-    <span class="n">annotationProcessor</span> <span class="s1">&#39;io.avaje:avaje-http-client-generator:1.19&#39;</span>
+    <span class="n">annotationProcessor</span> <span class="s1">&#39;io.avaje:avaje-http-client-generator:1.35&#39;</span>
     <span class="o">...</span>
 <span class="o">}</span>
 </pre></div>
@@ -342,21 +315,8 @@
   Current notable limitations are:
 </p>
 <ul>
-  <li>No support for multipart-form body</li>
+  <li>No support for multipart-form body (Though some <a href="https://github.com/yskszk63/jnhttp-multipartformdata-bodypublisher">libraries</a> provide bodyPublishers that can be used to send multi-part data)</li>
   <li>Retry (when specified) does not currently apply to <em>async</em> request processing</li>
-  <li>Currently no swagger/openapi to Client API generator</li>
-  <li>Currently no OpenTelemetry or OpenTracing interceptor/plugins</li>
-</ul>
-
-
-<h3 id="jdk-intro">JDK HttpClient Introduction</h3>
-<p>
-  Some introductions to the JDK HttpClient:
-</p>
-<ul>
-  <li>OpenJDK HttpClient <a target="_blank" href="http://openjdk.java.net/groups/net/httpclient/intro.html">Introduction</a></li>
-  <li>A closer look at the <a target="_blank" href="https://golb.hplar.ch/2019/01/java-11-http-client.html">Java 11 HTTP Client</a></li>
-  <li>Javadoc for <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpClient.html">JDK HttpClient</a> </li>
 </ul>
 
 <h3 id="quick-overview">Quick Overview</h3>
@@ -373,7 +333,8 @@
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
   <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="n">baseUrl</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JsonbBodyAdapter</span><span class="o">())</span>
+  <span class="c1">//.bodyAdapter(new JacksonBodyAdapter())</span>
   <span class="c1">//.bodyAdapter(new GsonBodyAdapter(new Gson()))</span>
   <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
@@ -421,7 +382,7 @@
 <h2 id="sync-async">Sync and Async</h2>
 <p>
   We can make requests in simple blocking manner or via <code>async()</code>
-  in an asynchronous style using <code>CompletableFuture</code>.
+  which uses <code>CompletableFuture</code>.
 </p>
 <p>
   The JDK HttpClient provides a number of <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpResponse.BodyHandler.html">BodyHandlers</a>
@@ -431,7 +392,7 @@
   response is ready.
 </p>
 <p>
-  Using <a href="#withHandler">withHandler(...)</a> we can use any of these or our own
+  Using <a href="#withHandler">withHandler(...)</a> we can use any of the existing handlers or make our own
   <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpResponse.BodyHandler.html">HttpResponse.BodyHandler</a>
   implementation.
 </p>
@@ -439,8 +400,8 @@
 <h3>Loom vs Async</h3>
 <p>
   With Loom we will be able to use simple blocking requests and get a similar
-  behaviour as the <code>async()</code> requests. This is an important factor
-  to keep in mind.
+  performance as the <code>async()</code> requests. This is an important factor
+  to keep in mind. To use loom, simply add a virtual thread executor to the http client builder.
 </p>
 <p>
   See <a href="#10k">10K requests - Loom vs Async</a>
@@ -449,11 +410,10 @@
 <h2 id="httpClientContext">HttpClient</h2>
 <p>
   HttpClient is effectively a wrapper of <code>java.net.http.HttpClient</code>
-  with extra features for request interceptors, body adapters, retry, etc.
+  with extra features for request interception, body adapters, retry, etc.
 </p>
 <p>
-  Create a HttpClient with a base URL plus BodyAdapter (e.g. JacksonBodyAdapter).
-  Additionally, set other options like retry and request interceptors as necessary.
+  Create a HttpClient with a base URL and a BodyAdapter (e.g. JsonbBodyAdapter). Set other options like retry and request interceptors as necessary.
 </p>
 
 <p>
@@ -491,20 +451,20 @@
 
 <h3 id="json-jackson">Using Jackson</h3>
 <p>
-  To use Jackson for serialisation of request and response body content to and from JSON we need to:
+  To use Jackson for serialization of request/response body content to/from JSON we need to:
 </p>
 <h4>1. Add jackson-databind dependency</h4>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>com.fasterxml.jackson.core<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>jackson-databind<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>2.12.3<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>2.14.2<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
 
 <h4>2. Register JacksonBodyAdapter</h4>
 <p>
-  Register the JacksonBodyAdapter with the HttpClient builder. We often provide JacksonBodyAdapter an
+  Register a JacksonBodyAdapter with the HttpClient builder. We cab provide JacksonBodyAdapter an
   ObjectMapper that has modules and configuration. For example:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">ObjectMapper</span> <span class="n">objectMapper</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectMapper</span><span class="o">().</span><span class="na">registerModule</span><span class="o">(</span><span class="k">new</span> <span class="n">JavaTimeModule</span><span class="o">());</span>
@@ -518,7 +478,7 @@
 
 <h3 id="json-gson">Using Gson</h3>
 <p>
-  To use Gson for serialisation of request and response body content to and from JSON we need to:
+  To use Gson for serialization of request/response body content to/from JSON we need to:
 </p>
 <h4>1. Add gson dependency</h4>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
@@ -542,7 +502,7 @@
 
 <h3 id="json-jsonb">Using Avaje-Jsonb</h3>
 <p>
-  To use <em>avaje-jsonb</em> for serialisation of request and response body content to and from JSON we need to:
+  To use <em>avaje-jsonb</em> for serialization of request and response body content to and from JSON we need to:
 </p>
 <h4>1. Add avaje-jsonb dependency</h4>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
@@ -567,17 +527,16 @@
 </pre></div>
 </div>
 <p>
-  Note that <a href="https://github.com/avaje/avaje-jsonb">avaje-jsonb</a> uses APT source code generation to generate
+  <a href="https://github.com/avaje/avaje-jsonb">Avaje-jsonb</a> uses APT source code generation to generate
   adapters for types annotated with <code>@Json</code>. This makes it a fast and light dependency, especially good for
-  http clients, CLI applications and use with Graal native image.
+  http clients, CLI applications and use with GraalVM native images.
 </p>
 
 <h2 id="request-body">Request body</h2>
 <p>
-  <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpRequest.BodyPublisher.html">java.net.http.HttpRequest.BodyPublisher</a>
-  is used for request body content.
-  JDK HttpClient comes with a number of implementations which are great and we use. In
-  addition we can use our own implementations.
+  Instances of <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpRequest.BodyPublisher.html">java.net.http.HttpRequest.BodyPublisher</a>
+  are used to send request body content.
+  The JDK HttpClient comes with a number of implementations for different situations. You can use your own implementation as well if you so desire.
 </p>
 <p>
   <em>avaje-http-client</em> adds URL encoded form and body adapters using Jackson and Gson
@@ -586,7 +545,7 @@
 
 <h5>Request Body</h5>
 <ul>
-  <li>Object which is written by the BodyAdapter, e.g. JacksonBodyAdapter writes as JSON content</li>
+  <li>An Object that is written by the BodyAdapter, e.g. JsonbBodyAdapter writes as JSON content</li>
   <li>formParam() for url encoded form</li>
   <li>byte[], String, Path (file), InputStream</li>
   <li>Any <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpRequest.BodyPublishers.html">HttpRequest.BodyPublisher</a></li>
@@ -594,10 +553,7 @@
 
 <h3 id="req-json">Object as JSON</h3>
 <p>
-  When we create the HttpClient we register a message body handler.
-  There is a supplied <code>JacksonBodyAdapter</code> and <code>GsonBodyAdapter</code>.
-  When these are registered then when we call <code>body(object)</code> passing
-  an Object this uses that body adapter to write the body content as JSON.
+  When we create the HttpClient, we can register a message body handler. When these are registered, we can call <code>body(object)</code> to write the body content as JSON.
 </p>
 
 <h4>Example: POST object as json</h4>
@@ -613,8 +569,7 @@
 
 <h3 id="req-formParam">formParam</h3>
 <p>
-  Calling <code>formParam()</code> adds URL encoded name value pairs
-  building request body content as <code>application/x-www-form-urlencoded</code>.
+  Calling <code>formParam()</code> adds URL encoded name-value pairs, and send body content as <code>application/x-www-form-urlencoded</code>.
 </p>
 
 <h4>Example: POST using formParams</h4>
@@ -652,11 +607,11 @@
 </p>
 
 <h4>Example: PUT InputStream</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Supplier</span><span class="o">&lt;</span><span class="n">InputStream</span><span class="o">&gt;</span> <span class="n">supplier</span> <span class="o">=</span> <span class="o">...;</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">InputStream</span> <span class="n">inputStream</span> <span class="o">=</span> <span class="o">...;</span>
 
 <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;upload&quot;</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">supplier</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">body</span><span class="o">(</span><span class="n">inputStream</span><span class="o">)</span>
   <span class="o">.</span><span class="na">PUT</span><span class="o">()</span>
   <span class="o">.</span><span class="na">asString</span><span class="o">();</span>
 </pre></div>
@@ -678,38 +633,33 @@
 </pre></div>
 </div>
 
+<h4>Summary of default BodyPublishers</h4>
+<table style="width:75%;">
+  <tr><td>BodyPublishers.noBody()</td><td>Sends no request body.</td></tr>
+  <tr><td>BodyPublishers.ofByteArray()</td><td>byte[]</td></tr>
+  <tr><td>BodyPublishers.ofString()</td><td>String, additional charset option</td></tr>
+  <tr><td>BodyPublishers.ofInputStream()</td><td>InputStream</td></tr>
+  <tr><td>BodyPublishers.ofFile(Path file)</td><td>Path with various options</td></tr>
+  <tr><td>BodyPublishers.fromPublisher(...)</td><td>various options</td></tr>
+</table>
+
 <h2 id="response-body">Response body</h2>
 <p>
   <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpResponse.BodyHandler.html">java.net.http.HttpResponse.BodyHandler</a>
-  is the interface used to handle response bodies. JDK HttpClient provides a number of
-  <a target="_blank" href="https://docs.oracle.com/en/java/javase/11/docs/api/java.net.http/java/net/http/HttpResponse.BodyHandlers.html">HttpResponse.BodyHandlers</a>
-  including reactive Flow based subscribers.
+  is the interface used to handle response bodies. The JDK HttpClient provides a number of BodyHandlers including reactive Flow based subscribers.
 </p>
 <p>
-  <em>avaje-http-client</em> has API to use the common ones such as String, Void, byte[] etc
+  <em>avaje-http-client</em> has APIs to use the common ones such as String, Void, byte[] etc
   and <code>withHandler()</code> to use any BodyHandler implementation.
 </p>
-
-<h4>Summary of BodyHandlers</h4>
-<table style="width:100%;">
-  <tr><td>discarding()</td><td>Discards the response body</td></tr>
-  <tr><td>ofByteArray()</td><td>byte[]</td></tr>
-  <tr><td>ofString()</td><td>String, additional charset option</td></tr>
-  <tr><td>ofLines()</td><td>Stream&lt;String&gt;</td></tr>
-  <tr><td>ofInputStream()</td><td>InputStream</td></tr>
-  <tr><td>ofFile(Path file)</td><td>Path with various options</td></tr>
-  <tr><td>ofByteArrayConsumer(...)</td><td>&nbsp;</td></tr>
-  <tr><td>fromSubscriber(...)</td><td>various options</td></tr>
-  <tr><td>fromLineSubscriber(...)</td><td>various options</td></tr>
-</table>
 
 <h3 id="bean">bean(Class&lt;T&gt;)</h3>
 <p>
   Return the response via BodyAdapter as a java bean/type (typically JSON). The BodyAdapter
-  decodes from <code>byte[]</code>. Gzip decoding occurs based on <em>Content-Encoding</em> header.
+  decodes from a <code>byte[]</code>. Gzip decoding occurs based on <em>Content-Encoding</em> header.
 </p>
 <p>
-  If the HTTP status code is in the error range this throws a <a href="#httpException">HttpException</a>.
+  If the HTTP status code is in the error range this throws an <a href="#httpException">HttpException</a>.
   From the HttpException we can get the underlying HttpResponse and error
   response body.
 </p>
@@ -726,7 +676,7 @@
   decodes from <code>byte[]</code>. Gzip decoding occurs based on <em>Content-Encoding</em> header.
 </p>
 <p>
-  If the HTTP status code is in the error range this throws a <a href="#httpException">HttpException</a>.
+  If the HTTP status code is in the error range this throws an <a href="#httpException">HttpException</a>.
   From the HttpException we can get the underlying HttpResponse and error
   response body.
 </p>
@@ -740,15 +690,14 @@
 <h3 id="stream">stream(Class&lt;T&gt;)</h3>
 <p>
   Return the response via BodyAdapter as a stream of java beans/type.
-  The response is expected to be <code>application/x-json-stream</code>.
+  The response media type is expected to be <code>application/x-json-stream</code>.
   Internally this uses <code>HttpResponse.BodyHandlers.asLines()</code> to
   get a stream of lines <code>Stream&lt;String&gt;</code>. In this case the BodyAdapter
   decodes from <code>String</code> content and there is no gzip decoding supported.
 </p>
 <p>
-  If the HTTP status code is in the error range this throws a <a href="#httpException">HttpException</a>.
-  From the HttpException we can get the underlying HttpResponse and error
-  response body.
+  If the HTTP status code is in the error range this throws an <a href="#httpException">HttpException</a>.
+  From the HttpException we can get the underlying HttpResponse and error response body.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Stream</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="n">customers</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
   <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;customers&quot;</span><span class="o">)</span>
@@ -764,7 +713,7 @@
   content is still available to be read in the case of error response.
 </p>
 <p>
-  If the HTTP status code is in the error range this throws a <a href="#httpException">HttpException</a>.
+  If the HTTP status code is in the error range this throws an <a href="#httpException">HttpException</a>.
   From the HttpException we can get the underlying HttpResponse and error
   response body.
 </p>
@@ -777,9 +726,8 @@
 
 <h3 id="asDiscarding">asDiscarding()</h3>
 <p>
-  Return as <code>HttpResponse&lt;Void&gt;</code> but the response
-  content is always discarded. Unlike <code>asVoid()</code> if there is an error
-  response with content error content that content will not be available.
+  Return a <code>HttpResponse&lt;Void&gt;</code> but the response
+  content is always discarded. Unlike <code>asVoid()</code>, error content will not be available.
 </p>
 <p>
   We use <em>asDiscarding()</em> when we only ever want the status code
@@ -825,19 +773,28 @@
 </pre></div>
 </div>
 
+<h4>Summary of default BodyHandlers</h4>
+<table style="width:75%;">
+  <tr><td>BodyHandlers.discarding()</td><td>Discards the response body</td></tr>
+  <tr><td>BodyHandlers.ofByteArray()</td><td>byte[]</td></tr>
+  <tr><td>BodyHandlers.ofString()</td><td>String, additional charset options</td></tr>
+  <tr><td>BodyHandlers.ofLines()</td><td>Stream&lt;String&gt;</td></tr>
+  <tr><td>BodyHandlers.ofInputStream()</td><td>InputStream</td></tr>
+  <tr><td>BodyHandlers.ofFile(Path file)</td><td>Path with various options</td></tr>
+  <tr><td>BodyHandlers.ofByteArrayConsumer(...)</td><td>&nbsp;</td></tr>
+  <tr><td>BodyHandlers.fromSubscriber(...)</td><td>various options</td></tr>
+  <tr><td>BodyHandlers.fromLineSubscriber(...)</td><td>various options</td></tr>
+</table>
 
 
 <h2 id="httpException">HttpException</h2>
 <p>
-  HttpException is thrown when the status code is not in 2XX range and the call is one of <a href="#bean">bean()</a>,
+  An HttpException is thrown when the status code is not in the 2XX range and the call is one of <a href="#bean">bean()</a>,
   <a href="#list">list()</a>, <a href="#stream">stream()</a>, <a href="#asVoid">asVoid()</a>.
 </p>
 <p>
-  Reference API javadoc <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/HttpException.html">HttpException</a>
-</p>
-<p>
   HttpException effectively wraps the HttpResponse and provides helper methods to get the response body
-  as String, byte[] or bean (via body adapter typically based on Jackson or Gson).
+  as String, byte[] or bean (via the registered body adapter).
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">statusCode</span> <span class="o">=</span> <span class="n">httpException</span><span class="o">.</span><span class="na">statusCode</span><span class="o">();</span>
 
@@ -853,6 +810,10 @@
 <span class="n">MyErrorBean</span> <span class="n">errorResponse</span> <span class="o">=</span> <span class="n">httpException</span><span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">MyErrorBean</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
 </div>
+
+<p>
+  Reference javadoc <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/HttpException.html">HttpException</a>
+</p>
 
 <h2 id="async">Async</h2>
 <p>
@@ -945,8 +906,8 @@
 
 <h3 id="async-join">Testing with async() and join()</h3>
 <p>
-  Note that when writing tests using <code>.async()</code> we often use <code>.join()</code> such that the current
-  thread waits for the async processing to complete. We can then execute asserts knowing the async processing
+  When writing tests using <code>.async()</code> we can use <code>.join()</code> such that the current
+  thread waits for the async processing to complete. We then execute asserts knowing the async processing
   has completed.
 </p>
 
@@ -966,9 +927,9 @@
 
 <h3 id="async-executor">Executor and common pool</h3>
 <p>
-  Note that <a target="_blank" href="https://bugs.openjdk.java.net/browse/JDK-8204339">JDK-8204339 - HTTP Client Dependent tasks should run in the common pool</a>
-  means that by <em>default</em> async callbacks are executed using the <code>ForkJoinPool.commonPool()</code> even when an
-  <code>Executor</code> is assigned to the <code>HttpClient</code>. This is can be unexpected behavior, also refer
+  <a target="_blank" href="https://bugs.openjdk.java.net/browse/JDK-8204339">JDK-8204339 - HTTP Client Dependent tasks should run in the common pool</a>
+  means that by <em>default</em>, async callbacks are executed using the <code>ForkJoinPool.commonPool()</code> even when an
+  <code>Executor</code> is assigned to the <code>HttpClient</code>. This can be unexpected behavior, also refer
   to this <a href="https://stackoverflow.com/questions/51907641/java-11-http-client-asynchronous-execution">stackoverflow discussion</a>
   on this behavior.
 </p>
@@ -1005,7 +966,6 @@
   <span class="o">});</span>
 </pre></div>
 </div>
-
 
 <h2 id="retry">Retry (Sync Requests Only)</h2>
 <p>
@@ -1071,7 +1031,7 @@
 
 <h3 id="auth-bearer">Bearer token Authorization - AuthTokenProvider</h3>
 <p>
-  For Authorization using <em>Bearer</em> tokens that are obtained and expire, implement
+  For Authorization using <em>Bearer</em> tokens that are obtained and expire after some time, implement
   <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/AuthTokenProvider.html"><code>AuthTokenProvider</code></a>
   and register that when building the HttpClient.
 </p>
@@ -1107,11 +1067,11 @@
 </pre></div>
 </div>
 
-<h4>Token obtained and set automatically</h4>
+<h4>Token will be obtained and set automatically</h4>
 <p>
   All requests using the HttpClient will automatically get
-  an <em>Authorization</em> header with <em>Bearer</em> token added. The token will be
-  obtained for initial request and then renewed when the token has expired.
+  an <em>Authorization</em> header with the retrived<em>Bearer</em> token added. The token will be
+  obtained for the initial request and then renewed when the token has expired.
 </p>
 
 
@@ -1206,7 +1166,7 @@
 <h4 id="client-create">Example: obtain implementation</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">final</span> <span class="n">HttpClient</span> <span class="n">httpClient</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
         <span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
-        <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonBodyAdapter</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">bodyAdapter</span><span class="o">(</span><span class="k">new</span> <span class="n">JsonbBodyAdapter</span><span class="o">())</span>
         <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 
 <span class="c1">// obtain API implementation</span>
@@ -1474,7 +1434,7 @@
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Client</span>
 <span class="kd">interface</span> <span class="nc">CustomerApi</span> <span class="o">{</span>
   <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
-  <span class="nd">@RequestTimeout</span><span class="o">(</span><span class="nx">value</span> <span class="o">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">ChronoUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">)</span>
+  <span class="nd">@RequestTimeout</span><span class="o">(</span><span class="nx">value</span> <span class="o">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">ChronoUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">)</span> <span class="c1">//defaults to milliseceonds</span>
   <span class="n">Customer</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">);</span>
 <span class="o">}</span>
 </pre></div>
@@ -1573,13 +1533,13 @@
 <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{bornAfter}&quot;</span><span class="o">)</span>
 <span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">findCats</span><span class="o">(</span><span class="nx">LocalDate</span> <span class="nx">bornAfter</span><span class="o">,</span> <span class="nd">@QueryParam</span> <span class="nx">String</span> <span class="nx">orderBy</span><span class="o">);</span>
 
-<span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{bornAfter}&quot;</span><span class="o">)</span>
+<span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;/{bornAfter}&quot;</span><span class="o">)</span>
 <span class="n">List</span><span class="o">&lt;</span><span class="n">Cat</span><span class="o">&gt;</span> <span class="nf">findCats</span><span class="o">(</span><span class="n">LocalDate</span> <span class="n">bornAfter</span><span class="o">,</span> <span class="n">String</span> <span class="n">orderBy</span><span class="o">);</span>  <span class="c1">// orderBy implied as query parameter</span>
 </pre></div>
 </div>
 
 <p>
-  Note that we must explicitly use <code>@QueryParam</code> when the query parameter
+  We must explicitly use <code>@QueryParam</code> when the query parameter
   is not a valid java identifier. For example, if the query parameter includes a hyphen
   then we must use <code>@QueryParam</code> explicitly.
 </p>
@@ -1611,7 +1571,6 @@
 </div>
 
 <h3 id="bodystring">@BodyString</h3>
-
   We can specify that a string parameter is a body using <code>@BodyString</code>.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;/stringbody&quot;</span><span class="o">)</span>
@@ -1808,9 +1767,9 @@ The generated code for the above is:
 </pre></div>
 </div>
 <p>
-  "Form beans" are nice with forms with lots of properties because they de-clutter our code
+  "Form beans" are nice with large forms because they help de-clutter our code
   and the generated code takes care of putting the values into our bean properties so that
-  we don't have to write that code.
+  we don't have to write.
 </p>
 <p>
   This use of <em>@Form</em> is very similar to JAX-RS <em>@BeanParam</em> except that the
