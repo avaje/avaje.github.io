@@ -39,6 +39,8 @@
 </li>
 <li><a href="#logging">Logging</a>
 </li>
+<li><a href="#integration">DI Integration</a>
+</li>
 </ul>
 <p>&nbsp;</p>
     </nav>
@@ -424,6 +426,46 @@
   content is logged at <code>TRACE</code> level.
 </p>
 
+<h2 id="integration">DI Integrations</h2>
+<p>
+  Annotations placed on a client interface are copied to the generated client implementation, so placing a DI annotation on the interface will make Avaje Inject generate DI classes.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Client</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">Github</span> <span class="o">{</span>
+
+  <span class="nd">@AspectAnnotation</span>
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/repos/{owner}/{repo}/contributors&quot;</span><span class="o">)</span>
+  <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The generated source will look like:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-http-client-generator&quot;</span><span class="o">)</span>
+<span class="nd">@Singleton</span> <span class="c1">// now DI frameworks can autowire</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Github&#36;HttpClient</span> <span class="kd">implements</span> <span class="n">Github</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">HttpClient</span> <span class="n">clientContext</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">Github&#36;HttpClient</span><span class="o">(</span><span class="n">HttpClient</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">clientContext</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="c1">// GET /repos/{owner}/{repo}/contributors</span>
+  <span class="nd">@AspectAnnotation</span> <span class="c1">// AOP frameworks can now proxy this method.</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Contributor</span><span class="o">&gt;</span> <span class="nf">contributors</span><span class="o">(</span><span class="n">String</span> <span class="n">owner</span><span class="o">,</span> <span class="n">String</span> <span class="n">repo</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;repos&quot;</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">owner</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">repo</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;contributors&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Contributor</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
 <h2>Next</h2>
 <p>
   Back to the <a href="/http-client">main documentation</a>
