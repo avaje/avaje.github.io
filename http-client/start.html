@@ -37,6 +37,8 @@
       <li><a href="#B5">B5. Use the interface</a></li>
     </ul>
 </li>
+<li><a href="#jpms">Java Modules</a>
+</li>
 <li><a href="#logging">Logging</a>
 </li>
 <li><a href="#integration">DI Integration</a>
@@ -401,8 +403,34 @@
 
   <span class="o">}</span>
 <span class="o">}</span>
+
+<span class="o">&lt;</span><span class="n">h2</span> <span class="n">id</span><span class="o">=</span><span class="s">&quot;jpms&quot;</span><span class="o">&gt;</span><span class="n">Java</span> <span class="n">Module</span> <span class="n">Setup</span><span class="o">&lt;/</span><span class="n">h2</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span>
+  <span class="n">If</span> <span class="n">using</span> <span class="n">java</span> <span class="n">modules</span><span class="o">,</span> <span class="n">in</span> <span class="n">the</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">module</span><span class="o">-</span><span class="n">info</span><span class="o">.</span><span class="na">java</span><span class="o">&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="n">we</span> <span class="n">need</span> <span class="n">to</span><span class="o">:</span>
+<span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">ol</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;</span><span class="n">Add</span> <span class="n">a</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">requires</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">clause</span> <span class="k">for</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">http</span><span class="o">.</span><span class="na">api</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;</span><span class="n">Add</span> <span class="n">a</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">requires</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">clause</span> <span class="k">for</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">http</span><span class="o">.</span><span class="na">client</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;</span><span class="n">Add</span> <span class="n">a</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">provides</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;</span> <span class="n">clause</span> <span class="k">for</span> <span class="o">&lt;</span><span class="n">em</span><span class="o">&gt;</span><span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">http</span><span class="o">.</span><span class="na field">client</span><span class="o">.</span><span class="na field">HttpClient</span><span class="o">.</span><span class="na">GeneratedComponent</span><span class="o">&lt;/</span><span class="n">em</span><span class="o">&gt;&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">ol</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">h5</span><span class="o">&gt;</span><span class="n">Example</span> <span class="n">module</span><span class="o">-</span><span class="n">info</span><span class="o">&lt;/</span><span class="n">h5</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">pre</span> <span class="n">content</span><span class="o">=</span><span class="s">&quot;java&quot;</span><span class="o">&gt;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient.GeneratedComponent</span>
+<span class="n">module</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
+
+  <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">http</span><span class="o">.</span><span class="na">api</span><span class="o">;</span>
+  <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">http</span><span class="o">.</span><span class="na">client</span>
+  <span class="c1">// you must define the fully qualified class name of the generated classes. if you use an import statement, compilation will fail</span>
+  <span class="n">provides</span> <span class="n">GeneratedComponent</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">GeneratedHttpComponent</span><span class="o">;</span>
+<span class="o">}</span>
 </pre></div>
 </div>
+<p>
+ In the example above, <code>org.example.GeneratedHttpComponent</code> is generated code typically found in
+  <code>target/generated-sources/annotations</code>.
+</p>
+
 
 <h2 id="logging">Logging</h2>
 <p>
