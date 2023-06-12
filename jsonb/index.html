@@ -23,9 +23,9 @@
 </li>
 <li><a href="#quick-start">Quick Start</a>
 </li>
+<li><a href="#integration">Spring/Avaje Integration</a>
 <li><a href="#jpms">Java Modules</a>
 </li>
-<li><a href="#integration">Spring/Avaje Integration</a>
 </li>
 <li><a href="#json">@Json</a>
     <ul>
@@ -241,8 +241,12 @@
 <span class="n">module</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
 
   <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">jsonb</span><span class="o">;</span>
+
   <span class="c1">// you must define the fully qualified class name of the generated classes. if you use an import statement, compilation will fail</span>
   <span class="n">provides</span> <span class="n">GeneratedComponent</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na field">jsonb</span><span class="o">.</span><span class="na">GeneratedComponent</span><span class="o">;</span>
+
+  <span class="c1">//if running using Jlink application images with avaje-inject add:</span>
+  <span class="c1">//requires io.avaje.jsonb.plugin;</span>
 <span class="o">}</span>
 </pre></div>
 </div>
