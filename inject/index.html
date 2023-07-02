@@ -171,20 +171,20 @@
 <p>&nbsp;</p>
 
 <p>
-  Uses Java annotation processing generating source code for dependency injection.
-  This puts the work of performing dependency injection to build time rather than
-  runtime, increasing the speed of application start. There is no use of reflection
-  or classpath scanning.
+  Inject leverages Java annotation processing to generate source code for efficient dependency injection.
+  By shifting the responsibility of dependency injection from runtime to build time, it significantly enhances the speed of application startup.
+  This approach eliminates the need for intensive reflection or classpath scanning, further optimizing performance.
 </p>
 <p>
-  The dependency injection classes are generated source code. We can add debug breakpoints into the DI code as desired and step through
-  the code as if it were manually written. We can use existing IDE tools to search where code is called (e.g. Constructors and lifecycle
+  The dependency injection classes are generated source code.
+  This allows us to seamlessly incorporate debug breakpoints into the DI code, enabling us to step through the code as if it were manually written.
+  We can use existing IDE tools to search where code is called (e.g. Constructors and lifecycle
   methods.)
 </p>
 <p>
   For a <a href="#why">background on why</a> <em>avaje inject</em> exists and a
   <a href="#why-comparison">quick comparison</a> with other DI libraries such as
-  Dagger2, Micronaut, Quarkus and Spring goto - <a href="#why">Why</a>.
+  Dagger2, Micronaut, Quarkus and Spring go to - <a href="#why">Why</a>.
 </p>
 
 <h3 id="size">DI Library Size</h3>
@@ -208,7 +208,7 @@
         <li><a href="#factory">@Factory + @Bean</a></li>
         <li><a href="#primary">@Primary + @Secondary</a></li>
         <li><a href="#conditional">Conditional Beans</a></li>
-        <li><a href="#test-scope">Test scope</a> component testing</li>
+        <li><a href="#test-scope">Test scope</a> and component testing</li>
         <li><a href="#aspect">Aspect Oriented Programming</a> around method advice</li>
       </ul>
     </td>
@@ -283,7 +283,7 @@
 
 <h4>@Factory + @Bean</h4>
 <p>
-  In addition to the JSR-330 standard we use <a href="#factory">@Factory</a> + <a href="#bean">@Bean</a>
+  In addition to the JSR-330 standard, we use <a href="#factory">@Factory</a> + <a href="#bean">@Bean</a>
   which have a similar function as Spring DI's <em>@Configuration + @Bean</em> and also Micronaut's
   <em>@Factory + @Bean</em>. This is also similar to a Guice module with <em>@Provides</em> methods.
 </p>
@@ -661,7 +661,7 @@
   For example, lets say we have A and B where A depends on B and B depends on A. In this case
   we can't use constructor injection for both A and B like:
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// circular dependency with constructor injection, this will not work !!</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// circular dependency with constructor injection, this will not work!!</span>
 
 <span class="nd">@Singleton</span>
 <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
@@ -681,14 +681,14 @@
 </pre></div>
 </div>
 <p>
-  With the above circular dependencies for A and B constructor injection <em>avaje-inject</em>
+  With the above circular dependencies for A and B constructor injection, <em>avaje-inject</em>
   cannot determine the order in which to construct the beans. <em>avaje-inject</em> will
   detect this and product a compilation error outlining the beans involved and ask us
   to change to use field injection for one of the dependencies.
 </p>
 <p>
-  We cannot use constructor injection for both A and B and instead we must use
-  either field injection or method injection on either A or B like:
+  We cannot use constructor injection for both A and B, instead we must use
+  either field/method injection on either A or B like:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
@@ -706,10 +706,8 @@
 </pre></div>
 </div>
 <p>
-  The reason this works is that field injection and method injection occurs later after all the
-  dependencies are constructed. <em>avaje-inject</em> uses 2 phases to
-  "wire" the beans and then a 3rd phase to execute the <code>@PostConstruct</code>
-  lifecycle methods:
+  The reason this works is that field/method injection occur after all the
+  dependencies are constructed. <em>avaje-inject</em> uses 3 phases to construct a bean scope:
 </p>
 <ul>
   <li>Phase 1: Construct all the beans in order based on constructor dependencies</li>
@@ -946,7 +944,8 @@
 </div>
 <h3 id="beanclose">@Bean autocloseable</h3>
 <p>
-  The avaje generator reads the bean method return type to detct if the bean is an instance of <code>Closeable</code> or <code>AutoCloseable</code>. In the case where you are wiring an interface that doesn't implement these types, but the concrete class implements, we can specify <code>autocloseable</code> to inform the generator.
+  The avaje annotation processor reads the bean method return types to detect if the bean is an instance of <code>Closeable</code> or <code>AutoCloseable</code>.
+  In the case where you are wiring an interface that doesn't implement these types, but the concrete class implements, we can specify <code>autocloseable</code> to inform the processor.
  </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
@@ -1371,7 +1370,7 @@ If there are no <code>PropertyRequiresPlugin</code> found, a default implementat
 
 <p><a href="https://avaje.io/config/">Avaje Config</a> provides a <code>PropertyRequiresPlugin</code>, so when it's detected in the classpath, it will be used to test the property conditions.
 
-<p>You can provide your own implementation of <code>PropertyRequiresPlugin</code> via service loading if you want to use your own custom testing of property condition.
+<p>You can provide your own implementation of <code>PropertyRequiresPlugin</code> via service loader if you want to use your own custom testing of property condition.
 
 </p>
 
@@ -1406,7 +1405,7 @@ Additionally, meta annotation can be placed on other meta annotation to easily c
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="nd">@AgeOfFire</span>
-<span class="c1">// AgeOfFire adds the following conditions</span>
+<span class="c1">// AgeOfFire effectively adds the following conditions</span>
 <span class="c1">// @RequiresProperty(value = &quot;abyss&quot;, equalTo=&quot;sealed&quot;)</span>
 <span class="c1">// @RequiresBean(Flame.class)</span>
 <span class="c1">// @RequiresBean(value = Kindling.class, missing = Dark.class)</span>
@@ -1463,13 +1462,11 @@ This library has several contructs that support Aspect Oriented Programmming
 
 <h3 id="aspect">@Aspect</h3>
 <p>
-  We can create an annotation class and annotate it with <code>@Aspect</code> to define an aspect annotation.
-  To control the execution order of multiple aspects, we can use the ordering property of the <code>@Aspect</code>
+  Create an annotation class and annotate it with <code>@Aspect</code> to define an aspect annotation.
+  To control the execution order of multiple aspects, we can use the ordering property of the <code>@Aspect</code>.
+  To import an existing annotation, use <code>@Aspect.Import</code>.
 </p>
-<p>
-  To control the execution order of multiple aspects, we can use the ordering property of <code>@Aspect</code>.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Aspect</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Aspect</span><span class="o">(</span><span class="nx">ordering</span><span class="o">=</span><span class="mi">1</span><span class="o">)</span> <span class="c1">// The default is 1000 so this aspect will execute before others</span>
 <span class="nd">@Target</span><span class="o">(</span><span class="nx">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
 <span class="nd">@Retention</span><span class="o">(</span><span class="nx">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
 <span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">MyAround</span> <span class="o">{</span>
@@ -1479,7 +1476,11 @@ This library has several contructs that support Aspect Oriented Programmming
 </pre></div>
 </div>
 
-<p>For this aspect to work, a corresponding AspectProvider must be wired into the scope. The AspectProvider should be a <code>@Singleton</code> or <code>@Component</code> that provides a <code>MethodInterceptor</code>. (Which will intercept the method call).</p>
+<p>
+For this aspect to work, a corresponding AspectProvider must be wired into the scope.
+The AspectProvider should be a <code>@Singleton</code> or <code>@Component</code> that provides a <code>MethodInterceptor</code>.
+ (Which will intercept the method call).
+</p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyAroundAspect</span> <span class="kd">implements</span> <span class="n">AspectProvider</span><span class="o">&lt;</span><span class="n">MyAround</span><span class="o">&gt;</span> <span class="o">{</span>
@@ -2689,7 +2690,7 @@ These are the components and plugins provides by all the other modules that exis
   <li>2019 - Quarkus</li>
 </ul>
 <p>
-  Stefano Mazzocchi popularises the term, Inversion of Control and the Apache
+  Stefano Mazzocchi popularises the term Inversion of Control and the Apache
   <a target="_blank" href="http://picocontainer.com/inversion-of-control-history.html#avalon">Avalon</a>
   project starts.
 </p>
@@ -2748,7 +2749,7 @@ These are the components and plugins provides by all the other modules that exis
 <p>
   Micronaut DI and <em>avaje-inject</em> are both heavily influenced by Spring DI and
   to some extent look pretty similar. avaje-inject has taken a source code generation
-  approach, excluded AOP and excluded <code>@Value</code> with a preference instead to
+  approach for readability and excluded <code>@Value</code> with a preference instead to
   use a simple <a href="/config">avaje-config</a> style approach to external configuration.
 </p>
 <p>
@@ -2759,7 +2760,7 @@ These are the components and plugins provides by all the other modules that exis
 <p>
   <em>avaje-inject</em> is a lightweight DI library that is especially suited to
   building http based services using <a href="https://javalin.io">Javalin</a>
-  and <a href="https://helidon.io">Helidon SE</a>.
+  and <a href="https://helidon.io">Helidon SE/Nima</a>.
 </p>
 <p>
   We can build rest controllers and target either Javalin or Helidon SE using

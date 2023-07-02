@@ -134,15 +134,14 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
   (web routing).
 </p>
 <p>
- It turns out we don't need to generate much code at all and that the generated code is very simple and readable.
-  Developers can navigate to it, add break points and debug just as if we wrote it all
+ The generated source code is very simple and readable, so developers can navigate to it and add break points and debug just as if we wrote it all
   manually ourselves.
 </p>
 <p>
   What we <b>lose</b> in doing this is automatic
   <a target="_blank" href="https://en.wikipedia.org/wiki/Content_negotiation">Content negotiation</a>. For example, if
   we need endpoints that serve response content as <i>either</i> JSON or XML content based on request headers
-  then we would to handle this ourselves.
+  then we would need to handle this ourselves.
 </p>
 
 <h4>Summary</h4>
@@ -163,7 +162,7 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
   making nicer cleaner API's.
 </p>
 <p>
-  A design decision has been to not use JAX-RS annotations at this stage. This is because
+  A design decision has been to not use JAX-RS annotations. This is because
   the JAX-RS annotations are a lot more verbose than we desire and because they are not provided
   as a nice clean separate dependency. The JAX-RS API has a lot of extra weight that we do not need.
 </p>
@@ -171,7 +170,7 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
 <h2>HTTP Client</h2>
 <p>
   Avaje <a href="/http-client/">http client</a> is a lightweight wrapper of JDK HttpClient
-  that also supports Client API with annotation processing to generate source to implement
+  that also supports Client API with annotation processing to generate source code that implements
   the API.
 </p>
 
@@ -327,13 +326,13 @@ get all the services and register them with the Helidon `HttpRouting`.
 
 <h3>Optional: OpenAPI plugin</h3>
 <p>
-  Optionally add the <code>io.dinject.openapi</code> plugin to have the openapi.json
+  Optionally add the <code>io.avaje.openapi</code> plugin to have the openapi.json
   (swagger) to be generated into <em>src/main/resources/public</em>.
 </p>
 
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">plugins</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">id</span><span class="o">(</span><span class="s1">&#39;io.dinject.openapi&#39;</span><span class="o">)</span> <span class="n">version</span><span class="o">(</span><span class="s1">&#39;1.2&#39;</span><span class="o">)</span>
+  <span class="n">id</span><span class="o">(</span><span class="s1">&#39;io.avaje.openapi&#39;</span><span class="o">)</span> <span class="n">version</span><span class="o">(</span><span class="s1">&#39;1.2&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -1461,8 +1460,8 @@ The generated Javalin code for the above is.
 <h3>Add @Valid</h3>
 <p>
   Add a jakarta/javax/avaje <code>@Valid</code> annotation on controllers/methods and the types that we want bean validation to
-  be included for. When we do this controller methods that take a request payload
-  will then have the request bean (populated by JSON payload or form parameters)
+  be included for. When we do this, controller methods that take a request payload
+  will then have the request bean (populated by JSON payload or form/header/query parameters)
   validated before it is passed to the controller method.
 </p>
 <p>
