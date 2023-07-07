@@ -80,7 +80,7 @@
 </table>
 
 <p><br><br>
-  This is a light (188kb + generated code), fast, and reflection free Json binding library
+  This is a light (~200kb + generated code), fast, and reflection free Json binding library
 </p>
 
 <ul>
@@ -151,12 +151,12 @@
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Address</span> <span class="o">{</span>
-  <span class="n">String</span> <span class="n">street</span><span class="o">;</span>
-  <span class="n">String</span> <span class="n">suburb</span><span class="o">;</span>
-  <span class="n">String</span> <span class="n">city</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">street</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">suburb</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">city</span><span class="o">;</span>
   <span class="c1">// object fields will automatically have adapters generated, no @Json required</span>
   <span class="c1">// (though you can add @Json anyway to modify the generated adapter how you wish)</span>
-  <span class="kd">private</span> <span class="n">OtherClass</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">OtherClass</span> <span class="n">other</span><span class="o">;</span>
   <span class="c1">//getters/setters ommited for brevity</span>
 <span class="o">}</span>
 </pre></div>
@@ -202,8 +202,8 @@
 
 <span class="c1">// only including the id and name</span>
 <span class="n">JsonView</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="n">idAndNameView</span> <span class="o">=</span> <span class="n">customerType</span><span class="o">.</span><span class="na">view</span><span class="o">(</span><span class="s">&quot;(id, name)&quot;</span><span class="o">);</span>
-<span class="n">String</span> <span class="n">asJson</span> <span class="o">=</span>  <span class="n">idAndNameView</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">customer</span><span class="o">);</span>
 
+<span class="n">String</span> <span class="n">asJson</span> <span class="o">=</span>  <span class="n">idAndNameView</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">customer</span><span class="o">);</span>
 
 <span class="n">JsonView</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="n">myView</span> <span class="o">=</span>
   <span class="n">customerType</span><span class="o">.</span><span class="na">view</span><span class="o">(</span><span class="s">&quot;(id, name, billingAddress(*), contacts(lastName, email))&quot;</span><span class="o">);</span>
@@ -337,16 +337,16 @@ When a class has a constructor like the City example below, then fields in the c
 </div>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//The Naming options are below with the default of Match.</span>
-  <span class="kd">enum</span> <span class="n">Naming</span> <span class="o">{</span>
-    <span class="n">Match</span><span class="o">,</span>
-    <span class="n">LowerHyphen</span><span class="o">,</span>
-    <span class="n">LowerUnderscore</span><span class="o">,</span>
-    <span class="n">LowerSpace</span><span class="o">,</span>
-    <span class="n">UpperCamel</span><span class="o">,</span>
-    <span class="n">UpperHyphen</span><span class="o">,</span>
-    <span class="n">UpperUnderscore</span><span class="o">,</span>
-    <span class="n">UpperSpace</span>
-  <span class="o">}</span>
+<span class="kd">enum</span> <span class="n">Naming</span> <span class="o">{</span>
+  <span class="n">Match</span><span class="o">,</span>
+  <span class="n">LowerHyphen</span><span class="o">,</span>
+  <span class="n">LowerUnderscore</span><span class="o">,</span>
+  <span class="n">LowerSpace</span><span class="o">,</span>
+  <span class="n">UpperCamel</span><span class="o">,</span>
+  <span class="n">UpperHyphen</span><span class="o">,</span>
+  <span class="n">UpperUnderscore</span><span class="o">,</span>
+  <span class="n">UpperSpace</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 
