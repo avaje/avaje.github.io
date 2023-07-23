@@ -1465,6 +1465,9 @@ The generated Javalin code for the above is.
   validated before it is passed to the controller method.
 </p>
 <p>
+  The avaje-http <code>@Valid</code> annotation can additionally be used to set the Validation Groups to use while validating.
+</p>
+<p>
   For the controller method below:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Valid</span>
@@ -1555,7 +1558,7 @@ The generated Javalin code for the above is.
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">BeanValidator</span> <span class="kd">implements</span> <span class="n">Validator</span> <span class="o">{</span>
 
   <span class="nd">@Override</span>
-  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">validate</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">validate</span><span class="o">(</span><span class="n">Object</span> <span class="n">bean</span><span class="o">,</span> <span class="n">String</span> <span class="n">acceptLanguage</span><span class="o">,</span> <span class="n">Class</span><span class="o">&lt;?&gt;...</span> <span class="n">groups</span><span class="o">)</span> <span class="o">{</span>
   <span class="c1">//do validation</span>
   <span class="c1">// if validation fails throw something</span>
   <span class="o">}</span>
@@ -1563,16 +1566,29 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 
+<h4>Using Avaje Validation</h4>
+<p>
+  Add a dependency on <em>avaje-validator</em>. This will transitively
+  bring in a dependency on <em>Validator</em> instance which will be used to validate beans.
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-validator<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{validator.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+
 <h4>Using Hibernate</h4>
 <p>
-  Add a dependency on <em>avaje-http-hibernate-validator</em>. This will transitively
-  bring in a dependency on <em>hibernate-validator</em> which will be used to validate.
+  Add a dependency on <em>avaje-http-hibernate-validator</em>. This will provide a hibernate <em>Validator</em> instance which will be used to validate.
 </p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-http-hibernate-validator<span class="nt">&lt;/artifactId&gt;</span>
   <span class="c">&lt;!-- use 2.9 for javax validation --&gt;</span>
-  <span class="nt">&lt;version&gt;</span>3.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>3.3<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
