@@ -204,7 +204,7 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
 <span class="nt">&lt;/dependency&gt;</span>
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>avaje-http-javalin-generator<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-http-{javalin/helidon}-generator<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje-http.version}<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
@@ -260,7 +260,7 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
 <p>The annotation processor will generate controller classes implementing the WebRoutes interface, which means we can
 get all the WebRoutes and register them with Javalin using:
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoutes</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
 <span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
         <span class="o">.</span><span class="na">routes</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">routes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">WebRoutes</span><span class="o">::</span><span class="n">registerRoutes</span><span class="o">))</span>
@@ -268,30 +268,13 @@ get all the WebRoutes and register them with Javalin using:
 </pre></div>
 </div>
 
-<h4> Usage with Helidon SE </h2>
-<p>
-The annotation processor will generate controller classes implementing the Helidon Service interface, which we can use
-get all the Services and register them with Helidon `RoutingBuilder`.
-</p>
-
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">Service</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-<span class="k">var</span> <span class="n">routingBuilder</span> <span class="o">=</span> <span class="n">Routing</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">register</span><span class="o">(</span><span class="n">routes</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">toArray</span><span class="o">(</span><span class="n">Service</span><span class="o">[]::</span><span class="k">new</span><span class="o">));</span>
-<span class="n">WebServer</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
-        <span class="o">.</span><span class="na">addMediaSupport</span><span class="o">(</span><span class="n">JacksonSupport</span><span class="o">.</span><span class="na">create</span><span class="o">())</span>
-        <span class="o">.</span><span class="na">routing</span><span class="o">(</span><span class="n">routingBuilder</span><span class="o">)</span>
-        <span class="o">.</span><span class="na">build</span><span class="o">()</span>
-        <span class="o">.</span><span class="na">start</span><span class="o">();</span>
-</pre></div>
-</div>
-
-<h4>Helidon Nima Usage</h4>
-
+<h4>Usage with Helidon SE (4.x)</h2>
 <p>
 The annotation processor will generate controller classes implementing the Helidon HttpService interface, which we can use
 get all the services and register them with the Helidon `HttpRouting`.
 </p>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">HttpService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">HttpService</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">HttpService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="kd">final</span> <span class="k">var</span> <span class="n">builder</span> <span class="o">=</span> <span class="n">HttpRouting</span><span class="o">.</span><span class="na">builder</span><span class="o">();</span>
 
 <span class="k">for</span> <span class="o">(</span><span class="kd">final</span> <span class="n">HttpService</span> <span class="n">httpService</span> <span class="o">:</span> <span class="n">routes</span><span class="o">)</span> <span class="o">{</span>
