@@ -207,6 +207,7 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
   <span class="nt">&lt;artifactId&gt;</span>avaje-http-{javalin/helidon}-generator<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje-http.version}<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+  <span class="nt">&lt;optional&gt;</span>true<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -1465,6 +1466,8 @@ The generated Javalin code for the above is.
 <span class="kd">class</span> <span class="nc">HelloBean</span> <span class="o">{</span>
   <span class="nd">@NotBlank</span>
   <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+
+  <span class="nd">@Email</span><span class="o">(</span><span class="nx">groups</span><span class="o">=</span><span class="nx">EmailCheck</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
   <span class="kd">private</span> <span class="n">String</span> <span class="n">email</span><span class="o">;</span>
   <span class="c1">//getters/setters/constructors</span>
 <span class="o">}</span>
@@ -1487,6 +1490,7 @@ The generated Javalin code for the above is.
     <span class="o">...</span>
   <span class="o">}</span>
 
+  <span class="nd">@io.avaje.http.api.Valid</span><span class="o">(</span><span class="nx">groups</span><span class="o">={</span><span class="nx">Default</span><span class="o">.</span><span class="na">class</span><span class="o">,</span><span class="nx">EmailCheck</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
   <span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;/bean&quot;</span><span class="o">)</span>
   <span class="kt">void</span> <span class="nf">saveBean</span><span class="o">(</span><span class="nd">@BeanParam</span> <span class="nx">HelloBean</span> <span class="nx">helloBean</span><span class="o">)</span> <span class="o">{</span>
     <span class="o">...</span>
@@ -1508,7 +1512,8 @@ The generated Javalin code for the above is.
     <span class="n">ctx</span><span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">),</span>
     <span class="n">ctx</span><span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;email&quot;</span><span class="o">)</span>
   <span class="o">);</span>
-  <span class="n">validator</span><span class="o">.</span><span class="na">validate</span><span class="o">(</span><span class="n">helloForm</span><span class="o">);</span>       <span class="c1">// validation added here !!</span>
+  <span class="k">var</span> <span class="n">validLanguage</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;Accept-Language&quot;</span><span class="o">);</span>
+  <span class="n">validator</span><span class="o">.</span><span class="na">validate</span><span class="o">(</span><span class="n">helloForm</span><span class="o">,</span> <span class="n">validLanguage</span><span class="o">);</span>
   <span class="n">controller</span><span class="o">.</span><span class="na">saveForm</span><span class="o">(</span><span class="n">helloForm</span><span class="o">);</span>
 <span class="o">});</span>
 
@@ -1518,7 +1523,8 @@ The generated Javalin code for the above is.
     <span class="n">ctx</span><span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">),</span>
     <span class="n">ctx</span><span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;email&quot;</span><span class="o">)</span>
   <span class="o">);</span>
-  <span class="n">validator</span><span class="o">.</span><span class="na">validate</span><span class="o">(</span><span class="n">helloBean</span><span class="o">);</span>       <span class="c1">// validation added here !!</span>
+  <span class="k">var</span> <span class="n">validLanguage</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;Accept-Language&quot;</span><span class="o">);</span>
+  <span class="n">validator</span><span class="o">.</span><span class="na">validate</span><span class="o">(</span><span class="n">helloBean</span><span class="o">,</span> <span class="n">validLanguage</span><span class="o">,</span> <span class="n">Default</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">EmailCheck</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
   <span class="n">controller</span><span class="o">.</span><span class="na">saveBean</span><span class="o">(</span><span class="n">helloBean</span><span class="o">);</span>
 <span class="o">});</span>
 
@@ -1552,7 +1558,7 @@ The generated Javalin code for the above is.
 <h4>Using Avaje Validation</h4>
 <p>
   Add a dependency on <em>avaje-validator</em>. This will transitively
-  bring in a dependency on <em>Validator</em> instance which will be used to validate beans.
+  bring in a <em>Validator</em> instance which will be used to validate beans.
 </p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>

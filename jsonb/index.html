@@ -139,6 +139,7 @@
   <span class="nt">&lt;artifactId&gt;</span>avaje-jsonb-generator<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje.jsonb.version}<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+  <span class="nt">&lt;optional&gt;</span>true<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -524,16 +525,16 @@ We can override the serialization/deserialization name of a field using <code>@J
 </pre></div>
 </div>
 
-<h2 id="alias">@Json.JsonAlias</h2>
+<h2 id="alias">@Json.Alias</h2>
 
 <p>
-  We can define a deserialization alias for a field using <code>@Json.JsonAlias</code>. It is compatible with, and can work in tandem with <code>@Property</code>
+  We can define a deserialization alias for a field using <code>@Json.Alias</code>. It is compatible with, and can work in tandem with <code>@Property</code>
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Customer</span> <span class="o">{</span>
 
-  <span class="nd">@JsonAlias</span><span class="o">({</span><span class="s">&quot;SomeOtherName&quot;</span><span class="o">,</span><span class="s">&quot;SomeOtherName2&quot;</span><span class="o">})</span>
+  <span class="nd">@Alias</span><span class="o">({</span><span class="s">&quot;SomeOtherName&quot;</span><span class="o">,</span><span class="s">&quot;SomeOtherName2&quot;</span><span class="o">})</span>
   <span class="kd">private</span> <span class="n">name</span>
   <span class="o">...</span>
 <span class="o">}</span>
@@ -542,7 +543,7 @@ We can override the serialization/deserialization name of a field using <code>@J
 
 <h4>Generated Code</h4>
 
-<p><code>@Json.JsonAlias</code> makes the following changes to the generated JsonAdapter:</p>
+<p><code>@Json.Alias</code> makes the following changes to the generated JsonAdapter:</p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span>
 <span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">CustomerJsonAdapter</span> <span class="kd">implements</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;,</span> <span class="n">ViewBuilderAware</span> <span class="o">{</span>
 

@@ -326,6 +326,7 @@
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje.inject.version}<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+  <span class="nt">&lt;optional&gt;</span>true<span class="nt">&lt;/scope&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -389,11 +390,11 @@
 
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:8.10&#39;</span><span class="o">)</span>
-  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:8.10&#39;</span><span class="o">)</span>
+  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:9.4&#39;</span><span class="o">)</span>
+  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:9.4&#39;</span><span class="o">)</span>
 
-  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:8.10&#39;</span><span class="o">)</span>
-  <span class="n">testAnnotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:8.10&#39;</span><span class="o">)</span>
+  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:9.4&#39;</span><span class="o">)</span>
+  <span class="n">testAnnotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:9.4&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -408,10 +409,10 @@
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:8.10&#39;</span><span class="o">)</span>
-  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:8.10&#39;</span><span class="o">)</span>
+  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:9.4&#39;</span><span class="o">)</span>
+  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:9.4&#39;</span><span class="o">)</span>
 
-  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:8.10&#39;</span><span class="o">)</span>
+  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:9.4&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
