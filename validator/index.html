@@ -32,6 +32,7 @@
       <li><a href="#field">Field Validation</a></li>
       <li><a href="#getter">Getter Validation</a></li>
       <li><a href="#container">Container Constraints</a></li>
+      <li><a href="#classlvl">Class-Level Constraints</a></li>
       <li><a href="#cascade">Cascaded Validation</a></li>
       <li><a href="#inherited">Inherited Constraints</a></li>
     </ul>
@@ -102,7 +103,9 @@
       can't annotate)</li>
     <li>Supports Avaje/Jakarta/Javax Constraint Annotations</li>
     <li>Validation Group Support</li>
-    <li>Composable Contraint Annotations</li>
+    <li>Composable Contraints</li>
+    <li>Inherited Contraints</li>
+    <li>Cascaded Validation</li>
   </ul>
 
   <h2 id="quick-start">Quick Start</h2>
@@ -352,7 +355,30 @@
     <span class="nd">@Positive</span><span class="o">(</span><span class="nx">message</span> <span class="o">=</span> <span class="s">&quot;vigor check failed&quot;</span><span class="o">)</span> <span class="nx">OptionalDouble</span> <span class="nx">vigor</span><span class="o">)</span> <span class="o">{}</span>
 </pre></div>
 </div>
+<h3 id="classlvl">Class-level constraints</h3>
+<p>
+  Last but not least, a constraint can also be placed on the class level. In this case not a single property is subject
+  of the validation but the complete object. Class-level constraints are useful if the validation depends on a
+  correlation between several properties of an object.
+</p>
+<p>
+  The below version of the <code>Ship</code> class has the two attributes <em>crew</em> and <em>imposters</em> and it should
+  be ensured that the list of imposters is proportional to the amount of crewmates. For that purpose the
+  <code>@BalancedGame</code> constraint is added on the class level. The validator of that constraint has access to the
+  complete <code>Ship</code> object, allowing to compare the fields and validate correctly.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Valid</span>
+<span class="nd">@BalancedGame</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Ship</span> <span class="o">{</span>
 
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">CrewMate</span><span class="o">&gt;</span> <span class="n">crew</span><span class="o">;</span>
+
+    <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Imposters</span><span class="o">&gt;</span> <span class="n">imposters</span><span class="o">;</span>
+
+    <span class="c1">//...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
   <h3 id="cascade">Cascaded Validation</h3>
   <p>
     Avaje Validator supports validating complete object graphs. To do so, just annotate a field or property representing
@@ -685,13 +711,13 @@
     We use the ConstraintAdapter to mark a type as a Constraint Adapter that targets a constraint annotation.
   </p>
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ConstraintAdapter</span><span class="o">(</span><span class="nx">CheckCase</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">CustomAnnotationAdapter</span> <span class="kd">extends</span> <span class="n">AbstractConstraintAdapter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">CheckCaseAdapter</span> <span class="kd">extends</span> <span class="n">AbstractConstraintAdapter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">CaseMode</span> <span class="n">caseMode</span><span class="o">;</span>
 
-  <span class="kd">public</span> <span class="nf">CustomAnnotationAdapter</span><span class="o">(</span>
-      <span class="n">ValidationContext</span> <span class="n">ctx</span><span class="o">,</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">Class</span><span class="o">&lt;?&gt;&gt;</span> <span class="n">groups</span><span class="o">,</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">attributes</span><span class="o">)</span> <span class="o">{</span>
-    <span class="kd">super</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">message</span><span class="o">(</span><span class="n">attributes</span><span class="o">),</span> <span class="n">groups</span><span class="o">);</span>
+  <span class="kd">public</span> <span class="nf">CheckCaseAdapter</span><span class="o">(</span><span class="n">AdapterCreateRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+    <span class="kd">final</span> <span class="k">var</span> <span class="n">attributes</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">attributes</span><span class="o">();</span>
     <span class="n">caseMode</span> <span class="o">=</span> <span class="o">(</span><span class="n">CaseMode</span><span class="o">)</span> <span class="n">attributes</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;caseMode&quot;</span><span class="o">);</span>
   <span class="o">}</span>
 
@@ -718,7 +744,7 @@
   </p>
   <p>
     The implementation of the validator is straightforward. The constructor gives you access to the attribute
-    values of the validated constraint and allows you to store them in a field of the validator as shown in the example.
+    values of the constraint being validated and allows you to store them in a field as shown in the example.
   </p>
   <p>
     The <code>isValid()</code> method contains the actual validation logic. For <code>@CheckCase</code> this is the
