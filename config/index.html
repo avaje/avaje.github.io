@@ -367,9 +367,9 @@
     <p>
       We can also return configuration values as a List/Set of String, int, long.
     </p>
-    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">codes</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getList</span><span class="o">().</span><span class="na">ofInt</span><span class="o">(</span><span class="s">&quot;my.codes&quot;</span><span class="o">,</span> <span class="mi">42</span><span class="o">,</span> <span class="mi">54</span><span class="o">);</span>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span> <span class="n">codes</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">list</span><span class="o">().</span><span class="na">ofInt</span><span class="o">(</span><span class="s">&quot;my.codes&quot;</span><span class="o">,</span> <span class="mi">42</span><span class="o">,</span> <span class="mi">54</span><span class="o">);</span>
 
-<span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">operations</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">getSet</span><span class="o">().</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;my.operations&quot;</span><span class="o">,</span> <span class="s">&quot;put&quot;</span><span class="o">,</span> <span class="s">&quot;delete&quot;</span><span class="o">);</span>
+<span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">operations</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">set</span><span class="o">().</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;my.operations&quot;</span><span class="o">,</span> <span class="s">&quot;put&quot;</span><span class="o">,</span> <span class="s">&quot;delete&quot;</span><span class="o">);</span>
 </pre></div>
 </div>
 
