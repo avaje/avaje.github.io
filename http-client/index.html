@@ -60,7 +60,11 @@
     </ul>
 </li>
 <li><a href="#httpException">HttpException</a>
+    <ul>
+      <li><a href="#error-mapping">Exception Mapping</a></li>
+    </ul>
 </li>
+
 <li><a href="#async">Async</a>
     <ul>
       <li><a href="#async-join">testing with join</a></li>
@@ -786,11 +790,11 @@
 
 <h2 id="httpException">HttpException</h2>
 <p>
-  An HttpException is thrown when the status code is not in the 2XX range and the call is one of <a href="#bean">bean()</a>,
+  An <code>HttpException</code> is thrown when the status code is not in the 2XX range and the call is one of <a href="#bean">bean()</a>,
   <a href="#list">list()</a>, <a href="#stream">stream()</a>, <a href="#asVoid">asVoid()</a>.
 </p>
 <p>
-  HttpException effectively wraps the HttpResponse and provides helper methods to get the response body
+  <code>HttpException</code> effectively wraps the <code>HttpResponse</code> and provides helper methods to get the response body
   as String, byte[] or bean (via the registered body adapter).
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">statusCode</span> <span class="o">=</span> <span class="n">httpException</span><span class="o">.</span><span class="na">statusCode</span><span class="o">();</span>
@@ -808,9 +812,77 @@
 </pre></div>
 </div>
 
+<h3 id="error-mapping">Exception Mapping</h2>
 <p>
-  Reference javadoc <a target="_blank" href="/apidocs/avaje-http-client/io.avaje.http.client/io/avaje/http/client/HttpException.html">HttpException</a>
+  To automatically map <code>HttpException</code> into a custom exception you can provide a mapper function globally or per request.
 </p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+<span class="o">.</span><span class="na">baseUrl</span><span class="o">(</span><span class="s">&quot;https://api.github.com&quot;</span><span class="o">)</span>
+<span class="c1">//set a global mapper any http exceptions will be mapped using this function</span>
+<span class="o">.</span><span class="na">globalErrorMapper</span><span class="o">(</span><span class="n">httpException</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">CustomException</span><span class="o">(</span><span class="n">httpException</span><span class="o">))</span>
+<span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="c1">//can also set a mapper per request (will override the global one)</span>
+<span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">errorMapper</span><span class="o">(</span><span class="n">httpException</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">CustomException</span><span class="o">(</span><span class="n">httpException</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">asPlainString</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<p>
+  On request failure the function will receive the <code>HttpException</code> to be mapped into your custom exception and be rethrown.
+</p>
+
+<h4>Client Generation</h4>
+  <p>
+    If a method has a <code>throws</code> clause, and the exception has a constructor that takes a single <code>HttpException</code>, then the generated code will automatically register the contructor as an error mapper.
+  </p>
+  <p>
+    Given the below exception and client interface:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">CustomException</span> <span class="kd">extends</span> <span class="n">RuntimeException</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="nf">CustomException</span><span class="o">(</span><span class="n">HttpException</span> <span class="n">httpException</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">//process the exception (perhaps get the status code or response body)</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Client</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ApiClient</span> <span class="o">{</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/mapped&quot;</span><span class="o">)</span>
+  <span class="n">String</span> <span class="nf">mapped</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">CustomException</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  <p>
+    The below implementation will be generated:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-http-client-generator&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ApiClientHttpClient</span> <span class="kd">implements</span> <span class="n">ApiClient</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">HttpClient</span> <span class="n">client</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">ApiClientHttpClient</span><span class="o">(</span><span class="n">HttpClient</span> <span class="n">client</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">client</span> <span class="o">=</span> <span class="n">client</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="c1">// GET /mapped</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">mapped</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;mapped&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">errorMapper</span><span class="o">(</span><span class="n">CustomException</span><span class="o">::</span><span class="k">new</span><span class="o">)</span> <span class="c1">// error mapper registered</span>
+      <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">asPlainString</span><span class="o">().</span><span class="na">body</span><span class="o">();</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
 
 <h2 id="async">Async</h2>
 <p>
