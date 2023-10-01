@@ -258,7 +258,7 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">Plugin</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="o">...;</span> <span class="c1">//retrieve using a DI framework</span>
 
-<span class="n">avalin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">cfg</span> <span class="o">-&gt;</span> <span class="n">routes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">cfg</span><span class="o">.</span><span class="na">plugins</span><span class="o">::</span><span class="n">register</span><span class="o">)).</span><span class="na">start</span><span class="o">();</span>
+<span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">cfg</span> <span class="o">-&gt;</span> <span class="n">routes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">cfg</span><span class="o">.</span><span class="na">plugins</span><span class="o">::</span><span class="n">register</span><span class="o">)).</span><span class="na">start</span><span class="o">();</span>
 </pre></div>
 </div>
 
@@ -1849,9 +1849,9 @@ The generated Javalin code for the above is.
 <span class="cm"> * @return funny phrase (this part of the javadoc is added to the response desc)</span>
 <span class="cm"> */</span>
 <span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;/post&quot;</span><span class="o">)</span>
-<span class="n">ResponseModel</span> <span class="nf">endpoint</span><span class="o">(</span><span class="n">RequestModel</span><span class="o">)</span> <span class="o">{</span>
+<span class="n">ResponseModel</span> <span class="nf">endpoint</span><span class="o">(</span><span class="n">RequestModel</span> <span class="n">model</span><span class="o">)</span> <span class="o">{</span>
 <span class="o">...</span>
- <span class="o">}</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 
