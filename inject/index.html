@@ -274,12 +274,12 @@
   and <code>@PreDestroy</code> lifecycle annotations.
 </p>
 
-<h3 id="extensions">Spring-like DI extensions to JSR-330</h3>
+<h3 id="extensions">DI extensions to JSR-330</h3>
 
-<h4>@InjectTest - component testing</h4>
+<h4>Component Testing</h4>
 <p>
-  We use <code><a href="#inject-test">@InjectTest</a></code> for <a href="#component-testing">component testing</a> which is similar
-  to Spring's junit extensions <code>SpringExtension</code>, <code>@SpringBootTest</code>.
+  We use <code><a href="#inject-test">@InjectTest</a></code> for <a href="#component-testing">component testing</a>, similar
+  to Spring's <code>@SpringBootTest</code>.
 </p>
 <p>
   This is where we get avaje-inject to wire the test class using <code>@Inject, @Mock, @Spy</code>.
@@ -443,12 +443,11 @@
   <code>target/generated-sources/annotations</code>.
 </p>
 
-<h5>External Avaje Dependencies</h5>
+<h3>External Avaje Dependencies</h3>
 <p>
   If your project uses the module system and imports maven dependencies that provide inject </code>Plugin</code>/</code>Module</code> classes,
   you will need to add the <a href="#autoRequires">maven/gradle inject plugin</a> so that the generated DI classes from the dependencies are discovered.
 </p>
-
 
 <h2 id="generated">Generated Sources</h2>
 
@@ -660,7 +659,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 </pre></div>
 </div>
 <div class="syntax kotlin"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
-<span class="k">class</span> <span class="nc">CoffeeMaker</span><span class="p">(</span><span class="k">private</span> <span class="k">val</span> <span class="py">pump</span><span class="p">:</span> <span class="n">Pump</span> <span class="p">,</span> <span class="k">private</span> <span class="k">val</span> <span class="py">grinder</span><span class="p">:</span> <span class="n">Grinder</span><span class="p">)</span> <span class="p">{}</span>
+<span class="k">class</span> <span class="nc">CoffeeMaker</span><span class="p">(</span><span class="k">private</span> <span class="k">val</span> <span class="py">pump</span><span class="p">:</span> <span class="n">Pump</span><span class="p">,</span> <span class="k">private</span> <span class="k">val</span> <span class="py">grinder</span><span class="p">:</span> <span class="n">Grinder</span><span class="p">)</span> <span class="p">{}</span>
 </pre></div>
 </div>
 
@@ -1215,15 +1214,15 @@ The inject annotation processor will determine the dependency wiring order of a 
   Lets say we have a Store interface with multiple implementations. We can have
   multiple implementations with <em>@Named</em> qualifier like the example below.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;blue&quot;</span><span class="o">)</span>
-<span class="nd">@Singleton</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;blue&quot;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">BlueStore</span> <span class="kd">implements</span> <span class="n">Store</span> <span class="o">{</span>
   <span class="o">...</span>
 <span class="o">}</span>
 
 
-<span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span>
 <span class="nd">@Singleton</span>
+<span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">RedStore</span> <span class="kd">implements</span> <span class="n">Store</span> <span class="o">{</span>
   <span class="o">...</span>
 <span class="o">}</span>
@@ -1238,12 +1237,14 @@ The inject annotation processor will determine the dependency wiring order of a 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">StoreFactory</span> <span class="o">{</span>
 
-  <span class="nd">@Bean</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span>
+  <span class="nd">@Bean</span>
+  <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span>
   <span class="kd">public</span> <span class="n">Store</span> <span class="nf">createRedStore</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="k">new</span> <span class="n">RedStore</span><span class="o">(...);</span>
   <span class="o">}</span>
 
-  <span class="nd">@Bean</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;blue&quot;</span><span class="o">)</span>
+  <span class="nd">@Bean</span>
+  <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;blue&quot;</span><span class="o">)</span>
   <span class="kd">public</span> <span class="n">Store</span> <span class="nf">createBlueStore</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="k">new</span> <span class="n">BlueStore</span><span class="o">(...);</span>
   <span class="o">}</span>
@@ -1272,7 +1273,8 @@ The inject annotation processor will determine the dependency wiring order of a 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">OrderProcessor</span> <span class="o">{</span>
 
-  <span class="nd">@Inject</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span>  <span class="c1">// field injection</span>
+  <span class="nd">@Inject</span>
+  <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span>  <span class="c1">// field injection</span>
   <span class="n">Store</span> <span class="n">store</span><span class="o">;</span>
 
   <span class="o">...</span>
@@ -1409,6 +1411,12 @@ The inject annotation processor will determine the dependency wiring order of a 
   <span class="nd">@PreDestroy</span>
   <span class="kt">void</span> <span class="nf">onShutdown</span><span class="o">()</span> <span class="o">{</span>
     <span class="c1">// close resources</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="nd">@PreDestroy</span><span class="o">(</span><span class="nx">priority</span><span class="o">=</span><span class="mi">20</span><span class="o">)</span> <span class="c1">//default value is 1000</span>
+  <span class="kt">void</span> <span class="nf">onShutdownPriority</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// close resources in a specific order</span>
     <span class="o">...</span>
   <span class="o">}</span>
   <span class="o">...</span>
@@ -2751,7 +2759,7 @@ These are the components and plugins provides by all the other modules that exis
 </p>
 <h5>1. Extra bean</h5>
 <p>
-  For testing purposes we want to create an <b>extra</b> bean. For example, the LocalstackContainer that starts a docker container.
+  For testing purposes we want to create an <b>extra</b> bean. For example, the LocalStackContainer that starts a docker container.
 </p>
 
 <h5>2. Default bean</h5>
