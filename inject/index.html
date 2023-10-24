@@ -93,7 +93,6 @@
 </li>
 <li><a href="#modules">Modules</a>
   <ul>
-    <li><a href="#unnamed-module">Unnamed Module</a></li>
     <li><a href="#single-module">Single Module</a></li>
     <li><a href="#multi-module">Multi-module</a></li>
     <li><a href="#shading">Shading Note</a></li>
@@ -390,11 +389,11 @@
 
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:9.4&#39;</span><span class="o">)</span>
-  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:9.4&#39;</span><span class="o">)</span>
+  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:&#36;{inject.version}&#39;</span><span class="o">)</span>
+  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:&#36;{inject.version}&#39;</span><span class="o">)</span>
 
-  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:9.4&#39;</span><span class="o">)</span>
-  <span class="n">testAnnotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:9.4&#39;</span><span class="o">)</span>
+  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:&#36;{inject.version}&#39;</span><span class="o">)</span>
+  <span class="n">testAnnotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:&#36;{inject.version}&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -409,10 +408,10 @@
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
   <span class="o">...</span>
-  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:9.4&#39;</span><span class="o">)</span>
-  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:9.4&#39;</span><span class="o">)</span>
+  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:&#36;{inject.version}&#39;</span><span class="o">)</span>
+  <span class="n">kapt</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:&#36;{inject.version}&#39;</span><span class="o">)</span>
 
-  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:9.4&#39;</span><span class="o">)</span>
+  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:&#36;{inject.version}&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -1996,18 +1995,6 @@ The classic use case for this is registering controllers or routes to
 <p>
   To wire all the beans into a scope, <i>avaje-inject</i> generates module classes that run all the constructors/factory methods and adds all beans to the <i>scope</i>.
 </p>
-<h3 id="unnamed-module">Unnamed Modules</h3>
-<p>
-  When we don't specify <em>@InjectModule</em> on a module it is an <em>unnamed module</em>.
-  In effect, the module name is derived from the top most package and that module has no
-  <em>provides</em> or <em>requires</em> specified.
-</p>
-<p>
-  For example, if the top level package is determined to be <code>org.foo.coffee</code> then
-  the module is called <code>CoffeeModule</code>. In <code>target/generated-sources/annotations</code>
-  we will see the generated <code>org.foo.coffee.CoffeeModule</code>.
-</p>
-
 <h3 id="single-module">Single Module Apps</h3>
 <p>
   When we are wiring dependencies that are all part of a single jar/module then we don't
@@ -2914,7 +2901,7 @@ These are the components and plugins provides by all the other modules that exis
 <p>
   Dagger2 is not particularly orientated for server side developers. It has no lifecycle
   support (@PostConstruct + @PreDestroy) and does not have some features that we like from
-  Spring DI (@Factory + @Bean, @Primary + @Secondary).
+  Spring DI (@Factory + @Bean, @Primary + @Secondary, conditional wiring, etc.).
 </p>
 <h5>Why not use Quarkus?</h5>
 <p>
