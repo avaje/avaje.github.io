@@ -75,6 +75,8 @@
 </li>
 <li><a href="#retry">Retry</a>
 </li>
+<li><a href="#intercept">Interceptors</a>
+</li>
 <li><a href="#auth">Authorization</a>
     <ul>
       <li><a href="#auth-basic">basic auth</a></li>
@@ -1041,7 +1043,7 @@
   To add Retry funtionality, use <code>.retryHandler(yourhandler)</code> on the builder to provide your retry handler.
 </p>
 <p>
-  The RetryHandler interface provides two methods, one for status exceptions (e.g. you get a 4xx/5xx from the server) and another for exceptions thrown by the underlying client (e.g. server times out or client couldn't send request).
+  The <code>RetryHandler</code> interface provides two methods, one for status exceptions (e.g. you get a 4xx/5xx from the server) and another for exceptions thrown by the underlying client (e.g. server times out or client couldn't send request).
   <br></br>Here is example implementation of RetryHandler.
 </p>
 
@@ -1073,6 +1075,38 @@
 
     <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
   <span class="o">}</span>
+</pre></div>
+</div>
+
+<h2 id="intercept">Interceptors</h2>
+<p>
+  To support request interception, you can add one or more interceptors with the <code>.requestIntercept(yourinterceptors)</code> on the client builder.
+</p>
+<p>
+  The <code>RequestIntercept</code> interface provides methods for performing actions before/after a request is sent.
+  <br></br>Here is an example implementation.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">MyIntercept</span> <span class="kd">implements</span> <span class="n">RequestIntercept</span> <span class="o">{</span>
+  <span class="kt">int</span> <span class="n">counter</span><span class="o">;</span>
+  <span class="kt">long</span> <span class="n">responseTimeMicros</span><span class="o">;</span>
+  <span class="kt">long</span> <span class="n">customAttributeTimeMillis</span><span class="o">;</span>
+  <span class="n">String</span> <span class="n">label</span><span class="o">;</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">beforeRequest</span><span class="o">(</span><span class="n">HttpClientRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// we can augment a request before it&#39;s sent</span>
+    <span class="n">request</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;NEW_HEADER&quot;</span><span class="o">,</span> <span class="s">&quot;val&quot;</span><span class="o">);</span>
+    <span class="n">request</span><span class="o">.</span><span class="na">setAttribute</span><span class="o">(</span><span class="s">&quot;MY_START_TIME&quot;</span><span class="o">,</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()).</span><span class="na">label</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">afterResponse</span><span class="o">(</span><span class="n">HttpResponse</span><span class="o">&lt;?&gt;</span> <span class="n">response</span><span class="o">,</span> <span class="n">HttpClientRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="kt">long</span> <span class="n">start</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">getAttribute</span><span class="o">(</span><span class="s">&quot;MY_START_TIME&quot;</span><span class="o">);</span>
+    <span class="kt">long</span> <span class="n">customAttributeTimeMillis</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">()</span> <span class="o">-</span> <span class="n">start</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
 </pre></div>
 </div>
 
@@ -1467,33 +1501,27 @@
 <h3 id="property">Property Paths</h3>
 <p>
   A path can by configured via system properties or avaje config. Property parameters start with
-  <code>&#x0024;{</code> and end with <code>}</code>.
+  <code>&#x0024;{</code> and end with <code>}</code>. These will be evaluated on class load.
 </p>
-<p>
-  For example <code>{id}</code>, <code>{startDate}</code>, <code>{type}</code>
-  in the path are matched to method parameters of the same name.
-</p>
-
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}/{startDate}/{type}&quot;</span><span class="o">)</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">Bazz</span><span class="o">&gt;</span> <span class="nf">findBazz</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">,</span> <span class="n">LocalDate</span> <span class="n">startDate</span><span class="o">,</span> <span class="n">String</span> <span class="n">type</span><span class="o">);</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/&#36;{get.path}&quot;</span><span class="o">)</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Bazz</span><span class="o">&gt;</span> <span class="nf">findBazz</span><span class="o">();</span>
 </pre></div>
 </div>
 <p>
-  The generated code includes <code>.path(id).path(startDate).path(type)</code>:
+  The generated code will generate code to retrive the value.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET /{id}/{startDate}/{type}</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// GET /{get.path}</span>
+<span class="c1">// Avaje Config will be used if detected on classpath</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">GET_PATH</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getProperty</span><span class="o">(</span><span class="s">&quot;get.path&quot;</span><span class="o">)</span>
 <span class="nd">@Override</span>
-<span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Bazz</span><span class="o">&gt;</span> <span class="nf">findBazz</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">,</span> <span class="n">LocalDate</span> <span class="n">startDate</span><span class="o">,</span> <span class="n">String</span> <span class="n">type</span><span class="o">)</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Bazz</span><span class="o">&gt;</span> <span class="nf">findBazz</span><span class="o">()</span> <span class="o">{</span>
   <span class="k">return</span> <span class="n">clientContext</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="n">id</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">startDate</span><span class="o">).</span><span class="na">path</span><span class="o">(</span><span class="n">type</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="n">GET_PATH</span><span class="o">)</span>
     <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
     <span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">Bazz</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 <span class="o">}</span>
 </pre></div>
 </div>
-<p>
-  Unlike JAX-RS we do not need a <code>@PathParam</code> annotation.
-</p>
 
 <h3 id="pathParameters">Path parameters</h3>
 <p>
