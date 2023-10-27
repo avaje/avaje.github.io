@@ -330,6 +330,18 @@
 </pre></div>
 </div>
 
+<h4>2a. JDK 22+ </h4>
+<p>In JDK 22+, annotation processors are disabled by default, so we need to add a flag to re-enable.</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;configuration&gt;</span>
+    <span class="nt">&lt;compilerArgument&gt;</span>-proc:full<span class="nt">&lt;/compilerArgument&gt;</span>
+  <span class="nt">&lt;/configuration&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</pre></div>
+</div>
+
 <h4>3. Create a Bean Class annotated with <code>@Singleton</code></h4>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
@@ -458,7 +470,6 @@ DI classes will be generated to call the constructors for annotated type/factory
 <p>
 Below is the class generated for the Example class in the above quickstart.
 </p>
-
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;io.avaje.inject.generator&quot;</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Example&#36;DI</span>  <span class="o">{</span>
 
@@ -481,6 +492,8 @@ Below is the class generated for the Example class in the above quickstart.
 The inject annotation processor will determine the dependency wiring order of a project and generate a Module class that will wire the beans.
 </p>
 
+<details>
+  <summary>Generated ExampleModule</summary>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;io.avaje.inject.generator&quot;</span><span class="o">)</span>
 <span class="nd">@InjectModule</span>
 <span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">ExampleModule</span> <span class="kd">implements</span> <span class="n">Module</span> <span class="o">{</span>
@@ -540,6 +553,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 <span class="o">}</span>
 </pre></div>
 </div>
+</details>
 <h2 id="injection">Injection</h2>
 
 <h3 id="singleton">@Singleton</h3>
