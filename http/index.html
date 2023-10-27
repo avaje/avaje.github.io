@@ -183,15 +183,9 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
 
 <h2 id="quick-start">Quick Start</h2>
 <p>
-  1. Add <em>avaje-inject</em> and <em>avaje-http-api</em> dependencies.
+  1. Add <em>avaje-http-api</em> dependency.
 </p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>avaje-inject<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>&#36;{avaje-inject.version}<span class="nt">&lt;/version&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-
-<span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-http-api<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje-http.version}<span class="nt">&lt;/version&gt;</span>
@@ -205,7 +199,7 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Annotation processors --&gt;</span>
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>avaje-http-{javalin/helidon}-generator<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-http-{helidon/javalin}-generator<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje-http.version}<span class="nt">&lt;/version&gt;</span>
   <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
   <span class="nt">&lt;optional&gt;</span>true<span class="nt">&lt;/optional&gt;</span>
