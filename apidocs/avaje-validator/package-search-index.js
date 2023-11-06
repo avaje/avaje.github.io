@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"io.avaje.validation","l":"io.avaje.validation"},{"m":"io.avaje.validation","l":"io.avaje.validation.adapter"},{"m":"io.avaje.validation","l":"io.avaje.validation.groups"},{"m":"io.avaje.validation","l":"io.avaje.validation.spi"}];updateSearchResults();

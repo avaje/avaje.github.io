@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"io.avaje.config"}]
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"io.avaje.config","l":"io.avaje.config"}];updateSearchResults();

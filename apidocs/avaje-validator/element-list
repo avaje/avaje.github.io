@@ -1,0 +1,5 @@
+module:io.avaje.validation
+io.avaje.validation
+io.avaje.validation.adapter
+io.avaje.validation.groups
+io.avaje.validation.spi

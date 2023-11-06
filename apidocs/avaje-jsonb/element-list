@@ -1,4 +1,4 @@
+module:io.avaje.jsonb
 io.avaje.jsonb
-io.avaje.jsonb.core
 io.avaje.jsonb.spi
 io.avaje.jsonb.stream

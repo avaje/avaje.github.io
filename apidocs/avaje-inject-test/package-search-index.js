@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"io.avaje.inject.test","l":"io.avaje.inject.test"}];updateSearchResults();

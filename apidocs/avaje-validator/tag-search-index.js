@@ -1,0 +1,1 @@
+tagSearchIndex = [{"l":"Example:","h":"annotation interface io.avaje.validation.adapter.ConstraintAdapter","d":"Section","u":"io.avaje.validation/io/avaje/validation/adapter/ConstraintAdapter.html#example--heading"},{"l":"Serialized Form","h":"","u":"serialized-form.html"}];updateSearchResults();
