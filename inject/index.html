@@ -146,6 +146,7 @@
     </div>
     <ul>
       <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+      <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
       <li><a href="https://github.com/avaje/avaje-inject" title="github source"><i class="fab fa-github"></i></a></li>
       <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
     </ul>
@@ -1738,13 +1739,13 @@ With the provider set, we can use our newly created aspect annotation on a class
   are in the "default scope".
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="o">{</span>
-  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
 
-    <span class="c1">// create all the beans in the &quot;default scope&quot;</span>
-    <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+   <span class="c1">// create all the beans in the &quot;default scope&quot;</span>
+   <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
 
-    <span class="n">SomeObject</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">SomeObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-  <span class="o">}</span>
+   <span class="n">SomeObject</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">SomeObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+ <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -1899,24 +1900,24 @@ With the provider set, we can use our newly created aspect annotation on a class
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// create a parent scope</span>
-<span class="k">try</span> <span class="o">(</span><span class="kd">final</span> <span class="n">BeanScope</span> <span class="n">parentScope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+<span class="n">ry</span> <span class="o">(</span><span class="kd">final</span> <span class="n">BeanScope</span> <span class="n">parentScope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
-  <span class="c1">// we can use this scope</span>
-  <span class="kd">final</span> <span class="k">var</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">parentScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+ <span class="c1">// we can use this scope</span>
+ <span class="kd">final</span> <span class="k">var</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">parentScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
-  <span class="c1">// external dependency for a custom scope</span>
-  <span class="n">LocalExt</span> <span class="n">ext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LocalExt</span><span class="o">();</span>
+ <span class="c1">// external dependency for a custom scope</span>
+ <span class="n">LocalExt</span> <span class="n">ext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LocalExt</span><span class="o">();</span>
 
-  <span class="c1">// create a child scope</span>
-  <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">childScope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">parent</span><span class="o">(</span><span class="n">parentScope</span><span class="o">)</span> <span class="c1">// specify the parent</span>
-    <span class="o">.</span><span class="na">modules</span><span class="o">(</span><span class="k">new</span> <span class="n">MyCustomModule</span><span class="o">(</span><span class="n">ext</span><span class="o">))</span> <span class="c1">// the custom scope(s)</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+ <span class="c1">// create a child scope</span>
+ <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">childScope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+   <span class="o">.</span><span class="na">parent</span><span class="o">(</span><span class="n">parentScope</span><span class="o">)</span> <span class="c1">// specify the parent</span>
+   <span class="o">.</span><span class="na">modules</span><span class="o">(</span><span class="k">new</span> <span class="n">MyCustomModule</span><span class="o">(</span><span class="n">ext</span><span class="o">))</span> <span class="c1">// the custom scope(s)</span>
+   <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
-    <span class="c1">// use the child scope</span>
-    <span class="o">...</span>
+   <span class="c1">// use the child scope</span>
+   <span class="o">...</span>
 
-  <span class="o">}</span>
+ <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -1951,7 +1952,7 @@ With the provider set, we can use our newly created aspect annotation on a class
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. register all routes for a web framework</span>
 
-<span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoute</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoute</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">ist</span><span class="o">&lt;</span><span class="n">WebRoute</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoute</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
 </div>
 
@@ -1976,7 +1977,7 @@ The classic use case for this is registering controllers or routes to
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. filters that should be applied in @Priority order</span>
 
-<span class="n">List</span><span class="o">&lt;</span><span class="n">Filter</span><span class="o">&gt;</span> <span class="n">filters</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">listByPriority</span><span class="o">(</span><span class="n">Filter</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">ist</span><span class="o">&lt;</span><span class="n">Filter</span><span class="o">&gt;</span> <span class="n">filters</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">listByPriority</span><span class="o">(</span><span class="n">Filter</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
 </div>
 
@@ -2037,10 +2038,10 @@ The classic use case for this is registering controllers or routes to
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">MyExternalDependency</span> <span class="n">myExternal</span> <span class="o">=</span> <span class="o">...;</span>
 
-<span class="c1">// create with an externally provided dependency</span>
-<span class="kd">final</span> <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">MyExternalDependency</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">myExternal</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+<span class="o">/</span> <span class="n">create</span> <span class="n">with</span> <span class="n">an</span> <span class="n">externally</span> <span class="n">provided</span> <span class="n">dependency</span>
+<span class="n">inal</span> <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+ <span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">MyExternalDependency</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">myExternal</span><span class="o">)</span>
+ <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 </pre></div>
 </div>
 
@@ -2439,7 +2440,7 @@ These are the components and plugins provides by all the other modules that exis
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Mock</span> <span class="nd">@Blue</span> <span class="nx">Store</span> <span class="nx">blueStore</span><span class="o">;</span>
 
-<span class="nd">@Mock</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span> <span class="nx">Store</span> <span class="nx">redStore</span><span class="o">;</span>
+<span class="nx">Mock</span> <span class="nd">@Named</span><span class="o">(</span><span class="s">&quot;red&quot;</span><span class="o">)</span> <span class="nx">Store</span> <span class="nx">redStore</span><span class="o">;</span>
 </pre></div>
 </div>
 
