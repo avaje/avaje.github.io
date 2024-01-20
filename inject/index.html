@@ -80,6 +80,7 @@
 <li><a href="#aop">AOP</a>
   <ul>
     <li><a href="#aspect">@Aspect</a></li>
+    <li><a href="#fallback">@AOPFallback</a></li>
   </ul>
 </li>
 <li><a href="#scope">Scope</a>
@@ -1638,7 +1639,7 @@ This library has several contructs that support Aspect Oriented Programmming
   To control the execution order of multiple aspects, we can use the ordering property of the <code>@Aspect</code>.
   To import an existing annotation, use <code>@Aspect.Import</code>.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Aspect</span><span class="o">(</span><span class="nx">ordering</span><span class="o">=</span><span class="mi">1</span><span class="o">)</span> <span class="c1">// The default is 1000 so this aspect will execute before others</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Aspect</span><span class="o">(</span><span class="nx">ordering</span><span class="o">=</span><span class="mi">1</span><span class="o">)</span> <span class="c1">// Determines priority among other aspects</span>
 <span class="nd">@Target</span><span class="o">(</span><span class="nx">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
 <span class="nd">@Retention</span><span class="o">(</span><span class="nx">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
 <span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">MyAround</span> <span class="o">{</span>
@@ -1686,7 +1687,7 @@ With the provider set, we can use our newly created aspect annotation on a class
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">ExampleService</span> <span class="o">{</span>
 
   <span class="nd">@MyAround</span>
-  <span class="kd">public</span> <span class="n">String</span> <span class="nf">other</span><span class="o">(</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">example</span><span class="o">(</span>
       <span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">return</span> <span class="s">&quot;other &quot;</span> <span class="o">+</span> <span class="n">param0</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">param1</span><span class="o">;</span>
   <span class="o">}</span>
@@ -1703,26 +1704,113 @@ With the provider set, we can use our newly created aspect annotation on a class
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">MyAroundAspect</span> <span class="n">myAroundAspect</span><span class="o">;</span>
 
-  <span class="kd">private</span> <span class="n">Method</span> <span class="n">other0</span><span class="o">;</span>
-  <span class="kd">private</span> <span class="n">MethodInterceptor</span> <span class="n">other0MyAround</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">Method</span> <span class="n">example0</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">MethodInterceptor</span> <span class="n">example0MyAround</span><span class="o">;</span>
 
   <span class="kd">public</span> <span class="nf">ExampleService&#36;Proxy</span><span class="o">(</span><span class="n">MyAroundAspect</span> <span class="n">myAroundAspect</span><span class="o">)</span> <span class="o">{</span>
     <span class="kd">super</span><span class="o">();</span>
     <span class="k">this</span><span class="o">.</span><span class="na">myAroundAspect</span> <span class="o">=</span> <span class="n">myAroundAspect</span><span class="o">;</span>
     <span class="k">try</span> <span class="o">{</span>
-      <span class="n">other0</span> <span class="o">=</span> <span class="n">ExampleService</span><span class="o">.</span><span class="na field">class</span><span class="o">.</span><span class="na">getDeclaredMethod</span><span class="o">(</span><span class="s">&quot;other&quot;</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-      <span class="n">other0MyAround</span> <span class="o">=</span> <span class="n">myAroundAspect</span><span class="o">.</span><span class="na">interceptor</span><span class="o">(</span><span class="n">other0</span><span class="o">,</span> <span class="n">other0</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="n">MyAround</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+      <span class="n">example0</span> <span class="o">=</span> <span class="n">ExampleService</span><span class="o">.</span><span class="na field">class</span><span class="o">.</span><span class="na">getDeclaredMethod</span><span class="o">(</span><span class="s">&quot;example&quot;</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="kt">int</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+      <span class="n">example0MyAround</span> <span class="o">=</span> <span class="n">myAroundAspect</span><span class="o">.</span><span class="na">interceptor</span><span class="o">(</span><span class="n">example0</span><span class="o">,</span> <span class="n">example0</span><span class="o">.</span><span class="na">getAnnotation</span><span class="o">(</span><span class="n">MyAround</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
     <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
       <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
     <span class="o">}</span>
   <span class="o">}</span>
 
   <span class="nd">@Override</span>
-  <span class="kd">public</span> <span class="n">java</span><span class="o">.</span><span class="na field">lang</span><span class="o">.</span><span class="na">String</span> <span class="nf">other</span><span class="o">(</span><span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">var</span> <span class="n">call</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Invocation</span><span class="o">.</span><span class="na">Call</span><span class="o">&lt;&gt;(()</span> <span class="o">-&gt;</span> <span class="kd">super</span><span class="o">.</span><span class="na">other</span><span class="o">(</span><span class="n">param0</span><span class="o">,</span> <span class="n">param1</span><span class="o">))</span>
-      <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">other0</span><span class="o">,</span> <span class="n">param0</span><span class="o">,</span> <span class="n">param1</span><span class="o">);</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">example</span><span class="o">(</span><span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">call</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Invocation</span><span class="o">.</span><span class="na">Call</span><span class="o">&lt;&gt;(()</span> <span class="o">-&gt;</span> <span class="kd">super</span><span class="o">.</span><span class="na">example</span><span class="o">(</span><span class="n">param0</span><span class="o">,</span> <span class="n">param1</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">example0</span><span class="o">,</span> <span class="n">param0</span><span class="o">,</span> <span class="n">param1</span><span class="o">);</span>
     <span class="k">try</span> <span class="o">{</span>
-      <span class="n">other0MyAround</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">call</span><span class="o">);</span>
+      <span class="n">example0MyAround</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">call</span><span class="o">);</span>
+      <span class="k">return</span> <span class="n">call</span><span class="o">.</span><span class="na">finalResult</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvocationException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="n">InvocationException</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="fallback">@AOPFallback</h3>
+<p>
+  We can use <code>@AOPFallback</code> to register a fallback method for an aspect method invocation.
+  Recovery methods must return the same type as the target method and may have 4 options for arguments:
+
+ <ul>
+   <li>zero arguments
+   <li>one <code>Throwable</code> argument
+   <li>all the target method's arguments
+   <li>the target method's arguments + <code>Throwable</code>.
+ </ul>
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">ExampleService</span> <span class="o">{</span>
+
+  <span class="nd">@MyAround</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">example</span><span class="o">(</span>
+      <span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="nd">@AOPFallback</span><span class="o">(</span><span class="s">&quot;example&quot;</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">fallback</span><span class="o">(</span>
+      <span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">&quot;fallback-&quot;</span> <span class="o">+</span> <span class="n">param0</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="n">param1</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+ Inside our method interceptor we can use <code>Invocation#invokeRecoveryMethod</code> to recover from an exception.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyAroundAspect</span> <span class="kd">implements</span> <span class="n">AspectProvider</span><span class="o">&lt;</span><span class="n">MyAround</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="c1">//rest of aspect provider...</span>
+
+  <span class="kd">static</span> <span class="kd">class</span> <span class="nc">ExampleInterceptor</span> <span class="kd">implements</span> <span class="n">MethodInterceptor</span> <span class="o">{</span>
+    <span class="c1">// MethodInterceptor interception method</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">invoke</span><span class="o">(</span><span class="n">Invocation</span> <span class="n">invoke</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+      <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;before args: &quot;</span> <span class="o">+</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">invoke</span><span class="o">.</span><span class="na">arguments</span><span class="o">())</span> <span class="o">+</span> <span class="s">&quot; method: &quot;</span> <span class="o">+</span> <span class="n">invoke</span><span class="o">.</span><span class="na">method</span><span class="o">());</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">invoke</span><span class="o">.</span><span class="na">invoke</span><span class="o">();</span>
+      <span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">//recover</span>
+        <span class="n">invoke</span><span class="o">.</span><span class="na">invokeRecoveryMethod</span><span class="o">(</span><span class="n">ex</span><span class="o">);</span>
+      <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;after&quot;</span><span class="o">);</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  Avaje will generate a proxy class that will register the fallback method and run the aspect.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Proxy</span>
+<span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;io.avaje.inject.generator&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ExampleService&#36;Proxy</span> <span class="kd">extends</span> <span class="n">ExampleService</span> <span class="o">{</span>
+
+  <span class="c1">//rest of proxy class...</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">example</span><span class="o">(</span><span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">call</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Invocation</span><span class="o">.</span><span class="na">Call</span><span class="o">&lt;&gt;(()</span> <span class="o">-&gt;</span> <span class="kd">super</span><span class="o">.</span><span class="na">example</span><span class="o">(</span><span class="n">param0</span><span class="o">,</span> <span class="n">param1</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">with</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">example0</span><span class="o">,</span> <span class="n">param0</span><span class="o">,</span> <span class="n">param1</span><span class="o">)</span>
+      <span class="c1">//register fallback method</span>
+      <span class="o">.</span><span class="na">fallback</span><span class="o">(</span><span class="n">&#36;ex</span> <span class="o">-&gt;</span> <span class="n">fallback</span><span class="o">(</span><span class="n">param0</span><span class="o">,</span> <span class="n">param1</span><span class="o">,</span> <span class="n">&#36;ex</span><span class="o">));</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="n">example0MyAround</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">call</span><span class="o">);</span>
       <span class="k">return</span> <span class="n">call</span><span class="o">.</span><span class="na">finalResult</span><span class="o">();</span>
     <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InvocationException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
       <span class="k">throw</span> <span class="n">e</span><span class="o">;</span>
