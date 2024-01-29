@@ -34,6 +34,7 @@
       <li><a href="#raw">@Raw</a></li>
       <li><a href="#property">@Property</a></li>
       <li><a href="#alias">@Alias</a></li>
+      <li><a href="#creator">@Creator</a></li>
       <li><a href="#iggy">@Ignore</a></li>
       <li><a href="#mapped">@Unmapped</a></li>
       <li><a href="#value">@Value</a></li>
@@ -115,11 +116,11 @@
 
 <h2 id="quick-start">Quick Start</h2>
 <h4>
-  1. Add <em>avaje.jsonb</em> dependencies.
+  1. Add <em>avaje-jsonb</em> dependencies.
 </h4>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>avaje.jsonb<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jsonb<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje.jsonb.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 <span class="c">&lt;!-- if using spring web, add the below to use jsonb for http messaging --&gt;</span>
@@ -145,8 +146,8 @@
 </pre></div>
 </div>
 
-<h4>2a. JDK 22+ </h4>
-<p>In JDK 22+, annotation processors are disabled by default, so we need to add a flag to re-enable.</p>
+<h4>2a. JDK 23+ </h4>
+<p>In JDK 23+, annotation processors are disabled by default, so we need to add a flag to re-enable.</p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
@@ -376,6 +377,8 @@ When a class has a constructor like the City example below, then fields in the c
 </pre></div>
 </div>
 <p>The following JsonAdapter is generated:</p>
+<details>
+  <summary>Generated Code: (click to expand) </summary>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span>
 <span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">AddressJsonAdapter</span> <span class="kd">implements</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">Address</span><span class="o">&gt;,</span> <span class="n">ViewBuilderAware</span> <span class="o">{</span>
 
@@ -454,6 +457,7 @@ When a class has a constructor like the City example below, then fields in the c
 <span class="o">}</span>
 </pre></div>
 </div>
+</details>
 
 <h2 id="import">@Json.Import</h2>
 <p> When we are unable to or do not wish to put <code>@Json</code> on the types we can use <code>@Json.Import</code>.
@@ -585,6 +589,64 @@ We can override the serialization/deserialization name of a field using <code>@J
     <span class="o">}</span>
 
     <span class="k">return</span> <span class="n">_&#36;customer</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h2 id="creator">@Json.Creator</h2>
+<p>
+  With <code>@Json.Creator</code>, we can override deserialization using a constructor or static factory method. Contructor/Method parameters can be annotated with <code>@Alias</code> to rename a deserialization field.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
+<span class="kd">public</span> <span class="nx">record</span> <span class="nf">Kingfisher</span><span class="o">(</span><span class="nd">@Json.Alias</span><span class="o">(</span><span class="s">&quot;species&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">name</span><span class="o">,</span> <span class="kt">int</span> <span class="nx">fishCaught</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="nd">@Json.Creator</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">Kingfisher</span> <span class="nf">construct</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Kingfisher</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="mi">42</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h4>Generated Code</h4>
+
+<p><code>@Json.Creator</code> makes the following changes to the generated JsonAdapter:</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">KingfisherJsonAdapter</span> <span class="kd">implements</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">Kingfisher</span><span class="o">&gt;,</span> <span class="n">ViewBuilderAware</span> <span class="o">{</span>
+
+  <span class="o">...</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">Kingfisher</span> <span class="nf">fromJson</span><span class="o">(</span><span class="n">JsonReader</span> <span class="n">reader</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// variables to read json values into, constructor params don&#39;t need _set&#36; flags</span>
+    <span class="n">String</span>     <span class="n">_val&#36;name</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+    <span class="c1">// read json</span>
+    <span class="n">reader</span><span class="o">.</span><span class="na">beginObject</span><span class="o">(</span><span class="n">names</span><span class="o">);</span>
+    <span class="k">while</span> <span class="o">(</span><span class="n">reader</span><span class="o">.</span><span class="na">hasNextField</span><span class="o">())</span> <span class="o">{</span>
+      <span class="kd">final</span> <span class="n">String</span> <span class="n">fieldName</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">nextField</span><span class="o">();</span>
+      <span class="k">switch</span> <span class="o">(</span><span class="n">fieldName</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">case</span> <span class="s">&quot;name&quot;</span><span class="o">:</span>
+        <span class="k">case</span> <span class="s">&quot;species&quot;</span><span class="o">:</span>
+          <span class="n">_val&#36;name</span> <span class="o">=</span> <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">fromJson</span><span class="o">(</span><span class="n">reader</span><span class="o">);</span>
+          <span class="k">break</span><span class="o">;</span>
+
+        <span class="k">case</span> <span class="s">&quot;fishCaught&quot;</span><span class="o">:</span>
+          <span class="n">reader</span><span class="o">.</span><span class="na">skipValue</span><span class="o">();</span> <span class="c1">//value ignored since not in factory method</span>
+          <span class="k">break</span><span class="o">;</span>
+
+<span class="nl">        default:</span>
+          <span class="n">reader</span><span class="o">.</span><span class="na">unmappedField</span><span class="o">(</span><span class="n">fieldName</span><span class="o">);</span>
+          <span class="n">reader</span><span class="o">.</span><span class="na">skipValue</span><span class="o">();</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="n">reader</span><span class="o">.</span><span class="na">endObject</span><span class="o">();</span>
+
+    <span class="c1">// build and return Kingfisher</span>
+    <span class="n">Kingfisher</span> <span class="n">_&#36;kingfisher</span> <span class="o">=</span> <span class="n">Kingfisher</span><span class="o">.</span><span class="na">construct</span><span class="o">(</span><span class="n">_val&#36;name</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">_&#36;kingfisher</span><span class="o">;</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -1113,6 +1175,7 @@ Note: There is a current limitation that polymorphic types do not yet support "J
 </pre></div>
 </div>
 
+<p><br><br><br><br><br><br></p>
 
   </article>
 </div>
