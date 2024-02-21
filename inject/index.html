@@ -60,6 +60,7 @@
   <ul>
     <li><a href="#named">@Named</a></li>
     <li><a href="#qualifier">@Qualifier</a></li>
+    <li><a href="#qualifier-member">Qualifiers with members</a></li>
     <li><a href="#qualifiedmap">@QualifiedMap</a></li>
   </ul>
 </li>
@@ -1330,7 +1331,7 @@ The inject annotation processor will determine the dependency wiring order of a 
   <em>@Named</em> so could be better when there is a lot of named/qualified beans.
 </p>
 <h5>example</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">javax.inject.Qualifier</span><span class="o">;</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">jakarta.inject.Qualifier</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">java.lang.annotation.Retention</span><span class="o">;</span>
 <span class="kn">import</span> <span class="nn">java.lang.annotation.RetentionPolicy</span><span class="o">;</span>
 
@@ -1360,6 +1361,40 @@ The inject annotation processor will determine the dependency wiring order of a 
 </pre></div>
 </div>
 
+<h3 id="qualifier-member">Qualifiers with members</h3>
+<p>
+  Java annotations can have members. We can use these members to further discriminate a qualifier.
+  This prevents a potential explosion of new annotation interfaces.
+  For example, instead of creating several qualifiers representing different payment methods, we could aggregate them into a single annotation with a member:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Qualifier</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="nx">RUNTIME</span><span class="o">)</span>
+<span class="nd">@Target</span><span class="o">({</span><span class="nx">METHOD</span><span class="o">,</span> <span class="nx">FIELD</span><span class="o">,</span> <span class="nx">PARAMETER</span><span class="o">,</span> <span class="nx">TYPE</span><span class="o">})</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">Accepts</span> <span class="o">{</span>
+   <span class="n">CardType</span> <span class="nf">value</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  Then we select one of the possible member values when applying the qualifier:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Accepts</span><span class="o">(</span><span class="nx">VISA</span><span class="o">)</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">VisaStore</span> <span class="kd">implements</span> <span class="n">Store</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">StoreManager</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Store</span> <span class="n">store</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">StoreManager</span><span class="o">(</span><span class="nd">@Accepts</span><span class="o">(</span><span class="nx">VISA</span><span class="o">)</span> <span class="nx">Store</span> <span class="nx">store</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">store</span> <span class="o">=</span> <span class="n">store</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
 
 <h3 id="qualifiedmap">@QualifiedMap</h3>
 <p>
@@ -1787,8 +1822,7 @@ With the provider set, we can use our newly created aspect annotation on a class
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">ExampleService</span> <span class="o">{</span>
 
   <span class="nd">@MyAround</span>
-  <span class="kd">public</span> <span class="n">String</span> <span class="nf">example</span><span class="o">(</span>
-      <span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">example</span><span class="o">(</span><span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">return</span> <span class="s">&quot;other &quot;</span> <span class="o">+</span> <span class="n">param0</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">param1</span><span class="o">;</span>
   <span class="o">}</span>
 <span class="o">}</span>
@@ -1852,14 +1886,12 @@ With the provider set, we can use our newly created aspect annotation on a class
 <span class="kd">class</span> <span class="nc">ExampleService</span> <span class="o">{</span>
 
   <span class="nd">@MyAround</span>
-  <span class="kd">public</span> <span class="n">String</span> <span class="nf">example</span><span class="o">(</span>
-      <span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">example</span><span class="o">(</span><span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalStateException</span><span class="o">();</span>
   <span class="o">}</span>
 
   <span class="nd">@AOPFallback</span><span class="o">(</span><span class="s">&quot;example&quot;</span><span class="o">)</span>
-  <span class="kd">public</span> <span class="n">String</span> <span class="nf">fallback</span><span class="o">(</span>
-      <span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">fallback</span><span class="o">(</span><span class="n">String</span> <span class="n">param0</span><span class="o">,</span> <span class="kt">int</span> <span class="n">param1</span><span class="o">,</span> <span class="n">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">return</span> <span class="s">&quot;fallback-&quot;</span> <span class="o">+</span> <span class="n">param0</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="n">param1</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">();</span>
   <span class="o">}</span>
 <span class="o">}</span>
