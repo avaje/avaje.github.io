@@ -208,17 +208,6 @@ for Javalin and Helidon SE/Nima APIs via Annotation Processing.
 </pre></div>
 </div>
 
-<h4>2a. JDK 23+ </h4>
-<p>In JDK 23+, annotation processors are disabled by default, so we need to add a flag to re-enable.</p>
-<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;compilerArgument&gt;</span>-proc:full<span class="nt">&lt;/compilerArgument&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
-</pre></div>
-</div>
 
 <p>3. Define a Controller (These APT processors work with both Java and Kotlin.)</p>
 

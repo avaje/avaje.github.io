@@ -327,7 +327,14 @@
 </div>
 <h4>2. Add <em>avaje-inject-generator</em> annotation processor as a dependency with <em>provided scope</em>.</h4>
 
-<div class="syntax xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Annotation processor --&gt;</span>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Annotation processors --&gt;</span>
+<span class="c">&lt;!-- if using lombok, it must be placed before the inject generator.</span>
+<span class="c">&lt;dependency&gt;</span>
+<span class="c">    &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;</span>
+<span class="c">    &lt;artifactId&gt;lombok&lt;/artifactId&gt;</span>
+<span class="c">    &lt;version&gt;1.18.30&lt;/version&gt;</span>
+<span class="c">    &lt;scope&gt;provided&lt;/scope&gt;</span>
+<span class="c">&lt;/dependency&gt; --&gt;</span>
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-inject-generator<span class="nt">&lt;/artifactId&gt;</span>
@@ -338,17 +345,6 @@
 </pre></div>
 </div>
 
-<h4>2a. JDK 23+ </h4>
-<p>In JDK 23+, annotation processors are disabled by default, so we need to add a flag to re-enable.</p>
-<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;compilerArgument&gt;</span>-proc:full<span class="nt">&lt;/compilerArgument&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
-</pre></div>
-</div>
 
 <h4>3. Create a Bean Class annotated with <code>@Singleton</code></h4>
 
