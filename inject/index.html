@@ -54,6 +54,7 @@
     <li><a href="#primary">@Primary</a></li>
     <li><a href="#secondary">@Secondary</a></li>
     <li><a href="#prototype">@Prototype</a></li>
+    <li><a href="#lazy">@Lazy</a></li>
   </ul>
 </li>
 <li><a href="#qualifiers">Qualifiers</a>
@@ -946,7 +947,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 
 <h3 id="provider">Provider</h3>
 <p>
-  A Singleton bean can implement <code>javax.inject.Provider&lt;T&gt;</code> to create a bean to
+  A Singleton bean can implement <code>(javax/jakarta).inject.Provider&lt;T&gt;</code> to create a bean to
   be used in injection.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
@@ -1213,6 +1214,55 @@ The inject annotation processor will determine the dependency wiring order of a 
     <span class="k">return</span> <span class="k">new</span> <span class="n">Example</span><span class="o">();</span>
   <span class="o">}</span>
 
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="lazy">@Lazy</h3>
+<p>
+  We can use <code>@Lazy</code> on beans/factory methods to defer bean initialization until the annotated bean is requested.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Lazy</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sloth</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Moss</span> <span class="n">moss</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span> <span class="c1">//this will not be called until the bean is requested</span>
+  <span class="n">Sloth</span><span class="o">(</span><span class="n">Moss</span> <span class="n">moss</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">moss</span> <span class="o">=</span> <span class="n">moss</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  There are two ways to lazily load the bean.
+</p>
+<h4>1. Directly retrieve from the bean scope:</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">final</span> <span class="k">var</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+<span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Sloth</span><span class="o">.</span><span class="na">class</span><span class="o">);</span> <span class="c1">//Sloth is initialized here</span>
+</pre></div>
+</div>
+
+<h4>2. Use a <em>Provider</em></h4>
+
+<p>Unlike regular provider beans, the providers for lazy beans will return the same singleton instance.</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">UseSloth</span>  <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Provider</span><span class="o">&lt;</span><span class="n">Sloth</span><span class="o">&gt;</span> <span class="n">slothProvider</span><span class="o">;</span>
+
+  <span class="n">UseFoo</span><span class="o">(</span><span class="n">Provider</span><span class="o">&lt;</span><span class="n">Sloth</span><span class="o">&gt;</span> <span class="n">slothProvider</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">slothProvider</span> <span class="o">=</span> <span class="n">slothProvider</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kt">void</span> <span class="nf">doStuff</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="c1">// get the singleton Sloth instance and use it</span>
+    <span class="n">Sloth</span> <span class="n">sloth</span> <span class="o">=</span> <span class="n">slothProvider</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
