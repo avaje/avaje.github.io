@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="#deps">Dependency</a>
+</li>
+<li><a href="#service">@ServiceProvider</a>
+</li>
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">spi-service</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-spi-service" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+
+  <h1 id="overview">Avaje SPI</h1>
+
+  <table style="width: 100%;">
+    <tr>
+      <th>Discord</th>
+      <th>Source</th>
+      <th>API Docs</th>
+      <th>Issues</th>
+      <th>Releases</th>
+    </tr>
+    <tr>
+      <td><a href="https://discord.gg/Qcqf9R27BR">Discord</td>
+      <td><a target="_blank" href="https://github.com/avaje/avaje-spi-service">Github</a></td>
+      <td><a target="_blank" href="https://javadoc.io/doc/io.avaje/avaje-spi-service">Javadoc</a></td>
+      <td><a target="_blank" href="https://github.com/avaje/avaje-spi-service/issues">Github</a></td>
+      <td><a href="https://github.com/avaje/avaje-spi-service/releases"><img
+            src="https://img.shields.io/maven-central/v/io.avaje/avaje-spi-service.svg?label=Maven%20Central"></a></td>
+    </tr>
+  </table>
+
+  <p><br><br>
+    The Java <a href="https://www.baeldung.com/java-spi"> Service Provider
+      Interface</a> uses configuration files to
+    find and load concrete implementations of given
+    service provider interfaces. The downside of this system is that
+    configuration files are not checked by the java
+    compiler.
+    As such it is a common occurence to forget to add the correct entries.
+    <br>
+    <br>
+    This zero-dependency library uses annotation processing to automatically
+    generate the required <em>META-INF/services</em>
+    entries for
+    annotated classes. In addition, it will validate that the required
+    <em>provides</em> clauses are present in an application's <code>module-info</code> files.
+  </p>
+
+  <h2 id="deps">Dependency</h2>
+  <p>
+    To use this library add the <em>avaje-spi-service</em> as a
+    provided/optional dependency. (The dependencies need
+    only be included at
+    compile-time and are not required at runtime)
+  </p>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-spi-service<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;optional&gt;</span>true<span class="nt">&lt;/optional&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+<h4>JDK 23+ note:</h4>
+<p>In JDK 23+, annotation processors are disabled by default, so we need to add a compiler property to re-enable.</p>
+
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;properties&gt;</span>
+  <span class="nt">&lt;maven.compiler.proc&gt;</span>full<span class="nt">&lt;/maven.compiler.proc&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
+</pre></div>
+</div>
+
+  <h2>@ServiceProvider</h2>
+  <p>
+    On classes that you'd like registered, place the
+    <code>@ServiceProvider</code> annotation.
+    As long as you only have one interface/ superclass, that type is
+    assumed to be the SPI interface. So given the
+    example below:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ServiceProvider</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BassServiceProvider</span> <span class="kd">implements</span> <span class="n">MusicService</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h3>Multi-Interfaced classes</h3>
+  <p>
+    If you have multiple interfaces and/or a base type, the library cannot infer the contract type. In such a case, we
+    specify the contract type explicitly in the <code>@ServiceProvider</code>:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ServiceProvider</span><span class="o">(</span><span class="nx">MusicService</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BassServiceProvider</span> <span class="kd">extends</span> <span class="n">Instrument</span> <span class="kd">implements</span> <span class="n">Stringed</span><span class="o">,</span> <span class="n">MusicService</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h3>Module Validation</h3>
+  <p>
+    For modular projects, the processor will validate that all the required <em>provides</em> clauses are accounted for. A compile error describing what `provides` statements are missing will be throw if validations fail. So given the following class and module-info:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ServiceProvider</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">BassServiceProvider</span> <span class="kd">implements</span> <span class="n">MusicService</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">my</span><span class="o">.</span><span class="na">module</span> <span class="o">{</span>
+
+  <span class="n">requires</span> <span class="kd">static</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">spi</span><span class="o">;</span>
+  <span class="c1">//provides not defined</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  You will get the compile error:
+</p>
+<pre>
+  Compilation failure /src/main/java/module-info.java:[1,1]
+  Missing `provides MusicService with BassServiceProvider;`
+</pre>
+  <p><br><br><br><br><br><br></p>
+
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>

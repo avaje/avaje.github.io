@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="#what">Overview</a>
+</li>
+<li><a href="#quick">Quick Start</a>
+</li>
+<li><a href="#prism">@GeneratedPrism</a>
+    <ul>
+      <li><a href="#common">Common Members</a></li>
+      <li><a href="#inheritance">Prism Naming and Inheritance</a></li>
+    </ul>
+</li>
+<li><a href="#apcontext">@GenerateAPContext</a>
+</li>
+<li><a href="#modules">@GenerateModuleInfoReader</a>
+</li>
+<li><a href="#utils">@GenerateUtils</a>
+    <ul>
+      <li><a href="#utype">UType</a></li>
+    </ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">prisms</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-prisms" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+
+  <h1 id="overview">Avaje Prisms</h1>
+
+  <table style="width: 100%;">
+    <tr>
+      <th>Discord</th>
+      <th>Source</th>
+      <th>API Docs</th>
+      <th>Issues</th>
+      <th>Releases</th>
+    </tr>
+    <tr>
+      <td><a href="https://discord.gg/Qcqf9R27BR">Discord</td>
+      <td><a target="_blank" href="https://github.com/avaje/avaje-prisms">Github</a></td>
+      <td><a target="_blank" href="https://javadoc.io/doc/io.avaje/avaje-prisms/latest/io.avaje.prism/io/avaje/prism/package-summary.html">Javadoc</a></td>
+      <td><a target="_blank" href="https://github.com/avaje/avaje-prisms/issues">Github</a></td>
+      <td><a href="https://github.com/avaje/avaje-prisms/releases"><img
+            src="https://img.shields.io/maven-central/v/io.avaje/avaje-prisms.svg?label=Maven%20Central"></a></td>
+    </tr>
+  </table>
+
+  <p><br><br>
+    This library is an upgraded fork of the unmaintained hickory library that helps make coding annotation processors
+    more straighforward by generating annotation "Prisms" and other various utilities.
+  </p>
+
+  <h2 id="what">What's A Prism?</h2>
+  <p>
+    When writing annotation processors, the two conventional mechanisms to access the annotation attributes are both
+    awkward. <code>Element.getAnnotation()</code> can throw Exceptions if the annotation or its members are not
+    semantically correct, and it can also fail to work on some modular projects.
+    (This is one the reasons why <code>annotationProcessorPaths</code> is required for modular projects. This solution
+    is seriously limited and has it's own issues (See
+    <a target="_blank" href="https://issues.apache.org/jira/browse/MCOMPILER-412">MCOMPILER-412</a>).
+    Moreover, when calling a member with a <code>Class</code> return type, you need to catch an exception to extract the
+    <code>TypeMirror</code>.
+    <br><br>
+    On the other hand, <code>AnnotationMirror</code> and <code>AnnotationValue</code> do a good job of modeling both
+    correct and incorrect annotations. Unfortunately, they provide no simple mechanism to determine whether correctness,
+    and provide no convenient functionality to access the member values in a simple type-specific way.
+    <br><br>
+    A <em>Prism</em> provides a solution to this problem by combining the advantages of the pure reflective model of
+    <code>AnnotationMirror</code> and the runtime (real) model provided by <code>Element#getAnnotation()</code>, hence
+    the term <em>Prism</em> to capture this idea of partial reflection.
+    <br><br>
+    A prism has the same member methods as the annotation except that the return types are translated from runtime types
+    to compile time types as follows...
+  </p>
+  <ul>
+    <li>Primitive members return their equivalent boxed class in the prism.</li>
+    <li>Class members return a <code>TypeMirror</code> from the mirror API.</li>
+    <li>Enum members return a String bearing the name of the enum constant (because the constant value in the mirror API
+      might not match those available in the runtime it cannot consistently return the appropriate enum).</li>
+    <li>Annotation members return a <em>Prism</em> of the annotation. If a prism for that annotation is generated from
+      the same <code>@GeneratePrisms</code> annotation as the prism that uses it, then an instance of that prism will be
+      returned. Otherwise, a <em>Prism</em> for that annotation is supplied as an inner class of the dependant
+      <em>Prism</em>.
+    </li>
+    <li>Array members return a <code>List<X></code> where <em>X</em> is the appropriate prism mapping of the array
+      component as above.</li>
+  </ul>
+
+  <h2 id="quick">Quick Start</h2>
+  <h4>
+    1. Add <em>avaje-prisms</em> dependency.
+  </h4>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-prisms<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>{prism.versions}<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;optional&gt;</span>true<span class="nt">&lt;/optional&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+  <h4>2. Add <em>@GeneratePrism</em> containing the desired Annotation Type to any class/package.info</h4>
+  <p>
+    <br>The annotation processor will generate a prism class that will help extract an annotation's values.
+  </p>
+  <p>Example:</p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">ExampleAnnotation</span> <span class="o">{</span>
+
+  <span class="n">String</span> <span class="nf">someAttribute</span><span class="o">();</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@GeneratePrism</span><span class="o">(</span><span class="nx">ExampleAnnotation</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="nd">@SupportedAnnotationTypes</span><span class="o">(</span><span class="nx">ExampleAnnotationPrism</span><span class="o">.</span><span class="na">PRISM_TYPE</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">MyProcessor</span> <span class="kd">extends</span> <span class="n">AbstractProcessor</span> <span class="o">{</span>
+
+  <span class="c1">//processing logic...</span>
+
+  <span class="kt">void</span> <span class="nf">someFunction</span><span class="o">(</span><span class="n">Element</span> <span class="n">element</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">ExampleAnnotationPrism</span> <span class="n">exampleAnnotation</span> <span class="o">=</span> <span class="n">ExampleAnnotationPrism</span><span class="o">.</span><span class="na">getInstanceOn</span><span class="o">(</span><span class="n">element</span><span class="o">);</span>
+
+    <span class="c1">//can get the fully qualified annotation type as a string</span>
+    <span class="n">String</span> <span class="n">annotationQualifiedType</span> <span class="o">=</span> <span class="n">MyExampleAnnotationPrism</span><span class="o">.</span><span class="na">PRISM_TYPE</span><span class="o">;</span>
+
+    <span class="c1">//can easily retrieve the annotation values as if the annotation was present on the classpath.</span>
+    <span class="n">String</span> <span class="n">value</span> <span class="o">=</span> <span class="n">exampleAnnotation</span><span class="o">.</span><span class="na">someAttribute</span><span class="o">();</span>
+      <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h2 id="prism">@GeneratedPrism</h2>
+  <p>
+    We use <code>@GeneratedPrism</code> to let the generator create a prism for an annotation. Prisms contain useful
+    static methods to extract annotation values from Elements.
+  </p>
+
+  <h3 id="common">Common Prism Members</h3>
+
+  <h4>PRISM_TYPE</h4>
+  <p>
+    All generated prisms will have a <em>public static final String PRISM_TYPE</em> field containing the target
+    annotation's fully qualified type.
+  </p>
+
+  <h4>isPresent</h4>
+  <p>
+    Returns a true if the target annotation is present on the element.
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Element</span> <span class="n">e</span> <span class="o">=</span> <span class="o">...;</span>
+
+<span class="kt">boolean</span> <span class="n">value</span> <span class="o">=</span> <span class="n">ExampleAnnotationPrism</span><span class="o">.</span><span class="na">isPresent</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</pre></div>
+</div>
+
+  <h4>getInstanceOn/getOptionalOn</h4>
+  <p>
+    Returns a prism representing the target annotation present on the given element.
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Element</span> <span class="n">e</span> <span class="o">=</span> <span class="o">...;</span>
+
+<span class="n">ExampleAnnotationPrism</span> <span class="n">value</span> <span class="o">=</span> <span class="n">ExampleAnnotationPrism</span><span class="o">.</span><span class="na">getInstanceOn</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+<span class="n">Optional</span><span class="o">&lt;</span><span class="n">ExampleAnnotationPrism</span><span class="o">&gt;</span> <span class="n">value</span> <span class="o">=</span> <span class="n">ExampleAnnotationPrism</span><span class="o">.</span><span class="na">getOptionalOn</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</pre></div>
+</div>
+
+  <h4>getInstance/getOptional</h4>
+  <p>
+    Converts an <code>AnnotationMirror</code> into the target prism if applicable.
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">AnnotationMirror</span> <span class="n">m</span> <span class="o">=</span> <span class="o">...;</span>
+
+<span class="n">ExampleAnnotationPrism</span> <span class="n">value</span> <span class="o">=</span> <span class="n">ExampleAnnotationPrism</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">m</span><span class="o">);</span>
+<span class="n">Optional</span><span class="o">&lt;</span><span class="n">ExampleAnnotationPrism</span><span class="o">&gt;</span> <span class="n">value</span> <span class="o">=</span> <span class="n">ExampleAnnotationPrism</span><span class="o">.</span><span class="na">getOptional</span><span class="o">(</span><span class="n">m</span><span class="o">);</span>
+</pre></div>
+</div>
+
+  <h4>getAllInstancesOn (<em>@Repeatable</em> Annotations only)</h4>
+  <p>
+    Returns a list of prisms representing the target annotation present on the given element.
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Element</span> <span class="n">e</span> <span class="o">=</span> <span class="o">...;</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">ExampleAnnotationPrism</span><span class="o">&gt;</span> <span class="n">value</span> <span class="o">=</span> <span class="n">ExampleAnnotationPrism</span><span class="o">.</span><span class="na">getAllInstancesOn</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</pre></div>
+</div>
+
+  <h4>getAllOnMetaAnnotations (<em>ANNOTATION_TYPE</em> Annotations only)</h4>
+  <p>
+    Return a list of prisms representing the target annotation on all the annotations of the given element. Will
+    recursively search all the annotations on the element.
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Element</span> <span class="n">e</span> <span class="o">=</span> <span class="o">...;</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">ExampleAnnotationPrism</span><span class="o">&gt;</span> <span class="n">value</span> <span class="o">=</span> <span class="n">ExampleAnnotationPrism</span><span class="o">.</span><span class="na">getAllOnMetaAnnotations</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+</pre></div>
+</div>
+
+  <h3 id="inheritance">Prism Naming and Inheritance</h3>
+  <p>
+    If we have similar annotations (Think javax and jakarta) we can create a common interface the generated
+    prisms will extend.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@GeneratePrism</span><span class="o">(</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">javax</span><span class="o">.</span><span class="na field">validation</span><span class="o">.</span><span class="na field">NotNull</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;JavaxNotNullPrism&quot;</span><span class="o">,</span>
+    <span class="n">superInterfaces</span> <span class="o">=</span> <span class="n">NotNullPrism</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="nd">@GeneratePrism</span><span class="o">(</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">jakarta</span><span class="o">.</span><span class="na field">validation</span><span class="o">.</span><span class="na field">NotNull</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;JakartaNotNullPrism&quot;</span><span class="o">,</span>
+    <span class="n">superInterfaces</span> <span class="o">=</span> <span class="n">NotNullPrism</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">NotNullPrism</span> <span class="o">{</span>
+
+  <span class="c1">//we create methods for the common annotation members</span>
+  <span class="n">String</span> <span class="nf">message</span><span class="o">();</span>
+
+  <span class="c1">//we also need to create static methods to get the prisms</span>
+  <span class="kd">static</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">NotNullPrism</span><span class="o">&gt;</span> <span class="nf">getInstanceOn</span><span class="o">(</span><span class="n">Element</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">return</span> <span class="n">Optional</span><span class="o">.&lt;</span><span class="n">NotNullPrism</span><span class="o">&gt;</span><span class="n">empty</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">or</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">JakartaNotNullPrism</span><span class="o">.</span><span class="na">getOptionalOn</span><span class="o">(</span><span class="n">e</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">or</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">JavaxNotNullPrism</span><span class="o">.</span><span class="na">getOptionalOn</span><span class="o">(</span><span class="n">e</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">orElse</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">static</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">NotNullPrism</span><span class="o">&gt;</span> <span class="nf">getOptionalOn</span><span class="o">(</span><span class="n">Element</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">return</span> <span class="n">Optional</span><span class="o">.&lt;</span><span class="n">NotNullPrism</span><span class="o">&gt;</span><span class="n">empty</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">or</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">JakartaNotNullPrism</span><span class="o">.</span><span class="na">getOptionalOn</span><span class="o">(</span><span class="n">e</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">or</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">JavaxNotNullPrism</span><span class="o">.</span><span class="na">getOptionalOn</span><span class="o">(</span><span class="n">e</span><span class="o">));</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h2 id="apcontext">@GenerateAPContext</h2>
+  <p>
+    As your annotation processor grows in size and complexity, you may find it difficult to properly access the
+    <code>ProcessingEnvironment</code> and its utilities. <code>@GenerateAPContext</code> generates a helper class that
+    stores the processing env and its utilities in a ThreadLocal for easy access anywhere in the processor.
+  </p>
+  <p>
+    To initialize/cleanup the generated <em>APContext</em>, we must initialize it during the init phase and clear it
+    when processing is over.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@GenerateAPContext</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">MyProcessor</span> <span class="kd">extends</span> <span class="n">AbstractProcessor</span> <span class="o">{</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">ProcessingEnvironment</span> <span class="n">env</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">env</span><span class="o">);</span>
+    <span class="n">APContext</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">env</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">process</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">TypeElement</span><span class="o">&gt;</span> <span class="n">tes</span><span class="o">,</span> <span class="n">RoundEnvironment</span> <span class="n">renv</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">renv</span><span class="o">.</span><span class="na">processingOver</span><span class="o">())</span> <span class="o">{</span>
+      <span class="n">APContext</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">//can call these from anywhere</span>
+    <span class="n">ProcessingEnvironment</span> <span class="n">env</span> <span class="o">=</span> <span class="n">APContext</span><span class="o">.</span><span class="na">processingEnv</span><span class="o">();</span>
+    <span class="n">Types</span> <span class="n">types</span> <span class="o">=</span> <span class="n">APContext</span><span class="o">.</span><span class="na">types</span><span class="o">();</span>
+    <span class="n">Elements</span> <span class="n">elements</span> <span class="o">=</span> <span class="n">APContext</span><span class="o">.</span><span class="na">elements</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  <h4>Generated Code</h4>
+  <p>
+    The generated <em>APContext</em> looks like the below.
+  </p>
+  <details>
+    <summary>Generated Code: (click to expand) </summary>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm">* Utiliy Class that stores the {@link ProcessingEnvironment} and provides various helper methods</span>
+<span class="cm">*/</span>
+<span class="n">Generated</span><span class="o">(</span><span class="s">&quot;avaje-prism-generator&quot;</span><span class="o">)</span>
+<span class="n">ublic</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">APContext</span> <span class="o">{</span>
+
+ <span class="kd">private</span> <span class="kd">static</span> <span class="kt">int</span> <span class="n">jdkVersion</span><span class="o">;</span>
+ <span class="kd">private</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="n">previewEnabled</span><span class="o">;</span>
+ <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">ThreadLocal</span><span class="o">&lt;</span><span class="n">Ctx</span><span class="o">&gt;</span> <span class="n">CTX</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ThreadLocal</span><span class="o">&lt;&gt;();</span>
+
+ <span class="kd">private</span> <span class="nf">APContext</span><span class="o">()</span> <span class="o">{}</span>
+
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Ctx</span> <span class="o">{</span>
+   <span class="kd">private</span> <span class="kd">final</span> <span class="n">ProcessingEnvironment</span> <span class="n">processingEnv</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Messager</span> <span class="n">messager</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Filer</span> <span class="n">filer</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Elements</span> <span class="n">elementUtils</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Types</span> <span class="n">typeUtils</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="n">ModuleElement</span> <span class="n">module</span><span class="o">;</span>
+
+   <span class="kd">public</span> <span class="nf">Ctx</span><span class="o">(</span><span class="n">ProcessingEnvironment</span> <span class="n">processingEnv</span><span class="o">)</span> <span class="o">{</span>
+
+     <span class="k">this</span><span class="o">.</span><span class="na">processingEnv</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">;</span>
+     <span class="n">messager</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">.</span><span class="na">getMessager</span><span class="o">();</span>
+     <span class="n">filer</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">.</span><span class="na">getFiler</span><span class="o">();</span>
+     <span class="n">elementUtils</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">.</span><span class="na">getElementUtils</span><span class="o">();</span>
+     <span class="n">typeUtils</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">.</span><span class="na">getTypeUtils</span><span class="o">();</span>
+   <span class="o">}</span>
+
+   <span class="kd">public</span> <span class="nf">Ctx</span><span class="o">(</span><span class="n">Messager</span> <span class="n">messager</span><span class="o">,</span> <span class="n">Filer</span> <span class="n">filer</span><span class="o">,</span> <span class="n">Elements</span> <span class="n">elementUtils</span><span class="o">,</span> <span class="n">Types</span> <span class="n">typeUtils</span><span class="o">)</span> <span class="o">{</span>
+
+     <span class="k">this</span><span class="o">.</span><span class="na">processingEnv</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+     <span class="k">this</span><span class="o">.</span><span class="na">messager</span> <span class="o">=</span> <span class="n">messager</span><span class="o">;</span>
+     <span class="k">this</span><span class="o">.</span><span class="na">filer</span> <span class="o">=</span> <span class="n">filer</span><span class="o">;</span>
+     <span class="k">this</span><span class="o">.</span><span class="na">elementUtils</span> <span class="o">=</span> <span class="n">elementUtils</span><span class="o">;</span>
+     <span class="k">this</span><span class="o">.</span><span class="na">typeUtils</span> <span class="o">=</span> <span class="n">typeUtils</span><span class="o">;</span>
+   <span class="o">}</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Initialize the ThreadLocal containing the Processing Enviroment. this typically should be</span>
+<span class="cm">  * called during the init phase of processing. Be sure to run the clear method at the last round</span>
+<span class="cm">  * of processing</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param processingEnv the current annotation processing enviroment</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">ProcessingEnvironment</span> <span class="n">processingEnv</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">CTX</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="k">new</span> <span class="n">Ctx</span><span class="o">(</span><span class="n">processingEnv</span><span class="o">));</span>
+   <span class="n">jdkVersion</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">.</span><span class="na">getSourceVersion</span><span class="o">().</span><span class="na">ordinal</span><span class="o">();</span>
+   <span class="n">previewEnabled</span> <span class="o">=</span> <span class="n">processingEnv</span><span class="o">.</span><span class="na">isPreviewEnabled</span><span class="o">();</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Initialize the ThreadLocal containing the {@link ProcessingEnvironment}. Be sure to run the</span>
+<span class="cm">  * clear method at the last round of processing</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param context the current annotation processing enviroment</span>
+<span class="cm">  * @param jdkVersion the JDK version number</span>
+<span class="cm">  * @param preview whether preview features are enabled</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">Ctx</span> <span class="n">context</span><span class="o">,</span> <span class="kt">int</span> <span class="n">jdkVersion</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">preview</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">CTX</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+   <span class="n">jdkVersion</span> <span class="o">=</span> <span class="n">jdkVersion</span><span class="o">;</span>
+   <span class="n">previewEnabled</span> <span class="o">=</span> <span class="n">preview</span><span class="o">;</span>
+ <span class="o">}</span>
+ <span class="cm">/** Clears the ThreadLocal containing the {@link ProcessingEnvironment}. */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">clear</span><span class="o">()</span> <span class="o">{</span>
+   <span class="n">CTX</span><span class="o">.</span><span class="na">remove</span><span class="o">();</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Returns the source version that any generated source and class files should conform to</span>
+<span class="cm">  *</span>
+<span class="cm">  * @return the source version as an int</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">jdkVersion</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">jdkVersion</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Returns whether {@code --preview-enabled} has been added to compiler flags.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @return true if preview features are enabled</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">previewEnabled</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">previewEnabled</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Prints an error at the location of the element.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param e the element to use as a position hint</span>
+<span class="cm">  * @param msg the message, or an empty string if none</span>
+<span class="cm">  * @param args {@code String#format} arguments</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logError</span><span class="o">(</span><span class="n">Element</span> <span class="n">e</span><span class="o">,</span> <span class="n">String</span> <span class="n">msg</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">messager</span><span class="o">().</span><span class="na">printMessage</span><span class="o">(</span><span class="n">Diagnostic</span><span class="o">.</span><span class="na field">Kind</span><span class="o">.</span><span class="na">ERROR</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">msg</span><span class="o">,</span> <span class="n">args</span><span class="o">),</span> <span class="n">e</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Prints an error.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param msg the message, or an empty string if none</span>
+<span class="cm">  * @param args {@code String#format} arguments</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logError</span><span class="o">(</span><span class="n">String</span> <span class="n">msg</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">messager</span><span class="o">().</span><span class="na">printMessage</span><span class="o">(</span><span class="n">Diagnostic</span><span class="o">.</span><span class="na field">Kind</span><span class="o">.</span><span class="na">ERROR</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">msg</span><span class="o">,</span> <span class="n">args</span><span class="o">));</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Prints an warning at the location of the element.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param e the element to use as a position hint</span>
+<span class="cm">  * @param msg the message, or an empty string if none</span>
+<span class="cm">  * @param args {@code String#format} arguments</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logWarn</span><span class="o">(</span><span class="n">Element</span> <span class="n">e</span><span class="o">,</span> <span class="n">String</span> <span class="n">msg</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">messager</span><span class="o">().</span><span class="na">printMessage</span><span class="o">(</span><span class="n">Diagnostic</span><span class="o">.</span><span class="na field">Kind</span><span class="o">.</span><span class="na">WARNING</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">msg</span><span class="o">,</span> <span class="n">args</span><span class="o">),</span> <span class="n">e</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Prints a warning.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param msg the message, or an empty string if none</span>
+<span class="cm">  * @param args {@code String#format} arguments</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logWarn</span><span class="o">(</span><span class="n">String</span> <span class="n">msg</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">messager</span><span class="o">().</span><span class="na">printMessage</span><span class="o">(</span><span class="n">Diagnostic</span><span class="o">.</span><span class="na field">Kind</span><span class="o">.</span><span class="na">WARNING</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">msg</span><span class="o">,</span> <span class="n">args</span><span class="o">));</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Prints a note.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param msg the message, or an empty string if none</span>
+<span class="cm">  * @param args {@code String#format} arguments</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logNote</span><span class="o">(</span><span class="n">Element</span> <span class="n">e</span><span class="o">,</span> <span class="n">String</span> <span class="n">msg</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">messager</span><span class="o">().</span><span class="na">printMessage</span><span class="o">(</span><span class="n">Diagnostic</span><span class="o">.</span><span class="na field">Kind</span><span class="o">.</span><span class="na">NOTE</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">msg</span><span class="o">,</span> <span class="n">args</span><span class="o">),</span> <span class="n">e</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Prints a note at the location of the element.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param e the element to use as a position hint</span>
+<span class="cm">  * @param msg the message, or an empty string if none</span>
+<span class="cm">  * @param args {@code String#format} arguments</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">logNote</span><span class="o">(</span><span class="n">String</span> <span class="n">msg</span><span class="o">,</span> <span class="n">Object</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">messager</span><span class="o">().</span><span class="na">printMessage</span><span class="o">(</span><span class="n">Diagnostic</span><span class="o">.</span><span class="na field">Kind</span><span class="o">.</span><span class="na">NOTE</span><span class="o">,</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">msg</span><span class="o">,</span> <span class="n">args</span><span class="o">));</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Returns the elements annotated with the given annotation interface.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param round RoundEnviroment to extract the elements</span>
+<span class="cm">  * @param annotationFQN the fqn of the annotation</span>
+<span class="cm">  * @return the elements annotated with the given annotation interface,or an empty set if there are</span>
+<span class="cm">  *     none</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">Element</span><span class="o">&gt;</span> <span class="nf">elementsAnnotatedWith</span><span class="o">(</span>
+     <span class="n">RoundEnvironment</span> <span class="n">round</span><span class="o">,</span> <span class="n">String</span> <span class="n">annotationFQN</span><span class="o">)</span> <span class="o">{</span>
+
+   <span class="k">return</span> <span class="n">Optional</span><span class="o">.</span><span class="na">ofNullable</span><span class="o">(</span><span class="n">typeElement</span><span class="o">(</span><span class="n">annotationFQN</span><span class="o">))</span>
+       <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">round</span><span class="o">::</span><span class="n">getElementsAnnotatedWith</span><span class="o">)</span>
+       <span class="o">.</span><span class="na">orElse</span><span class="o">(</span><span class="n">Set</span><span class="o">.</span><span class="na">of</span><span class="o">());</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Create a file writer for the given class name.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param name canonical (fully qualified) name of the principal class or interface being declared</span>
+<span class="cm">  *     in this file or a package name followed by {@code &quot;.package-info&quot;} for a package</span>
+<span class="cm">  *     information file</span>
+<span class="cm">  * @param originatingElements class, interface, package, or module elements causally associated</span>
+<span class="cm">  *     with the creation of this file, may be elided or {@code null}</span>
+<span class="cm">  * @return a JavaFileObject to write the new source file</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">JavaFileObject</span> <span class="nf">createSourceFile</span><span class="o">(</span><span class="n">CharSequence</span> <span class="n">name</span><span class="o">,</span> <span class="n">Element</span><span class="o">...</span> <span class="n">originatingElements</span><span class="o">)</span>
+     <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">filer</span><span class="o">().</span><span class="na">createSourceFile</span><span class="o">(</span><span class="n">name</span><span class="o">,</span> <span class="n">originatingElements</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Returns a type element given its canonical name.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param name the canonical name</span>
+<span class="cm">  * @return the named type element, or null if no type element can be uniquely determined</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">TypeElement</span> <span class="nf">typeElement</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">elements</span><span class="o">().</span><span class="na">getTypeElement</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Returns the element corresponding to a type.The type may be a DeclaredType or</span>
+<span class="cm">  * TypeVariable.Returns null if the type is not one with a corresponding element.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param t the type to map to an element</span>
+<span class="cm">  * @return the element corresponding to the given type</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">TypeElement</span> <span class="nf">asTypeElement</span><span class="o">(</span><span class="n">TypeMirror</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+
+   <span class="k">return</span> <span class="o">(</span><span class="n">TypeElement</span><span class="o">)</span> <span class="n">types</span><span class="o">().</span><span class="na">asElement</span><span class="o">(</span><span class="n">t</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Get current {@link ProcessingEnvironment}</span>
+<span class="cm">  *</span>
+<span class="cm">  * @return the enviroment</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">ProcessingEnvironment</span> <span class="nf">processingEnv</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">CTX</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">processingEnv</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Get current {@link Filer} from the {@link ProcessingEnvironment}</span>
+<span class="cm">  *</span>
+<span class="cm">  * @return the filer</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">Filer</span> <span class="nf">filer</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">CTX</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">filer</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Get current {@link Elements} from the {@link ProcessingEnvironment}</span>
+<span class="cm">  *</span>
+<span class="cm">  * @return the filer</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">Elements</span> <span class="nf">elements</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">CTX</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">elementUtils</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Get current {@link Messager} from the {@link ProcessingEnvironment}</span>
+<span class="cm">  *</span>
+<span class="cm">  * @return the messager</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">Messager</span> <span class="nf">messager</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">CTX</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">messager</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Get current {@link Types} from the {@link ProcessingEnvironment}</span>
+<span class="cm">  *</span>
+<span class="cm">  * @return the types</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">Types</span> <span class="nf">types</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">CTX</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">typeUtils</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Determine whether the first type can be assigned to the second</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param type string type to check</span>
+<span class="cm">  * @param superType the type that should be assignable to.</span>
+<span class="cm">  * @return true if type can be assinged to supertype</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isAssignable</span><span class="o">(</span><span class="n">String</span> <span class="n">type</span><span class="o">,</span> <span class="n">String</span> <span class="n">superType</span><span class="o">)</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">type</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">superType</span><span class="o">)</span> <span class="o">||</span> <span class="n">isAssignable</span><span class="o">(</span><span class="n">typeElement</span><span class="o">(</span><span class="n">type</span><span class="o">),</span> <span class="n">superType</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Determine whether the first type can be assigned to the second</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param type type to check</span>
+<span class="cm">  * @param superType the type that should be assignable to.</span>
+<span class="cm">  * @return true if type can be assinged to supertype</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">boolean</span> <span class="nf">isAssignable</span><span class="o">(</span><span class="n">TypeElement</span> <span class="n">type</span><span class="o">,</span> <span class="n">String</span> <span class="n">superType</span><span class="o">)</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">Optional</span><span class="o">.</span><span class="na">ofNullable</span><span class="o">(</span><span class="n">type</span><span class="o">).</span><span class="na">stream</span><span class="o">()</span>
+       <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="n">APContext</span><span class="o">::</span><span class="n">superTypes</span><span class="o">)</span>
+       <span class="o">.</span><span class="na">anyMatch</span><span class="o">(</span><span class="n">superType</span><span class="o">::</span><span class="n">equals</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="kd">private</span> <span class="kd">static</span> <span class="n">Stream</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">superTypes</span><span class="o">(</span><span class="n">TypeElement</span> <span class="n">element</span><span class="o">)</span> <span class="o">{</span>
+   <span class="kd">final</span> <span class="k">var</span> <span class="n">types</span> <span class="o">=</span> <span class="n">types</span><span class="o">();</span>
+   <span class="k">return</span> <span class="n">types</span><span class="o">.</span><span class="na">directSupertypes</span><span class="o">(</span><span class="n">element</span><span class="o">.</span><span class="na">asType</span><span class="o">()).</span><span class="na">stream</span><span class="o">()</span>
+       <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">type</span> <span class="o">-&gt;</span> <span class="o">!</span><span class="n">type</span><span class="o">.</span><span class="na">toString</span><span class="o">().</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;java.lang.Object&quot;</span><span class="o">))</span>
+       <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">superType</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="n">TypeElement</span><span class="o">)</span> <span class="n">types</span><span class="o">.</span><span class="na">asElement</span><span class="o">(</span><span class="n">superType</span><span class="o">))</span>
+       <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="n">e</span> <span class="o">-&gt;</span> <span class="n">Stream</span><span class="o">.</span><span class="na">concat</span><span class="o">(</span><span class="n">superTypes</span><span class="o">(</span><span class="n">e</span><span class="o">),</span> <span class="n">Stream</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">e</span><span class="o">)))</span>
+       <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">Object</span><span class="o">::</span><span class="n">toString</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Discover the {@link ModuleElement} for the project being processed and set in the context.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @param annotations the annotation interfaces requested to be processed</span>
+<span class="cm">  * @param roundEnv environment for information about the current and prior round</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">setProjectModuleElement</span><span class="o">(</span>
+     <span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">TypeElement</span><span class="o">&gt;</span> <span class="n">annotations</span><span class="o">,</span> <span class="n">RoundEnvironment</span> <span class="n">roundEnv</span><span class="o">)</span> <span class="o">{</span>
+   <span class="k">if</span> <span class="o">(</span><span class="n">CTX</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">module</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+     <span class="n">CTX</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">module</span> <span class="o">=</span>
+         <span class="n">annotations</span><span class="o">.</span><span class="na">stream</span><span class="o">()</span>
+             <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">roundEnv</span><span class="o">::</span><span class="n">getElementsAnnotatedWith</span><span class="o">)</span>
+             <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">not</span><span class="o">(</span><span class="n">Collection</span><span class="o">::</span><span class="n">isEmpty</span><span class="o">))</span>
+             <span class="o">.</span><span class="na">findAny</span><span class="o">()</span>
+             <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="n">s</span><span class="o">.</span><span class="na">iterator</span><span class="o">().</span><span class="na">next</span><span class="o">())</span>
+             <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">elements</span><span class="o">()::</span><span class="n">getModuleOf</span><span class="o">)</span>
+             <span class="o">.</span><span class="na">orElse</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+   <span class="o">}</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Retrieve the project&#39;s {@link ModuleElement}. {@code setProjectModuleElement} must be called</span>
+<span class="cm">  * before this.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @return the {@link ModuleElement} associated with the current project</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">ModuleElement</span> <span class="nf">getProjectModuleElement</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="n">CTX</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">module</span><span class="o">;</span>
+ <span class="o">}</span>
+
+ <span class="cm">/**</span>
+<span class="cm">  * Gets a {@link BufferedReader} for the project&#39;s {@code module-info.java} source file.</span>
+<span class="cm">  *</span>
+<span class="cm">  * &lt;p&gt;Calling {@link ModuleElement}&#39;s {@code getDirectives()} method has a chance of making</span>
+<span class="cm">  * compilation fail in certain situations. Therefore, manually parsing {@code module-info.java}</span>
+<span class="cm">  * seems to be the safest way to get module information.</span>
+<span class="cm">  *</span>
+<span class="cm">  * @return</span>
+<span class="cm">  * @throws IOException if unable to read the module-info</span>
+<span class="cm">  */</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="n">BufferedReader</span> <span class="nf">getModuleInfoReader</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+   <span class="k">var</span> <span class="n">inputStream</span> <span class="o">=</span>
+       <span class="n">filer</span><span class="o">()</span>
+           <span class="o">.</span><span class="na">getResource</span><span class="o">(</span><span class="n">StandardLocation</span><span class="o">.</span><span class="na">SOURCE_PATH</span><span class="o">,</span> <span class="s">&quot;&quot;</span><span class="o">,</span> <span class="s">&quot;module-info.java&quot;</span><span class="o">)</span>
+           <span class="o">.</span><span class="na">toUri</span><span class="o">()</span>
+           <span class="o">.</span><span class="na">toURL</span><span class="o">()</span>
+           <span class="o">.</span><span class="na">openStream</span><span class="o">();</span>
+   <span class="k">return</span> <span class="k">new</span> <span class="n">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="n">InputStreamReader</span><span class="o">(</span><span class="n">inputStream</span><span class="o">));</span>
+ <span class="o">}</span>
+     <span class="o">}</span>
+</pre></div>
+</div>
+  </details>
+
+  <h2 id="modules">@GenerateModuleInfoReader</h2>
+  <p>
+    There is currently a bug in javac where in certain situations calling <em>ModuleElement#getDirectives</em> on
+    the application's root module crashes compilation. Using <em>@GenerateModuleInfoReader</em> in combination with
+    <em>APContext</em> generates classes that allow you to read a
+    module's directives by parsing the <em>module-info.java</em> source file.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@GenerateAPContext</span>
+<span class="nd">@GenerateModuleInfoReader</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">MyProcessor</span> <span class="kd">extends</span> <span class="n">AbstractProcessor</span> <span class="o">{</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="n">ProcessingEnvironment</span> <span class="n">env</span><span class="o">)</span> <span class="o">{</span>
+    <span class="kd">super</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">env</span><span class="o">);</span>
+    <span class="n">APContext</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">env</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">process</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">TypeElement</span><span class="o">&gt;</span> <span class="n">tes</span><span class="o">,</span> <span class="n">RoundEnvironment</span> <span class="n">renv</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">renv</span><span class="o">.</span><span class="na">processingOver</span><span class="o">())</span> <span class="o">{</span>
+      <span class="n">APContext</span><span class="o">.</span><span class="na">clear</span><span class="o">();</span>
+      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="n">APContext</span><span class="o">.</span><span class="na">setProjectModuleElement</span><span class="o">(</span><span class="n">tes</span><span class="o">,</span> <span class="n">renv</span><span class="o">);</span>
+
+    <span class="k">try</span> <span class="o">(</span><span class="k">var</span> <span class="n">reader</span> <span class="o">=</span> <span class="n">APContext</span><span class="o">.</span><span class="na">getModuleInfoReader</span><span class="o">())</span> <span class="o">{</span>
+
+      <span class="k">var</span> <span class="n">moduleInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModuleInfoReader</span><span class="o">(</span><span class="n">APContext</span><span class="o">.</span><span class="na">getProjectModuleElement</span><span class="o">(),</span> <span class="n">reader</span><span class="o">);</span>
+      <span class="kt">boolean</span> <span class="n">contains</span> <span class="o">=</span> <span class="n">moduleInfo</span><span class="o">.</span><span class="na">containsOnModulePath</span><span class="o">(</span><span class="s">&quot;some.module&quot;</span><span class="o">);</span>
+      <span class="k">var</span> <span class="n">provides</span> <span class="o">=</span> <span class="n">moduleInfo</span><span class="o">.</span><span class="na">provides</span><span class="o">();</span>
+      <span class="k">var</span> <span class="n">requires</span> <span class="o">=</span> <span class="n">moduleInfo</span><span class="o">.</span><span class="na">requires</span><span class="o">();</span>
+      <span class="c1">//and so on...</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  <h2 id="utils">@GenerateUtils</h2>
+  <p>
+    Using this annotation will generate classes with useful methods for processing TypeMirrors and their component
+    parts.
+  </p>
+
+  <h3 id="utype">UType</h3>
+  <p>
+    This generated utility interface has methods for handling type mirrors and extracting their
+    component types and annotations (including <em>TYPE_USE</em>). In addition it allows us to get a readable
+    source-code safe string of the type names as well as the required imports.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TypeUseExample</span> <span class="o">{</span>
+
+  <span class="nd">@NotEmpty</span>
+  <span class="nx">Map</span><span class="o">&lt;</span><span class="nd">@NotBlank</span> <span class="nx">String</span><span class="o">,</span> <span class="nd">@NotEmpty</span> <span class="nx">Map</span><span class="o">&lt;</span><span class="nx">NestedKey</span><span class="o">,</span> <span class="nd">@NotNull</span><span class="o">(</span><span class="nx">groups</span><span class="o">=</span><span class="nx">Default</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="nx">DataRecord</span><span class="o">&gt;&gt;</span>
+      <span class="n">map</span><span class="o">;</span>
+
+  <span class="n">record</span> <span class="nf">NestedKey</span><span class="o">(){}</span>
+  <span class="n">record</span> <span class="nf">DataRecord</span><span class="o">(){}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@GenerateUtils</span>
+<span class="nd">@GeneratePrism</span><span class="o">(</span><span class="nx">NotNull</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">MyProcessor</span> <span class="kd">extends</span> <span class="n">AbstractProcessor</span> <span class="o">{</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">process</span><span class="o">(</span><span class="n">Set</span><span class="o">&lt;?</span> <span class="kd">extends</span> <span class="n">TypeElement</span><span class="o">&gt;</span> <span class="n">tes</span><span class="o">,</span> <span class="n">RoundEnvironment</span> <span class="n">renv</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">TypeMirror</span> <span class="n">type</span> <span class="o">=</span>  <span class="c1">//... some processing logic that gets the map field type mirror;</span>
+
+    <span class="k">var</span> <span class="n">utilityType</span> <span class="o">=</span> <span class="n">UType</span><span class="o">.</span><span class="na">parse</span><span class="o">(</span><span class="n">type</span><span class="o">);</span>
+
+    <span class="k">var</span> <span class="n">map</span> <span class="o">=</span> <span class="n">typeUseFields</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">importTypes</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">contains</span><span class="o">(</span>
+            <span class="s">&quot;jakarta.validation.constraints.NotBlank&quot;</span><span class="o">,</span>
+            <span class="s">&quot;java.util.Map&quot;</span><span class="o">,</span>
+            <span class="s">&quot;jakarta.validation.constraints.NotEmpty&quot;</span><span class="o">,</span>
+            <span class="s">&quot;jakarta.validation.groups.Default&quot;</span>
+            <span class="s">&quot;io.avaje.prisms.example.TypeUseExample&quot;</span><span class="o">);</span>
+
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">mainType</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;java.util.Map&quot;</span><span class="o">);</span>
+
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">full</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">isEqualTo</span><span class="o">(</span>
+            <span class="s">&quot;@jakarta.validation.constraints.NotEmpty java.util.Map&lt;@jakarta.validation.constraints.NotBlank java.lang.String, @jakarta.validation.constraints.NotEmpty java.util.Map&lt;io.avaje.prisms.example.TypeUseExample.NestedKey, io.avaje.prisms.example.TypeUseExample.@jakarta.validation.constraints.NotNull(groups={jakarta.validation.groups.Default.class}) DataRecord&gt;&gt;&quot;</span><span class="o">);</span>
+
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">shortType</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">isEqualTo</span><span class="o">(</span>
+            <span class="s">&quot;@NotEmpty Map&lt;@NotBlank String, @NotEmpty Map&lt;TypeUseExample.NestedKey, io.avaje.prisms.example.TypeUseExample.@NotNull(groups={Default.class}) DataRecord&gt;&gt;&quot;</span><span class="o">);</span>
+
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">fullWithoutAnnotations</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">isEqualTo</span><span class="o">(</span>
+            <span class="s">&quot;java.util.Map&lt;java.lang.String, java.util.Map&lt;io.avaje.prisms.example.TypeUseExample.NestedKey, io.avaje.prisms.example.TypeUseExample.DataRecord&gt;&gt;&quot;</span><span class="o">);</span>
+
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">map</span><span class="o">.</span><span class="na">shortWithoutAnnotations</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;Map&lt;String, Map&lt;TypeUseExample.NestedKey, TypeUseExample.DataRecord&gt;&gt;&quot;</span><span class="o">);</span>
+
+    <span class="c1">//We can retrieve the mirror component types as a UType</span>
+    <span class="n">AnnotationMirror</span> <span class="n">notNullMirror</span> <span class="o">=</span> <span class="n">map</span><span class="o">.</span><span class="na">param1</span><span class="o">().</span><span class="na">param1</span><span class="o">().</span><span class="na">annotations</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+    <span class="n">NotNullPrism</span> <span class="n">notNull</span> <span class="o">=</span> <span class="n">NotNullPrism</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">notNullMirror</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h4>Generated Code</h4>
+  <p>
+    The generated <em>UType</em> interface looks like the below.
+  </p>
+  <details>
+    <summary>Generated Code: (click to expand) </summary>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-prism-generator&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">UType</span> <span class="o">{</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Create a UType from the given TypeMirror.</span>
+<span class="cm">   */</span>
+  <span class="kd">static</span> <span class="n">UType</span> <span class="nf">parse</span><span class="o">(</span><span class="n">TypeMirror</span> <span class="n">mirror</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">//interface implementation is generated too</span>
+    <span class="k">return</span> <span class="n">TypeMirrorVisitor</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">mirror</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Return all the import types needed to write this mirror in source code (annotations included).</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return Return the import types required.</span>
+<span class="cm">   */</span>
+  <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">importTypes</span><span class="o">();</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Return the full type as a code safe string. (with annotations if present)</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return the full typeName</span>
+<span class="cm">   */</span>
+  <span class="n">String</span> <span class="nf">full</span><span class="o">();</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   *  Return the main type (outermost type). e.g for mirror {@ java.util.List&lt;Something&gt; you&#39;ll get java.util.List</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return the outermost type</span>
+<span class="cm">   */</span>
+  <span class="n">String</span> <span class="nf">mainType</span><span class="o">();</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Return the full (but unqualified) type as a code safe string. Use in tandem with {@link</span>
+<span class="cm">   * #importTypes()} to generate readable code</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return the short name with unqualified type</span>
+<span class="cm">   */</span>
+  <span class="n">String</span> <span class="nf">shortType</span><span class="o">();</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Return the first generic parameter.</span>
+<span class="cm">   *</span>
+<span class="cm">   * @see UType#componentTypes</span>
+<span class="cm">   */</span>
+  <span class="k">default</span> <span class="n">UType</span> <span class="nf">param0</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Return the second componentType.</span>
+<span class="cm">   *</span>
+<span class="cm">   * @see UType#componentTypes</span>
+<span class="cm">   */</span>
+  <span class="k">default</span> <span class="n">UType</span> <span class="nf">param1</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Retrieve the component types associated with this mirror.</span>
+<span class="cm">   *</span>
+<span class="cm">   * &lt;ul&gt;</span>
+<span class="cm">   *   &lt;li&gt;{@link TypeKind#ARRAY}: will contain the array componentType</span>
+<span class="cm">   *   &lt;li&gt;{@link TypeKind#DECLARED}: will contain the generic parameters</span>
+<span class="cm">   *   &lt;li&gt;{@link TypeKind#TYPEVAR}: will contain the upper bound for the type variable</span>
+<span class="cm">   *   &lt;li&gt;{@link TypeKind#WILDCARD}: will contain the extends bound or super bound</span>
+<span class="cm">   *   &lt;li&gt;{@link TypeKind#INTERSECTION}: will contain the bounds of the intersection</span>
+<span class="cm">   *   &lt;li&gt;{@link TypeKind#UNION}: will contain the alternative types</span>
+<span class="cm">   * &lt;/ul&gt;</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return the component types</span>
+<span class="cm">   */</span>
+  <span class="k">default</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">UType</span><span class="o">&gt;</span> <span class="nf">componentTypes</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">List</span><span class="o">.</span><span class="na">of</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="cm">/** The {@link TypeKind} of the type mirror used to create this Utype. */</span>
+  <span class="n">TypeKind</span> <span class="nf">kind</span><span class="o">();</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Returns whether the type mirror is generic</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return whether the type is generic</span>
+<span class="cm">   */</span>
+  <span class="k">default</span> <span class="kt">boolean</span> <span class="nf">isGeneric</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Return the annotation mirrors directly on the type.</span>
+<span class="cm">   *</span>
+<span class="cm">   * &lt;p&gt;For a {@code UType} representing {@code @NotEmpty Map&lt;@Notblank String, Object&gt;} you will</span>
+<span class="cm">   * get mirrors for {@code @NotEmpty} only</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return the annotations directly present</span>
+<span class="cm">   */</span>
+  <span class="k">default</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">AnnotationMirror</span><span class="o">&gt;</span> <span class="nf">annotations</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">List</span><span class="o">.</span><span class="na">of</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Return the annotation mirrors directly on the type and in within generic type use.</span>
+<span class="cm">   *</span>
+<span class="cm">   * &lt;p&gt;For a {@code UType} representing {@code @NotEmpty Map&lt;@Notblank String, Object&gt;} you will</span>
+<span class="cm">   * get mirrors for {@code @NotEmpty} and {@code @Notblank}</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return all annotations present on this type</span>
+<span class="cm">   */</span>
+  <span class="k">default</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">AnnotationMirror</span><span class="o">&gt;</span> <span class="nf">allAnnotationsInType</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">List</span><span class="o">.</span><span class="na">of</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Return the full type as a string, stripped of annotations.</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return full type, but without annotations</span>
+<span class="cm">   */</span>
+  <span class="k">default</span> <span class="n">String</span> <span class="nf">fullWithoutAnnotations</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">ProcessorUtils</span><span class="o">.</span><span class="na">trimAnnotations</span><span class="o">(</span><span class="n">full</span><span class="o">()).</span><span class="na">replace</span><span class="o">(</span><span class="s">&quot;,&quot;</span><span class="o">,</span> <span class="s">&quot;, &quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Return the short type as a string, stripped of annotations.</span>
+<span class="cm">   *</span>
+<span class="cm">   * @return short type, but without annotations</span>
+<span class="cm">   */</span>
+  <span class="k">default</span> <span class="n">String</span> <span class="nf">shortWithoutAnnotations</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">ProcessorUtils</span><span class="o">.</span><span class="na">trimAnnotations</span><span class="o">(</span><span class="n">shortType</span><span class="o">()).</span><span class="na">replace</span><span class="o">(</span><span class="s">&quot;,&quot;</span><span class="o">,</span> <span class="s">&quot;, &quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="cm">/** Compare whether the current full() type is identical to the given UType&#39;s full() type */</span>
+  <span class="nd">@Override</span>
+  <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">other</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  </details>
+
+  <p><br><br><br><br><br><br></p>
+
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>

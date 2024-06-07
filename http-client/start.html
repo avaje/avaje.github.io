@@ -211,6 +211,16 @@
 </pre></div>
 </div>
 
+<h4>JDK 23+ note:</h4>
+
+<p>In JDK 23+, annotation processors are disabled by default, so we need to add a compiler property to re-enable.</p>
+
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;properties&gt;</span>
+  <span class="nt">&lt;maven.compiler.proc&gt;</span>full<span class="nt">&lt;/maven.compiler.proc&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
+</pre></div>
+</div>
+
 <h4>Gradle</h4>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
     <span class="n">implementation</span> <span class="s1">&#39;com.fasterxml.jackson.core:jackson-databind:2.12.3&#39;</span>

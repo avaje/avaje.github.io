@@ -86,7 +86,7 @@
     <tr>
       <td><a href="https://discord.gg/Qcqf9R27BR">Discord</td>
       <td><a target="_blank" href="https://github.com/avaje/avaje-validator">Github</a></td>
-      <td><a target="_blank" href="/apidocs/avaje-validator">Javadoc</a></td>
+      <td><a target="_blank" href="https://javadoc.io/doc/io.avaje/avaje-validator">Javadoc</a></td>
       <td><a target="_blank" href="https://github.com/avaje/avaje-validator/issues">Github</a></td>
       <td><a href="https://github.com/avaje/avaje-validator/releases"><img
             src="https://img.shields.io/maven-central/v/io.avaje/avaje-validator.svg?label=Maven%20Central"></a></td>
@@ -141,15 +141,13 @@
 </pre></div>
 </div>
 
-<h4>2a. JDK 22+ </h4>
-<p>In JDK 22+, annotation processors are disabled by default, so we need to add a flag to re-enable.</p>
-<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;configuration&gt;</span>
-    <span class="nt">&lt;compilerArgument&gt;</span>-proc:full<span class="nt">&lt;/compilerArgument&gt;</span>
-  <span class="nt">&lt;/configuration&gt;</span>
-<span class="nt">&lt;/plugin&gt;</span>
+  <h4>2a. JDK 23+ </h4>
+
+  <p>In JDK 23+, annotation processors are disabled by default, so we need to add a compiler property to re-enable.</p>
+
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;properties&gt;</span>
+  <span class="nt">&lt;maven.compiler.proc&gt;</span>full<span class="nt">&lt;/maven.compiler.proc&gt;</span>
+<span class="nt">&lt;/properties&gt;</span>
 </pre></div>
 </div>
 
@@ -860,6 +858,8 @@
 <span class="o">}</span>
 </pre></div>
 </div>
+
+<p><br><br><br><br><br><br></p>
 
   </article>
 </div>
