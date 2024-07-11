@@ -459,13 +459,13 @@
 </ol>
 
 <h5>Example module-info</h5>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.avaje.inject.spi.InjectSPI</span><span class="o">;</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.avaje.inject.spi.InjectExtension</span><span class="o">;</span>
 
 <span class="n">module</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
 
   <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">inject</span><span class="o">;</span>
   <span class="c1">// you must define the fully qualified class name of the generated classes. if you use an import statement, compilation will fail</span>
-  <span class="n">provides</span> <span class="n">InjectSPI</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">ExampleModule</span><span class="o">;</span>
+  <span class="n">provides</span> <span class="n">InjectExtension</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">ExampleModule</span><span class="o">;</span>
 <span class="o">}</span>
 </pre></div>
 </div>

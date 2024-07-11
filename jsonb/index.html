@@ -266,11 +266,11 @@
   </p>
   <ol>
     <li>Add a <em>requires</em> clause for <em>io.avaje.jsonb</em></li>
-    <li>Add a <em>provides</em> clause for <em>io.avaje.jsonb.Jsonb.GeneratedComponent</em></li>
+    <li>Add a <em>provides</em> clause for <em>io.avaje.jsonb.spi.JsonbExtension</em></li>
   </ol>
 
   <h5>Example module-info</h5>
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.avaje.jsonb.Jsonb.GeneratedComponent</span><span class="o">;</span>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.avaje.jsonb.spi.JsonbExtension</span><span class="o">;</span>
 
 <span class="n">module</span> <span class="n">org</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
 
@@ -278,6 +278,7 @@
 
   <span class="c1">// you must define the fully qualified class name of the generated classes. if you use an import statement, compilation will fail</span>
   <span class="n">provides</span> <span class="n">GeneratedComponent</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na field">jsonb</span><span class="o">.</span><span class="na">GeneratedComponent</span><span class="o">;</span>
+  <span class="n">provides</span> <span class="n">JsonbExtension</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na field">jsonb</span><span class="o">.</span><span class="na">GeneratedComponent</span><span class="o">;</span>
 
   <span class="c1">//if running using Jlink application images with avaje-inject add:</span>
   <span class="c1">//requires io.avaje.jsonb.plugin;</span>
@@ -956,29 +957,28 @@
   <h2 id="mixin">@Json.Mixin</h2>
 
   <p>
-    Mark this Class as a MixIn Type that can add Jsonb Annotations on the specified type.
-    <br>
-    Say we want to override the field serialization behavior on a class we can't modify.(Typically in an external
-    project/dependency or otherwise)
+    Say we want to override the field serialization behavior on a class we can't modify (For example, a class in an external
+    project/dependency).  We can use <code>@Mixin</code> to add Jsonb Annotations to the specified type.
   </p>
 
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MixinTarget</span> <span class="o">{</span>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Kingfisher</span> <span class="o">{</span>
   <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
-  <span class="kd">private</span> <span class="n">String</span> <span class="n">stand</span><span class="o">;</span>
-  <span class="kd">private</span> <span class="n">String</span> <span class="n">bandReference</span><span class="o">;</span>
   <span class="c1">//getters/setters...</span>
 <span class="o">}</span>
 </pre></div>
 </div>
-  <p>We can use the <code>@Json.Mixin</code> annotation on an abstract class to effectively add @Json Annotations </p>
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json.MixIn</span><span class="o">(</span><span class="nx">MixinTarget</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-<span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">MixinClass</span> <span class="o">{</span>
+  <p>Given the above class, we can use the <code>@Json.Mixin</code> annotation on an abstract class to effectively add @Json annotations and even change how the class is constructed </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@MixIn</span><span class="o">(</span><span class="nx">Kingfisher</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">KingfisherMixin</span> <span class="o">{</span>
 
-  <span class="nd">@Json.Property</span><span class="o">(</span><span class="s">&quot;part&quot;</span><span class="o">)</span>
-  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+  <span class="nd">@Json.Property</span><span class="o">(</span><span class="s">&quot;species&quot;</span><span class="o">)</span>
+  <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
 
-  <span class="nd">@Json.Ignore</span>
-  <span class="kd">private</span> <span class="n">String</span> <span class="n">stand</span><span class="o">;</span>
+  <span class="c1">//we can even change how the target is constructed with @Json.Creator</span>
+  <span class="nd">@Json.Creator</span>
+  <span class="kd">static</span> <span class="n">Kingfisher</span> <span class="nf">construct</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Kingfisher</span><span class="o">(</span><span class="n">species</span><span class="o">);</span>
+  <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -987,57 +987,51 @@
     <summary>Generated Code: (click to expand)</summary>
     <p><code>@Json.Mixin</code> makes the following changes to the generated MixinTargetJsonAdapter:</p>
 
-    <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span>
-<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">MixinTargetJsonAdapter</span> <span class="kd">implements</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">MixinTarget</span><span class="o">&gt;,</span> <span class="n">ViewBuilderAware</span> <span class="o">{</span>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;io.avaje.jsonb.generator&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">KingfisherJsonAdapter</span> <span class="kd">implements</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">Kingfisher</span><span class="o">&gt;,</span> <span class="n">ViewBuilderAware</span> <span class="o">{</span>
 
   <span class="o">...</span>
-  <span class="kd">public</span> <span class="nf">MixinTargetJsonAdapter</span><span class="o">(</span><span class="n">Jsonb</span> <span class="n">jsonb</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="nf">KingfisherJsonAdapter</span><span class="o">(</span><span class="n">Jsonb</span> <span class="n">jsonb</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">this</span><span class="o">.</span><span class="na">stringJsonAdapter</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">adapter</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="c1">//the mixin class renamed &quot;name&quot; property to &quot;part&quot;</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">names</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">properties</span><span class="o">(</span><span class="s">&quot;part&quot;</span><span class="o">,</span> <span class="s">&quot;stand&quot;</span><span class="o">,</span> <span class="s">&quot;bandReference&quot;</span><span class="o">);</span>
+    <span class="c1">//name attribute replaced with species</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">names</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">properties</span><span class="o">(</span><span class="s">&quot;species&quot;</span><span class="o">);</span>
   <span class="o">}</span>
 
   <span class="o">...</span>
 
   <span class="nd">@Override</span>
-  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">toJson</span><span class="o">(</span><span class="n">JsonWriter</span> <span class="n">writer</span><span class="o">,</span> <span class="n">MixinTarget</span> <span class="n">mixinTarget</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">toJson</span><span class="o">(</span><span class="n">JsonWriter</span> <span class="n">writer</span><span class="o">,</span> <span class="n">Kingfisher</span> <span class="n">kingfisher</span><span class="o">)</span> <span class="o">{</span>
     <span class="n">writer</span><span class="o">.</span><span class="na">beginObject</span><span class="o">(</span><span class="n">names</span><span class="o">);</span>
     <span class="n">writer</span><span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
-    <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">writer</span><span class="o">,</span> <span class="n">mixinTarget</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
-    <span class="n">writer</span><span class="o">.</span><span class="na">name</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
-    <span class="c1">// stand property is absent</span>
-    <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">writer</span><span class="o">,</span> <span class="n">mixinTarget</span><span class="o">.</span><span class="na">getBandReference</span><span class="o">());</span>
+    <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">writer</span><span class="o">,</span> <span class="n">kingfisher</span><span class="o">.</span><span class="na">getName</span><span class="o">());</span>
     <span class="n">writer</span><span class="o">.</span><span class="na">endObject</span><span class="o">();</span>
   <span class="o">}</span>
 
   <span class="nd">@Override</span>
-  <span class="kd">public</span> <span class="n">MixinTarget</span> <span class="nf">fromJson</span><span class="o">(</span><span class="n">JsonReader</span> <span class="n">reader</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">MixinTarget</span> <span class="n">_&#36;mixinTarget</span> <span class="o">=</span> <span class="k">new</span> <span class="n">MixinTarget</span><span class="o">();</span>
+  <span class="kd">public</span> <span class="n">Kingfisher</span> <span class="nf">fromJson</span><span class="o">(</span><span class="n">JsonReader</span> <span class="n">reader</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// variables to read json values into, constructor params don&#39;t need _set&#36; flags</span>
+    <span class="n">String</span>     <span class="n">_val&#36;name</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
 
     <span class="c1">// read json</span>
     <span class="n">reader</span><span class="o">.</span><span class="na">beginObject</span><span class="o">(</span><span class="n">names</span><span class="o">);</span>
     <span class="k">while</span> <span class="o">(</span><span class="n">reader</span><span class="o">.</span><span class="na">hasNextField</span><span class="o">())</span> <span class="o">{</span>
       <span class="kd">final</span> <span class="n">String</span> <span class="n">fieldName</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="na">nextField</span><span class="o">();</span>
       <span class="k">switch</span> <span class="o">(</span><span class="n">fieldName</span><span class="o">)</span> <span class="o">{</span>
-        <span class="k">case</span> <span class="s">&quot;part&quot;</span><span class="o">:</span> <span class="o">{</span>
-          <span class="n">_&#36;mixinTarget</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">fromJson</span><span class="o">(</span><span class="n">reader</span><span class="o">));</span> <span class="k">break</span><span class="o">;</span>
-        <span class="o">}</span>
-        <span class="k">case</span> <span class="s">&quot;stand&quot;</span><span class="o">:</span> <span class="o">{</span>
-          <span class="c1">//now ignored</span>
-          <span class="n">reader</span><span class="o">.</span><span class="na">skipValue</span><span class="o">();</span> <span class="k">break</span><span class="o">;</span>
-        <span class="o">}</span>
-        <span class="k">case</span> <span class="s">&quot;bandReference&quot;</span><span class="o">:</span> <span class="o">{</span>
-          <span class="n">_&#36;mixinTarget</span><span class="o">.</span><span class="na">setBandReference</span><span class="o">(</span><span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">fromJson</span><span class="o">(</span><span class="n">reader</span><span class="o">));</span> <span class="k">break</span><span class="o">;</span>
-        <span class="o">}</span>
-        <span class="k">default</span><span class="o">:</span> <span class="o">{</span>
+        <span class="k">case</span> <span class="s">&quot;species&quot;</span><span class="o">:</span>
+          <span class="n">_val&#36;name</span> <span class="o">=</span> <span class="n">stringJsonAdapter</span><span class="o">.</span><span class="na">fromJson</span><span class="o">(</span><span class="n">reader</span><span class="o">);</span>
+          <span class="k">break</span><span class="o">;</span>
+
+<span class="nl">        default:</span>
           <span class="n">reader</span><span class="o">.</span><span class="na">unmappedField</span><span class="o">(</span><span class="n">fieldName</span><span class="o">);</span>
           <span class="n">reader</span><span class="o">.</span><span class="na">skipValue</span><span class="o">();</span>
-        <span class="o">}</span>
       <span class="o">}</span>
     <span class="o">}</span>
     <span class="n">reader</span><span class="o">.</span><span class="na">endObject</span><span class="o">();</span>
 
-    <span class="k">return</span> <span class="n">_&#36;mixinTarget</span><span class="o">;</span>
+    <span class="c1">// build and return Kingfisher using the mixin creator</span>
+    <span class="n">Kingfisher</span> <span class="n">_&#36;kingfisher</span> <span class="o">=</span> <span class="n">KingfisherMixin</span><span class="o">.</span><span class="na">construct</span><span class="o">(</span><span class="n">_val&#36;name</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">_&#36;kingfisher</span><span class="o">;</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -1049,8 +1043,8 @@
   <p>For mapping polymorphic types we specify on the parent type a <code>@Json.Subtype</code> for each concrete sub-type
     that can represent that type.
 
-  <p>By default the "type property" that specifies the type in json is <code>"@type"</code>. Use
-    <code>@Json(typeProperty=...)</code> to specify the name of the type property.
+  <p>By default the "type property" that specifies the type in json is <code>"@type"</code>. To specify alternate values for the type property, use
+    <code>@Json(typeProperty=...)</code>.
   </p>
 
   Note: There is a current limitation that polymorphic types do not yet support "Json Views".</p>
