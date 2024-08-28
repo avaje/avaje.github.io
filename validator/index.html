@@ -23,7 +23,7 @@
 </li>
 <li><a href="#jpms">Java Modules</a>
 </li>
-<li><a href="#integration">Avaje Integration</a>
+<li><a href="#integration">Avaje/Spring Integration</a>
 </li>
 <li><a href="#boot">Customizer</a>
 </li>
@@ -109,15 +109,16 @@
     <li>Composable Contraints</li>
     <li>Inherited Contraints</li>
     <li>Cascaded Validation</li>
+    <li>Adding/Modify constraints on 3rd Party classes</li>
   </ul>
 
   <h2 id="quick-start">Quick Start</h2>
   <h4>
-    1. Add <em>avaje.validator</em> dependencies.
+    1. Add <em>avaje-validator</em> dependencies.
   </h4>
   <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>avaje.validator<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-validator<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje.validator.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 <span class="c">&lt;!-- Alternatively can use Jakarta/Javax Constraints--&gt;</span>
@@ -126,6 +127,14 @@
   <span class="nt">&lt;artifactId&gt;</span>avaje-validator-constraints<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje.validator.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
+
+<span class="c">&lt;!-- If using spring:</span>
+<span class="c">&lt;dependency&gt;</span>
+<span class="c">  &lt;groupId&gt;io.avaje&lt;/groupId&gt;</span>
+<span class="c">  &lt;artifactId&gt;avaje-validator-spring-starter&lt;/artifactId&gt;</span>
+<span class="c">  &lt;version&gt;&#36;{avaje.validator.version}&lt;/version&gt;</span>
+<span class="c">&lt;/dependency&gt;</span>
+<span class="c">--&gt;</span>
 </pre></div>
 </div>
 
@@ -143,7 +152,7 @@
 </pre></div>
 </div>
 
-  <h4>2a. JDK 23+ </h4>
+  <h4>2a. JDK 23+</h4>
 
   <p>In JDK 23+, annotation processors are disabled by default, so we need to add a compiler property to re-enable.</p>
 
@@ -158,7 +167,7 @@
     <br>The avaje-validator-generator annotation processor will generate a ValidationAdapter as java source code for
     each type annotated with <code>@Valid</code>.
     These will be automatically registered with validator using a service loader mechanism.
-    <br><br>For types we cannot annotate with <code>@Valid</code> we can instead use <code>@ImportValidPojo</code>.
+    <br><br>For types we cannot annotate with <code>@Valid</code> we can instead use <code>@ImportValidPojo</code> or <code>@Mixin</code> to modify validation behavior of external classes.
   </p>
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Valid</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">RingedCity</span> <span class="o">{</span>
@@ -226,13 +235,13 @@
 
   <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">validator</span><span class="o">;</span>
 
-  <span class="c1">// you must define the fully qualified class name of the generated classes. if you use an import statement, compilation will fail</span>
+  <span class="c1">// you must define the fully qualified class name of generated classes. If you use an import statement, compilation will fail</span>
   <span class="n">provides</span> <span class="n">ValidationExtension</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na field">validator</span><span class="o">.</span><span class="na">GeneratedComponent</span><span class="o">;</span>
 
-  <span class="c1">//if running using Jlink application images with avaje-inject add:</span>
+  <span class="c1">//if running using jlink/jpackage application images with avaje-inject add:</span>
   <span class="c1">//requires io.avaje.validator.plugin;</span>
 
-  <span class="c1">//if running using Jlink application images with both avaje-http and inject add:</span>
+  <span class="c1">//if running using jlink/jpackage application images with both avaje-http and inject add:</span>
   <span class="c1">//requires io.avaje.validator.http;</span>
 <span class="o">}</span>
 </pre></div>
@@ -242,15 +251,15 @@
     <code>target/generated-sources/annotations</code>.
   </p>
 
-  <h2 id="integration">Avaje Integrations</h2>
+  <h2 id="integration">Avaje/Spring Integration</h2>
   <p>
-    When used with Avaje Inject, a default <code>Validator</code> and <code>AOPMethodValidator</code> instance will be
-    provided. The following properties can be added to configure the default <code>Validator</code> instance.
+    When used with Avaje Inject or the Spring Framework, a default <code>Validator</code> and <code>AOPMethodValidator</code> instance will be
+    provided. The following properties can be added to configure the construction of the default instance.
   </p>
 
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">validation</span><span class="o">.</span><span class="na">failFast</span> <span class="c1">//enable fail fast mode</span>
 <span class="n">validation</span><span class="o">.</span><span class="na field">resourcebundle</span><span class="o">.</span><span class="na">names</span> <span class="c1">// name of ResourceBundle files to load</span>
-<span class="n">validation</span><span class="o">.</span><span class="na field">locale</span><span class="o">.</span><span class="na">default</span> <span class="c1">//default local to use (default Locale.getDefault())</span>
+<span class="n">validation</span><span class="o">.</span><span class="na field">locale</span><span class="o">.</span><span class="na">default</span> <span class="c1">//default locale to use (defaults to Locale.getDefault())</span>
 <span class="n">validation</span><span class="o">.</span><span class="na field">locale</span><span class="o">.</span><span class="na">addedLocales</span> <span class="c1">//Additional Locales this validator should support</span>
 <span class="n">validation</span><span class="o">.</span><span class="na field">temporal</span><span class="o">.</span><span class="na field">tolerance</span><span class="o">.</span><span class="na">value</span> <span class="c1">//temporal tolerance value</span>
 <span class="n">validation</span><span class="o">.</span><span class="na field">temporal</span><span class="o">.</span><span class="na field">tolerance</span><span class="o">.</span><span class="na">chronoUnit</span> <span class="c1">//What ChronoUnit enum value to use for temporal tolerance (default MILLIS)</span>
@@ -259,7 +268,7 @@
 
   </p>
 
-    <h3 id="boot">ValidatorCustomizer</h2>
+  <h3 id="boot">ValidatorCustomizer</h2>
     <p>
       We can create a class that implements <code>ValidatorCustomizer</code> that can be loaded via
       <code>ServiceLoader</code> while the builder is constructing a
@@ -268,11 +277,11 @@
 
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Customizer</span> <span class="kd">implements</span> <span class="n">ValidatorCustomizer</span> <span class="o">{</span>
 
-  <span class="nd">@Override</span>
-  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">customize</span><span class="o">(</span><span class="n">Builder</span> <span class="n">builder</span><span class="o">)</span> <span class="o">{</span>
-    <span class="n">builder</span><span class="o">.</span><span class="na">failFast</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
-  <span class="o">}</span>
-<span class="o">}</span>
+ <span class="nd">@Override</span>
+ <span class="kd">public</span> <span class="kt">void</span> <span class="nf">customize</span><span class="o">(</span><span class="n">Builder</span> <span class="n">builder</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">builder</span><span class="o">.</span><span class="na">failFast</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+ <span class="o">}</span>
+    <span class="o">}</span>
 </pre></div>
 </div>
 
@@ -322,6 +331,12 @@
 <span class="o">}</span>
 </pre></div>
 </div>
+
+    <h4 id="nullable">@Nullable</h4>
+    <p>
+      When a field/method is marked with any form of <code>@Nullable</code>, constraints will only take effect when the
+      field/method result is not null.
+    </p>
 
     <h3 id="container">Container element constraints</h3>
     <p>
@@ -486,7 +501,8 @@
 <span class="o">}</span>
 </pre></div>
 </div>
-    <p>Given the above class, we can use the <code>@Mixin</code> annotation on an abstract class to effectively add/override constraint annotations.</p>
+    <p>Given the above class, we can use the <code>@Mixin</code> annotation on an abstract class to effectively
+      add/override constraint annotations.</p>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@MixIn</span><span class="o">(</span><span class="nx">Swallow</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="nd">@EntryRiddleCheck</span> <span class="c1">//class constraints can be added as well</span>
 <span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">SwallowMixin</span> <span class="o">{</span>
@@ -865,7 +881,8 @@
       several parameter values.
     </p>
 
-    <p>In the following example, we create a cross param contraint that validates whether a triangle abides by Pythagoras' theorum.
+    <p>In the following example, we create a cross param contraint that validates whether a triangle abides by
+      Pythagoras' theorum.
     </p>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@CrossParamConstraint</span>
 <span class="nd">@interface</span> <span class="nx">Pythagorean</span> <span class="o">{</span>
@@ -883,9 +900,10 @@
 </pre></div>
 </div>
 
-  <p>Now we create the corresponding adapter for <code>@Pythagorean</code>. Cross-param adapters must accept an <code>Object[]</code> representing a method's parameters.
-  </p>
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ConstraintAdapter</span><span class="o">(</span><span class="nx">Pythagorean</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+    <p>Now we create the corresponding adapter for <code>@Pythagorean</code>. Cross-param adapters must accept an
+      <code>Object[]</code> representing a method's parameters.
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ConstraintAdapter</span><span class="o">(</span><span class="nx">Pythagorean</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">PythagoreanAdapter</span> <span class="kd">extends</span> <span class="n">AbstractConstraintAdapter</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">[]&gt;</span> <span class="o">{</span>
 
   <span class="kd">public</span> <span class="nf">PythagoreanAdapter</span><span class="o">(</span><span class="n">AdapterCreateRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
@@ -939,7 +957,7 @@
 </pre></div>
 </div>
 
-<p><br><br><br><br><br><br></p>
+    <p><br><br><br><br><br><br></p>
 
   </article>
 </div>

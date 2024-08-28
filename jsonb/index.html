@@ -48,7 +48,7 @@
 </li>
 <li><a href="#value">@Value</a>
     <ul>
-      <li><a href="#valueclass">Inline Classes</a></li>
+      <li><a href="#valueClass">Inline Classes</a></li>
       <li><a href="#valueEnum">Enum Mapping</a></li>
     </ul>
 </li>
@@ -124,13 +124,12 @@
   <ul>
     <li>Primitives (int, float, char...) and their boxed counterparts (Integer, Float, Character...).</li>
     <li>BigInteger and BigDecimal</li>
-    <li>java.time classes (Instant, LocalDate, LocalDateTime...)</li>
+    <li>Date and java.time classes (Instant, LocalDate, LocalDateTime...)</li>
     <li>Arrays, Collections, Streams, Lists, Sets, and Maps</li>
     <li>Strings</li>
     <li>Enums</li>
     <li>Other miscellaneous types (UUID, URL, URI)</li>
   </ul>
-
 
   <h2 id="quick-start">Quick Start</h2>
   <h4>
@@ -1264,6 +1263,41 @@
 <span class="o">}</span>
 </pre></div>
 </div>
+
+<h2 id="serializer">@Serializer</h2>
+<p>
+  A case may arise where you need custom (de)serialization for a certain field without affecting the serialization for a type globally. This is the use case for <code>@Serializer</code>.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Example</span> <span class="o">{</span>
+
+  <span class="nd">@Json.Serializer</span><span class="o">(</span><span class="nx">MoneySerializer</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+  <span class="n">BigDecimal</span> <span class="n">amountOwed</span><span class="o">;</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  A non-global custom adapter must be created and registered with <code>@CustomAdapter(global = false)</code>. This signals that this adapter is exclusive for <code>@Serializer</code> use.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@CustomAdapter</span><span class="o">(</span><span class="nx">global</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MoneySerializer</span> <span class="kd">implements</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">BigDecimal</span><span class="o">&gt;</span> <span class="o">{</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">BigDecimal</span> <span class="nf">fromJson</span><span class="o">(</span><span class="n">JsonReader</span> <span class="n">reader</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">reader</span><span class="o">.</span><span class="na">readDecimal</span><span class="o">().</span><span class="na">setScale</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">RoundingMode</span><span class="o">.</span><span class="na">DOWN</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">toJson</span><span class="o">(</span><span class="n">JsonWriter</span> <span class="n">writer</span><span class="o">,</span> <span class="n">BigDecimal</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">writer</span><span class="o">.</span><span class="na">value</span><span class="o">(</span><span class="n">value</span><span class="o">.</span><span class="na">setScale</span><span class="o">(</span><span class="mi">2</span><span class="o">,</span> <span class="n">RoundingMode</span><span class="o">.</span><span class="na">DOWN</span><span class="o">));</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
 
   <p><br><br><br><br><br><br></p>
 

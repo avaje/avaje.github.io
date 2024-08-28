@@ -52,6 +52,7 @@
     <li><a href="#provider">Provider</a></li>
     <li><a href="#factory">@Factory</a></li>
     <li><a href="#bean">@Bean</a></li>
+    <li><a href="#beantypes">Limiting Injectable Types</a></li>
     <li><a href="#primary">@Primary</a></li>
     <li><a href="#secondary">@Secondary</a></li>
     <li><a href="#prototype">@Prototype</a></li>
@@ -233,7 +234,7 @@
       </ul>
     </td>
     <td>
-      <img style="max-width:460px" src="/images/di-lib-size.png" alt="DI library size comparison">
+      <img src="/images/di-lib-size.png" alt="DI library size comparison">
     </td>
   </tr>
 </table>
@@ -1042,7 +1043,7 @@ The inject annotation processor will determine the dependency wiring order of a 
   as can be more flexible and convenient.
 </p>
 
-<h3 id="factory">@Factory</h3>
+<h2 id="factory">@Factory</h2>
 <p>
   Factory beans allow us to programmatically creating a bean. Often the logic is based
   on external configuration, environment variables, system properties etc.
@@ -1179,6 +1180,26 @@ The inject annotation processor will determine the dependency wiring order of a 
   factory bean method and keep the constructors simple. Logic in constructors typically
   makes it harder from a testing perspective.
 </p>
+
+<h2 id="beantypes">Limiting Injectable Types</h2>
+<p>
+  When you annotate a bean with <code>@Singleton</code> or create via a </code>@Factory</code> class, the bean class and all interfaces it implements and super classes it extends become injectable.
+<br>For cases where this is not desired, we can use <code>@BeanTypes</code> to limit the types available to inject a particular bean.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="nd">@BeanTypes</span><span class="o">(</span><span class="nx">Appliance</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="kd">implements</span> <span class="n">Machine</span><span class="o">,</span> <span class="n">Appliance</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+<span class="c1">//we can only retrieve the bean as an instance of Appliance</span>
+<span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Appliance</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="c1">//throws not found exception</span>
+<span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</pre></div>
+</div>
 
 <h2 id="primary">@Primary</h2>
 <p>
@@ -1589,7 +1610,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 
   <span class="nd">@Inject</span>
   <span class="kt">void</span> <span class="nf">injectMethod</span><span class="o">(</span><span class="n">Steel</span> <span class="n">steel</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">m&#36;method</span> <span class="o">=</span> <span class="n">steel</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">steel&#36;method</span> <span class="o">=</span> <span class="n">steel</span><span class="o">;</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -1870,7 +1891,7 @@ This library has several contructs that support Aspect Oriented Programmming
 </div>
 
 <p>
-For this aspect to work, a corresponding AspectProvider must be wired into the scope.
+For this aspect to work, a corresponding <code>AspectProvider</code> must be wired into the scope.
 The AspectProvider should be a <code>@Singleton</code> or <code>@Component</code> that provides a <code>MethodInterceptor</code>.
  (Which will intercept the method call).
 </p>
@@ -2016,13 +2037,13 @@ With the provider set, we can use our newly created aspect annotation on a class
   are in the "default scope".
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">App</span> <span class="o">{</span>
-  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
 
-    <span class="c1">// create all the beans in the &quot;default scope&quot;</span>
-    <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+   <span class="c1">// create all the beans in the &quot;default scope&quot;</span>
+   <span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
 
-    <span class="n">SomeObject</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">SomeObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-  <span class="o">}</span>
+   <span class="n">SomeObject</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">SomeObject</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+ <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -2179,22 +2200,22 @@ With the provider set, we can use our newly created aspect annotation on a class
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// create a parent scope</span>
 <span class="k">try</span> <span class="o">(</span><span class="kd">final</span> <span class="n">BeanScope</span> <span class="n">parentScope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
-  <span class="c1">// we can use this scope</span>
-  <span class="kd">final</span> <span class="k">var</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">parentScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+ <span class="c1">// we can use this scope</span>
+ <span class="kd">final</span> <span class="k">var</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">parentScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 
-  <span class="c1">// external dependency for a custom scope</span>
-  <span class="n">LocalExt</span> <span class="n">ext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LocalExt</span><span class="o">();</span>
+ <span class="c1">// external dependency for a custom scope</span>
+ <span class="n">LocalExt</span> <span class="n">ext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">LocalExt</span><span class="o">();</span>
 
-  <span class="c1">// create a child scope</span>
-  <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">childScope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">parent</span><span class="o">(</span><span class="n">parentScope</span><span class="o">)</span> <span class="c1">// specify the parent</span>
-    <span class="o">.</span><span class="na">modules</span><span class="o">(</span><span class="k">new</span> <span class="n">MyCustomModule</span><span class="o">(</span><span class="n">ext</span><span class="o">))</span> <span class="c1">// the custom scope(s)</span>
-    <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
+ <span class="c1">// create a child scope</span>
+ <span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">childScope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+   <span class="o">.</span><span class="na">parent</span><span class="o">(</span><span class="n">parentScope</span><span class="o">)</span> <span class="c1">// specify the parent</span>
+   <span class="o">.</span><span class="na">modules</span><span class="o">(</span><span class="k">new</span> <span class="n">MyCustomModule</span><span class="o">(</span><span class="n">ext</span><span class="o">))</span> <span class="c1">// the custom scope(s)</span>
+   <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
 
-    <span class="c1">// use the child scope</span>
-    <span class="o">...</span>
+   <span class="c1">// use the child scope</span>
+   <span class="o">...</span>
 
-  <span class="o">}</span>
+ <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -2586,14 +2607,13 @@ The downside of annotating the injection point is that we can't specify the qual
 </div>
 
 <p>
-What this does is generate 2 files in target before the code is compiled: <code>target/avaje-module-provides.txt</code> and <code>target/avaje-plugin-provides.txt</code>
+This generates 2 files in the target folder before the code is compiled: <code>target/avaje-module-dependencies.csv</code> and <code>target/avaje-plugin-provides.txt</code>.
 
-These are the components and plugins provides by all the other modules that exist in the classpath/maven dependencies. The annotation processor then reads the txt files at compile time and will not error if these components are required dependencies (as they are known to be provided by other modules or plugins).
-
+These files contain all the metadata for all the modules and plugins provided by all external modules on the classpath/maven dependencies. The annotation processor then reads the files at compile time and will not throw a compilation error if these components are required dependencies.
 
 <h3 id="shading">Shading Note</h3>
 
-<p> As avaje uses the <code>ServiceLoader</code> to load Module classes, be sure to have the following configuration set when using the maven shade plugin on multi-module projects.
+<p> As avaje uses the <code>ServiceLoader</code> to load <code>AvajeModule</code> instances, be sure to have the following configuration set when using the maven shade plugin on multi-module projects.
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>maven-shade-plugin<span class="nt">&lt;/artifactId&gt;</span>
