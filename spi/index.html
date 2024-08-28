@@ -19,7 +19,9 @@
 <ul>
   <li><a href="#deps">Dependency</a>
 </li>
-<li><a href="#service">@ServiceProvider</a>
+<li><a href="#serviceProvider">@ServiceProvider</a>
+</li>
+<li><a href="#service">@Service</a>
 </li>
 </ul>
 <p>&nbsp;</p>
@@ -102,7 +104,7 @@
 </pre></div>
 </div>
 
-  <h2>@ServiceProvider</h2>
+  <h2 id="serviceProvider">@ServiceProvider</h2>
   <p>
     On classes that you'd like registered, place the
     <code>@ServiceProvider</code> annotation.
@@ -154,6 +156,36 @@
   Compilation failure /src/main/java/module-info.java:[1,1]
   Missing `provides MusicService with BassServiceProvider;`
 </pre>
+<h2 id="service">@Service</h2>
+  <p>
+    As a library developer, should you wish to define an spi interface for multiple layers of extension, the
+    <code>@Service</code> annotation will help ensure those using <code>@ServiceProvider</code> will automatically register the correct top-level type.
+  </p>
+  <p>
+    Consider the example of avaje-validaton:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="cm">/** Super interface for all validation SPIs */</span>
+<span class="nd">@Service</span>
+<span class="kd">public</span> <span class="n">sealed</span> <span class="kd">interface</span> <span class="nc">ValidationExtension</span>
+    <span class="n">permits</span> <span class="n">AdapterFactory</span><span class="o">,</span>
+        <span class="n">AnnotationFactory</span><span class="o">,</span>
+        <span class="n">GeneratedComponent</span><span class="o">,</span>
+        <span class="n">MessageInterpolator</span><span class="o">,</span>
+        <span class="n">ValidatorCustomizer</span> <span class="o">{}</span>
+</pre></div>
+</div>
+
+<p>
+  To reduce calls to the <code>ServiceLoader</code>, avaje-validation only loads the top level <code>ValidationExtension</code> interface instead of loading the individual interfaces.
+  The presence of the <code>@Service</code> annotation ensures the below will be registered correctly.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//this class is registered as a ValidationExtension rather than a ValidatorCustomizer</span>
+<span class="nd">@ServiceProvider</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Customizer</span> <span class="kd">implements</span> <span class="n">ValidatorCustomizer</span> <span class="o">{</span>
+  <span class="o">....</span>
+<span class="o">}</span>
+</pre></div>
+</div>
   <p><br><br><br><br><br><br></p>
 
 
