@@ -500,7 +500,7 @@ Below is the class generated for the Example class in the above quickstart.
 <span class="cm">   * Create and register Example.</span>
 <span class="cm">   */</span>
   <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">build</span><span class="o">(</span><span class="n">Builder</span> <span class="n">builder</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">if</span> <span class="o">(</span><span class="n">builder</span><span class="o">.</span><span class="na">isAddBeanFor</span><span class="o">(</span><span class="n">Example</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">builder</span><span class="o">.</span><span class="na">isBeanAbsent</span><span class="o">(</span><span class="n">Example</span><span class="o">.</span><span class="na">class</span><span class="o">))</span> <span class="o">{</span>
       <span class="k">var</span> <span class="n">bean</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Example</span><span class="o">(</span><span class="n">builder</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">DependencyClass</span><span class="o">.</span><span class="na">class</span><span class="o">,</span><span class="s">&quot;!d1&quot;</span><span class="o">),</span> <span class="n">builder</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">DependencyClass2</span><span class="o">.</span><span class="na">class</span><span class="o">,</span><span class="s">&quot;!d2&quot;</span><span class="o">));</span>
       <span class="n">builder</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">bean</span><span class="o">);</span>
       <span class="c1">// depending on the type of bean, callbacks for field/method injection, and lifecycle support will be generated here as well.</span>
@@ -2711,23 +2711,25 @@ These files contain all the metadata for all the modules and plugins provided by
       which contains the fully qualified class name of the implementation.</P>
 
 <p>Below is an example plugin that provides a default ExampleBean instance. </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">DefaultBeanProvider</span> <span class="kd">implements</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">InjectPlugin</span> <span class="o">{</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//this is read at compile-time to tell the avaje generator what bean classes are provided</span>
+<span class="n">PluginProvides</span><span class="o">({</span><span class="n">ExampleBean</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
+<span class="n">ublic</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">DefaultBeanProvider</span> <span class="kd">implements</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">InjectPlugin</span> <span class="o">{</span>
 
-  <span class="c1">//this is called at compile time to tell avaje what bean classes (if any) this plugin provides</span>
-  <span class="nd">@Override</span>
-  <span class="kd">public</span> <span class="n">Class</span><span class="o">&lt;?&gt;[]</span> <span class="n">provides</span><span class="o">()</span> <span class="o">{</span>
-    <span class="k">return</span> <span class="k">new</span> <span class="n">Class</span><span class="o">&lt;?&gt;[]{</span><span class="n">ExampleBean</span><span class="o">.</span><span class="na">class</span><span class="o">};</span>
-  <span class="o">}</span>
+ <span class="c1">//this is called at runtime to tell avaje beanscope what bean classes this plugin provides</span>
+ <span class="nd">@Override</span>
+ <span class="kd">public</span> <span class="n">Type</span><span class="o">[]</span> <span class="nf">provides</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="k">new</span> <span class="n">Type</span><span class="o">[]{</span><span class="n">ExampleBean</span><span class="o">.</span><span class="na">class</span><span class="o">};</span>
+ <span class="o">}</span>
 
-  <span class="c1">// this is called at runtime before any beans are wired</span>
-  <span class="nd">@Override</span>
-  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">apply</span><span class="o">(</span><span class="n">BeanScopeBuilder</span> <span class="n">builder</span><span class="o">)</span> <span class="o">{</span>
-    <span class="c1">//you can access the scope&#39;s wiring properties to help configure your plugin</span>
-    <span class="k">var</span> <span class="n">props</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">propertyPlugin</span><span class="o">();</span>
+ <span class="c1">// this is called at runtime before any beans are wired</span>
+ <span class="nd">@Override</span>
+ <span class="kd">public</span> <span class="kt">void</span> <span class="nf">apply</span><span class="o">(</span><span class="n">BeanScopeBuilder</span> <span class="n">builder</span><span class="o">)</span> <span class="o">{</span>
+   <span class="c1">//you can access the scope&#39;s wiring properties to help configure your plugin</span>
+   <span class="k">var</span> <span class="n">props</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">propertyPlugin</span><span class="o">();</span>
 
-    <span class="c1">//provide a default bean</span>
-    <span class="n">builder</span><span class="o">.</span><span class="na">provideDefault</span><span class="o">(</span><span class="n">ExampleBean</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">ExampleBean</span><span class="o">::</span><span class="k">new</span><span class="o">);</span>
-  <span class="o">}</span>
+   <span class="c1">//provide a default bean</span>
+   <span class="n">builder</span><span class="o">.</span><span class="na">provideDefault</span><span class="o">(</span><span class="n">ExampleBean</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">ExampleBean</span><span class="o">::</span><span class="k">new</span><span class="o">);</span>
+ <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>

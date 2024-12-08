@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="#overview">Overview</a>
+</li>
+<li><a href="#quick-start">Quick Start</a>
+</li>
+<li><a href="#handlers">Handling Requests</a>
+    <ul>
+      <li><a href="#end">Endpoint Handlers</a></li>
+      <li><a href="#ctx">Context</a></li>
+      <li><a href="#filters">Filters</a></li>
+      <li><a href="#exception">Exceptions</a></li>
+    </ul>
+</li>
+<li><a href="#access">Access Management</a>
+</li>
+<li><a href="#json">Json Content</a>
+</li>
+<li><a href="#static">Static Resources</a>
+</li>
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">jex</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-jex" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+  <h1 id="overview">Avaje Jex</h1>
+
+  <table style="width: 100%;">
+    <tr>
+      <th>Discord</th>
+      <th>Source</th>
+      <th>API Docs</th>
+      <th>Issues</th>
+      <th>Releases</th>
+    </tr>
+    <tr>
+      <td><a href="https://discord.gg/Qcqf9R27BR">Discord</td>
+      <td><a target="_blank" href="https://github.com/avaje/avaje-jex">Github</a></td>
+      <td><a target="_blank" href="https://javadoc.io/doc/io.avaje/avaje-jex">Javadoc</a></td>
+      <td><a target="_blank" href="https://github.com/avaje/avaje-jex/issues">Github</a></td>
+      <td><a href="https://github.com/avaje/avaje-jex/releases"><img
+            src="https://img.shields.io/maven-central/v/io.avaje/avaje-jex.svg?label=Maven%20Central"></a></td>
+    </tr>
+  </table>
+
+  <p><br><br>
+    An uncommonly known fact is that the JDK comes <a
+      href="https://docs.oracle.com/en/java/javase/21/docs/api/jdk.httpserver/com/sun/net/httpserver/package-summary.html">built
+      in with an http server</a>. Avaje Jex is a lightweight (~105kb) wrapper over the built-in api with some key
+    enhancements.
+  </p>
+
+  <ul>
+    <li>Fluent API</li>
+    <li>Path parameter parsing</li>
+    <li>Virtual Threads</li>
+    <li>Json (de)serialization</li>
+    <li>Compression</li>
+    <li>Context abstraction over HttpExchange to easily retrieve and send request/response data.</li>
+  </ul>
+
+  <h2 id="quick-start">Quick Start</h2>
+  <h4>
+    1. Add <em>avaje-jex</em> dependencies.
+  </h4>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.jex.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+ <span class="c">&lt;!-- perhaps also a json dependency like avaje jsonb or jackson  ---&gt;</span>
+</pre></div>
+</div>
+
+  <h4>
+    2. Create basic server
+  </h4>
+  <p>
+    Below is an example of a basic server.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/one/{id}&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;one-&quot;</span> <span class="o">+</span> <span class="n">ctx</span><span class="o">.</span><span class="na">pathParam</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)))</span>
+    <span class="o">.</span><span class="na">filter</span><span class="o">(</span>
+        <span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;before request&quot;</span><span class="o">);</span>
+          <span class="n">chain</span><span class="o">.</span><span class="na">proceed</span><span class="o">();</span>
+          <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;after request&quot;</span><span class="o">);</span>
+        <span class="o">})</span>
+    <span class="o">.</span><span class="na">error</span><span class="o">(</span>
+        <span class="n">IllegalStateException</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+        <span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">exception</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">500</span><span class="o">).</span><span class="na">text</span><span class="o">(</span><span class="n">exception</span><span class="o">.</span><span class="na">getMessage</span><span class="o">()))</span>
+    <span class="o">.</span><span class="na">port</span><span class="o">(</span><span class="mi">8080</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</pre></div>
+</div>
+
+  <h2 id="handlers">Handling Requests</h2>
+  <p>
+    With Jex, there are three main handler types: endpoint-handlers, filters, and exception-handlers.
+
+    Each kind of handler accept a <code>Context</code> instance as one of the parameters and have a <code>void</code>
+    return type.
+    You use methods like <code>ctx.write(result)</code>, </code>ctx.json(obj)</code>, or <code>ctx.html(html)</code> to
+    set the response which will be returned to
+    the user.
+  </p>
+  <h3 id="end">Endpoint Handlers</h3>
+  <p>
+    Endpoint handlers are the main handler type that define your API.
+    You can add a GET handler to serve data to a client, or a POST handler to receive some data.
+    Handlers. Common methods are supported directly on the <code>Routing</code> class (GET, POST, PUT, PATCH, DELETE,
+    HEAD, OPTIONS, TRACE)
+  </p>
+
+  <p>Endpoint-handlers are matched in the order they are defined.</p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jex</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+<span class="n">Routing</span> <span class="n">routing</span> <span class="o">=</span> <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">().</span><span class="na">routing</span><span class="o">();</span>
+<span class="n">routing</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/output&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// some code</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="na">json</span><span class="o">(</span><span class="n">object</span><span class="o">);</span>
+<span class="o">});</span>
+<span class="c1">//alternatively can use a consumer to configure</span>
+<span class="n">app</span><span class="o">.</span><span class="na">routing</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span>
+   <span class="n">r</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&quot;/input&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// some code</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">);</span>
+<span class="o">}));</span>
+<span class="c1">//or can use convenience methods directly on jex</span>
+<span class="n">app</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&quot;/something&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// some code</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">);</span>
+<span class="o">});</span>
+</pre></div>
+</div>
+
+  <p>Handler paths can include path-parameters. These are available via ctx.pathParam("key"):
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+<span class="c1">// the {} syntax does not allow slashes (&#39;/&#39;) as part of the parameter</span>
+<span class="n">app</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/hello/{name}&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="s">&quot;Hello: &quot;</span> <span class="o">+</span> <span class="n">ctx</span><span class="o">.</span><span class="na">pathParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">)));</span>
+<span class="c1">// the &lt;&gt; syntax allows slashes (&#39;/&#39;) as part of the parameter</span>
+<span class="n">app</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/hello/&lt;name&gt;&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="s">&quot;Hello: &quot;</span> <span class="o">+</span> <span class="n">ctx</span><span class="o">.</span><span class="na">pathParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">)));</span>
+</pre></div>
+</div>
+
+  <p>Handler paths can also include wildcard parameters:</p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/path/*&quot;</span><span class="o">,</span>
+       <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="s">&quot;You are here because &quot;</span> <span class="o">+</span> <span class="n">ctx</span><span class="o">.</span><span class="na">path</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; matches &quot;</span> <span class="o">+</span> <span class="n">ctx</span><span class="o">.</span><span class="na">matchedPath</span><span class="o">())</span>
+       <span class="o">));</span>
+</pre></div>
+</div>
+
+  <h3 id="ctx">Context</h3>
+  <p>The Context object provides you with everything you need to handle a http-request. It contains the underlying
+    JDK <code>HttpExchange</code>, and a bunch of convenience methods for extracting data from a request and sending a
+    response.</p>
+
+  <p>See the <a href="https://javadoc.io/doc/io.avaje/avaje-jex/latest/io.avaje.jex/io/avaje/jex/Context.html"> Context
+      Javadoc</a> for a description of all the methods available</p>
+
+  <h3 id="filters">Filters</h3>
+  <p>
+    Filters are used to pre/post process incoming requests. Pre-processing occurs before the application's exchange
+    handler is invoked, and post-processing occurs after the exchange handler returns.
+    Filters are organised in chains, and are executed in the order they were
+    registered. This can be useful for adding authentication, caching, extra logging, etc.
+    <br><br>
+    Each Filter in the chain invokes the next filter within its own <code>filter(Context, FilterChain)</code>
+    implementation. The final Filter in the chain invokes the applications exchange handler..
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">filter</span><span class="o">(</span>
+        <span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;before request&quot;</span><span class="o">);</span>
+          <span class="c1">// proceed to the next filter in the chain, or the endpoint handler if  at the end of</span>
+          <span class="c1">// the chain</span>
+          <span class="n">chain</span><span class="o">.</span><span class="na">proceed</span><span class="o">();</span>
+          <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;after request&quot;</span><span class="o">);</span>
+        <span class="o">});</span>
+</pre></div>
+</div>
+
+  <p>The Filter may decide to terminate the chain, by not calling the method. In this case, the filter must send the
+    response to the request, because the application's exchange handler will <i>not</i> be invoked.</p>
+
+  <h3 id="exception">Exceptions</h3>
+  <p>
+    Exception handlers give you a way of handling thrown exceptions during request processing;
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+
+<span class="n">app</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="n">NullPointerException</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">e</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// handle nullpointers here</span>
+<span class="o">});</span>
+
+<span class="n">app</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="n">Exception</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">e</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// handle general exceptions here</span>
+    <span class="c1">// will not trigger if more specific exception handler found</span>
+<span class="o">});</span>
+</pre></div>
+</div>
+
+  <h4 id="responseEx">HttpResponseException</h4>
+  <p>
+    Jex comes with a built in class called <code>HttpResponseException</code>, which can be used for default responses.
+    If not caught by an exception handler, the exception is automatically converted into a response and sent to the
+    user.
+  </p>
+
+  <h2 id="access">Access Management</h3>
+  <p>
+    When registering a route, you can specify security roles that can be accessed from within a request.
+  </p>
+  <p>
+    A common way to manage access is to use a filter as seen in the example below:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//custom enum for access roles</span>
+<span class="kd">enum</span> <span class="n">Access</span> <span class="kd">implements</span> <span class="n">Role</span> <span class="o">{</span>
+  <span class="n">USER</span><span class="o">,</span>
+  <span class="n">ADMIN</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/user&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;user&quot;</span><span class="o">),</span> <span class="n">Access</span><span class="o">.</span><span class="na">USER</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/admin&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;admin&quot;</span><span class="o">),</span> <span class="n">Access</span><span class="o">.</span><span class="na">ADMIN</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">filter</span><span class="o">(</span>
+          <span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="c1">// some user defined function that returns a user role</span>
+            <span class="n">Access</span> <span class="n">userRole</span> <span class="o">=</span> <span class="n">getUserRole</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
+            <span class="c1">// routeRoles are provided through the Context interface</span>
+            <span class="k">if</span> <span class="o">(!</span><span class="n">ctx</span><span class="o">.</span><span class="na">routeRoles</span><span class="o">().</span><span class="na">contains</span><span class="o">(</span><span class="n">userRole</span><span class="o">))</span> <span class="o">{</span>
+              <span class="c1">// request can be aborted by throwing an exception or by not calling chain.proceed()</span>
+              <span class="k">throw</span> <span class="k">new</span> <span class="n">HttpResponseException</span><span class="o">(</span><span class="mi">403</span><span class="o">,</span> <span class="s">&quot;unauthorized&quot;</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="n">chain</span><span class="o">.</span><span class="na">proceed</span><span class="o">();</span>
+          <span class="o">});</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h2 id="json">Json Content</h2>
+  <p>
+    Jex has a <a
+      href="https://javadoc.io/doc/io.avaje/avaje-jex/latest/io.avaje.jex/io/avaje/jex/spi/JsonService.html"><code>JsonService</code></a>
+    SPI to allow for (de)serialization from/to json. It requires only the <code>toJson</code>/<code>fromJson</code>
+    methods to be implemented.
+  </p>
+
+  <p>
+    If jackson or avaje-jsonb is present on the class path, jex will create a default JsonService automatically if none
+    are manually registered.
+  </p>
+
+  <p>When a JsonService is available, we can use the Context methods <code>bodyAsClass</code> and
+    <code>bodyAsType</code> to deserialize json and the <code>json</code> method to serialize and send a response
+    back
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">jsonService</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonJsonService</span><span class="o">())</span>
+    <span class="o">.</span><span class="na">post</span><span class="o">(</span>
+        <span class="s">&quot;/json&quot;</span><span class="o">,</span>
+        <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+          <span class="n">MyBody</span> <span class="n">body</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">bodyAsClass</span><span class="o">(</span><span class="n">MyBody</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+          <span class="n">ctx</span><span class="o">.</span><span class="na">json</span><span class="o">(</span><span class="k">new</span> <span class="n">CustomResponse</span><span class="o">());</span>
+        <span class="o">});</span>
+</pre></div>
+</div>
+
+  <h2 id="static">Static Resources</h2>
+  <p>
+    There is a separate module for static resources that allows you to serve static resources from the classpath or
+    filesystem.
+  </p>
+  <p>
+    It provides a <code>StaticContent</code> class to configure the location, http path of your static resources, and other attributes.
+  </p>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex-static-content<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.jex.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">StaticContent</span> <span class="n">singleFile</span> <span class="o">=</span>
+    <span class="n">StaticContent</span><span class="o">.</span><span class="na">createFile</span><span class="o">(</span><span class="s">&quot;src/main/resources/example.txt&quot;</span><span class="o">).</span><span class="na">httpPath</span><span class="o">(</span><span class="s">&quot;/single&quot;</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+<span class="n">StaticContent</span> <span class="n">directoryCP</span> <span class="o">=</span>
+    <span class="n">StaticContent</span><span class="o">.</span><span class="na">createCP</span><span class="o">(</span><span class="s">&quot;/public/&quot;</span><span class="o">).</span><span class="na">httpPath</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">).</span><span class="na">directoryIndex</span><span class="o">(</span><span class="s">&quot;index.html&quot;</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+<span class="n">Jex</span> <span class="n">app</span> <span class="o">=</span>
+    <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">singleFile</span><span class="o">)</span> <span class="c1">// will serve the src/main/resources/example.txt</span>
+        <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">directoryCP</span><span class="o">);</span> <span class="c1">// will serve files from the /public classpath directory</span>
+</pre></div>
+</div>
+
+  <p><br><br><br><br><br><br></p>
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>
