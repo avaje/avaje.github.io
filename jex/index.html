@@ -82,7 +82,7 @@
   <ul>
     <li>Fluent API</li>
     <li>Path parameter parsing</li>
-    <li>Virtual Threads</li>
+    <li>Virtual Thread Per Request</li>
     <li>Json (de)serialization</li>
     <li>Compression</li>
     <li>Context abstraction over HttpExchange to easily retrieve and send request/response data.</li>
@@ -153,12 +153,12 @@
 <span class="n">app</span><span class="o">.</span><span class="na">routing</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span>
    <span class="n">r</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&quot;/input&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="c1">// some code</span>
-    <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">);</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">).</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;posted&quot;</span><span class="o">);</span>
 <span class="o">}));</span>
 <span class="c1">//or can use convenience methods directly on jex</span>
 <span class="n">app</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&quot;/something&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
     <span class="c1">// some code</span>
-    <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">);</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">).</span><span class="na">html</span><span class="o">(</span><span class="n">object</span><span class="o">);</span>
 <span class="o">});</span>
 </pre></div>
 </div>
@@ -184,22 +184,206 @@
 </div>
 
   <h3 id="ctx">Context</h3>
-  <p>The Context object provides you with everything you need to handle a http-request. It contains the underlying
-    JDK <code>HttpExchange</code>, and a bunch of convenience methods for extracting data from a request and sending a
+  <p>The Context object provides you with everything you need to handle a http-request. It contains/wraps the underlying
+    JDK <code>HttpExchange</code>, and has convenience methods for extracting data from a request or sending a
     response.</p>
 
   <p>See the <a href="https://javadoc.io/doc/io.avaje/avaje-jex/latest/io.avaje.jex/io/avaje/jex/Context.html"> Context
       Javadoc</a> for a description of all the methods available</p>
+  <details>
+    <summary>Some <em>Context</em> Methods: (click to expand) </summary>
+    <table style="width:75%;" class="table">
+      <tr>
+        <th style="width: 50%;">Method</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td colspan="3" align="left" style="padding-top:2em;"><i>Request Methods</i></td>
+      </tr>
+      <tr>
+        <td><strong><code>attribute("name")</code></strong></td>
+        <td>Returns an attribute on the request.</td>
+      </tr>
+      <tr>
+        <td><strong><code>attribute("name", value)</code></strong></td>
+        <td>Sets an attribute on the request.</td>
+      </tr>
+      <tr>
+        <td><strong><code>basicAuthCredentials()</code></strong></td>
+        <td>Returns basic auth credentials (or null if not set).</td>
+      </tr>
+      <tr>
+        <td><strong><code>body()</code></strong></td>
+        <td>Returns the request body as string.</td>
+      </tr>
+      <tr>
+        <td><strong><code>bodyAsBytes()</code></strong></td>
+        <td>Returns the request body as array of bytes.</td>
+      </tr>
+      <tr>
+        <td><strong><code>bodyAsClass(clazz)</code></strong></td>
+        <td>Returns the request body as specified class (deserialized from JSON).</td>
+      </tr>
+      <tr>
+        <td><strong><code>bodyAsType(type)</code></strong></td>
+        <td>Returns the request body as specified (possibly generic) type (deserialized from JSON).</td>
+      </tr>
+      <tr>
+        <td><strong><code>bodyAsInputStream()</code></strong></td>
+        <td>Returns the underlying input stream of the request.</td>
+      </tr>
+      <tr>
+        <td><strong><code>contentLength()</code></strong></td>
+        <td>Returns content length of the request body.</td>
+      </tr>
+      <tr>
+        <td><strong><code>contentType()</code></strong></td>
+        <td>Returns request content type.</td>
+      </tr>
+      <tr>
+        <td><strong><code>cookie("name")</code></strong></td>
+        <td>Returns request cookie by name.</td>
+      </tr>
+      <tr>
+        <td><strong><code>cookieMap()</code></strong></td>
+        <td>Returns map of all request cookies.</td>
+      </tr>
+      <tr>
+        <td><strong><code>exchange()</code></strong></td>
+        <td>Returns the underlying HttpExchange backing the context.</td>
+      </tr>
+      <tr>
+        <td><strong><code>formParam("name")</code></strong></td>
+        <td>Returns form parameter by name, as string.</td>
+      </tr>
+      <tr>
+        <td><strong><code>formParams("name")</code></strong></td>
+        <td>Returns list of form parameters by name.</td>
+      </tr>
+      <tr>
+        <td><strong><code>formParamMap()</code></strong></td>
+        <td>Returns map of all form parameters.</td>
+      </tr>
+      <tr>
+        <td><strong><code>header("name")</code></strong></td>
+        <td>Returns request header by name.</td>
+      </tr>
+      <tr>
+        <td><strong><code>headerMap()</code></strong></td>
+        <td>Returns map of all request headers.</td>
+      </tr>
+      <tr>
+        <td><strong><code>path()</code></strong></td>
+        <td>Returns request path.</td>
+      </tr>
+      <tr>
+        <td><strong><code>pathParam("name")</code></strong></td>
+        <td>Returns path parameter by name as string.</td>
+      </tr>
+      <tr>
+        <td><strong><code>pathParamMap()</code></strong></td>
+        <td>Returns map of all path parameters.</td>
+      </tr>
+      <tr>
+        <td><strong><code>method()</code></strong></td>
+        <td>Returns request methods (GET, POST, etc).</td>
+      </tr>
+      <tr>
+        <td><strong><code>queryParam("name")</code></strong></td>
+        <td>Returns query param by name as string.</td>
+      </tr>
+      <tr>
+        <td><strong><code>queryParams("name")</code></strong></td>
+        <td>Returns list of query parameters by name.</td>
+      </tr>
+      <tr>
+        <td><strong><code>queryParamMap()</code></strong></td>
+        <td>Returns map of all query parameters.</td>
+      </tr>
+      <tr>
+        <td><strong><code>url()</code></strong></td>
+        <td>Returns request url.</td>
+      </tr>
+      <tr>
+        <td><strong><code>fullUrl()</code></strong></td>
+        <td>Returns request url + query string.</td>
+      </tr>
+      <tr>
+        <td colspan="3" align="left" style="padding-top:2em;"><i>Response Methods</i></td>
+      </tr>
+      <tr>
+        <td><strong><code>contentType("type")</code></strong></td>
+        <td>Sets the response content type.</td>
+      </tr>
+      <tr>
+        <td><strong><code>header("name", "value")</code></strong></td>
+        <td>Sets response header by name.</td>
+      </tr>
+      <tr>
+        <td><strong><code>write("result")</code></strong></td>
+        <td>Writes the given string content directly to the response outputstream.</td>
+      </tr>
+      <tr>
+        <td><strong><code>write(byteArray)</code></strong></td>
+        <td>Writes the given bytes directly to the response outputstream.</td>
+      </tr>
+      <tr>
+        <td><strong><code>write(inputStream)</code></strong></td>
+        <td>Writes input stream to the response outputstream. Will send response with chunked enconding if the size
+          exceeds the buffer</td>
+      </tr>
+      <tr>
+        <td><strong><code>redirect("/path", code)</code></strong></td>
+        <td>Redirects to the given path with the given status code.</td>
+      </tr>
+      <tr>
+        <td><strong><code>status(code)</code></strong></td>
+        <td>Sets the response status code.</td>
+      </tr>
+      <tr>
+        <td><strong><code>status()</code></strong></td>
+        <td>Returns the current response status code.</td>
+      </tr>
+      <tr>
+        <td><strong><code>cookie("name", "value", maxAge)</code></strong></td>
+        <td>Sets response cookie by name, with value and max-age (optional).</td>
+      </tr>
+      <tr>
+        <td><strong><code>cookie(cookie)</code></strong></td>
+        <td>Sets cookie using jex Cookie class.</td>
+      </tr>
+      <tr>
+        <td><strong><code>removeCookie("name", "/path")</code></strong></td>
+        <td>Removes cookie by name and path (optional).</td>
+      </tr>
+      <tr>
+        <td><strong><code>json(obj)</code></strong></td>
+        <td>Sets content type to json, then serializes the object to the response outputstream.</td>
+      </tr>
+      <tr>
+        <td><strong><code>jsonStream(obj)</code></strong></td>
+        <td>Sets content type to x-json-stream, then serializes the object to the response outputstream.</td>
+      </tr>
+      <tr>
+        <td><strong><code>html("html")</code></strong></td>
+        <td>Calls write(string), and also sets content type to html.</td>
+      </tr>
+      <tr>
+        <td><strong><code>render("/template.tmpl", model)</code></strong></td>
+        <td>Calls html(renderedTemplate).</td>
+      </tr>
+    </table>
+  </details>
 
   <h3 id="filters">Filters</h3>
   <p>
     Filters are used to pre/post process incoming requests. Pre-processing occurs before the application's exchange
     handler is invoked, and post-processing occurs after the exchange handler returns.
-    Filters are organised in chains, and are executed in the order they were
+    Filters are organized in chains, and are executed in the order they were
     registered. This can be useful for adding authentication, caching, extra logging, etc.
     <br><br>
     Each Filter in the chain invokes the next filter within its own <code>filter(Context, FilterChain)</code>
-    implementation. The final Filter in the chain invokes the applications exchange handler..
+    implementation. The final filter in the chain invokes the application's exchange handler.
   </p>
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
     <span class="o">.</span><span class="na">filter</span><span class="o">(</span>
@@ -213,8 +397,9 @@
 </pre></div>
 </div>
 
-  <p>The Filter may decide to terminate the chain, by not calling the method. In this case, the filter must send the
-    response to the request, because the application's exchange handler will <i>not</i> be invoked.</p>
+  <p>The Filter may decide to terminate the chain, by not calling the method. In this case, the filter <i>must</i> send
+    the
+    response to the request, as the application's exchange handler will <i>not</i> be invoked.</p>
 
   <h3 id="exception">Exceptions</h3>
   <p>
@@ -241,13 +426,13 @@
   </p>
 
   <h2 id="access">Access Management</h3>
-  <p>
-    When registering a route, you can specify security roles that can be accessed from within a request.
-  </p>
-  <p>
-    A common way to manage access is to use a filter as seen in the example below:
-  </p>
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//custom enum for access roles</span>
+    <p>
+      When registering a route, you can specify security roles that can be accessed from within a request.
+    </p>
+    <p>
+      A common way to manage access is to use a filter as seen in the example below:
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//custom enum for access roles</span>
 <span class="kd">enum</span> <span class="n">Access</span> <span class="kd">implements</span> <span class="n">Role</span> <span class="o">{</span>
   <span class="n">USER</span><span class="o">,</span>
   <span class="n">ADMIN</span>
@@ -259,9 +444,9 @@
       <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/admin&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;admin&quot;</span><span class="o">),</span> <span class="n">Access</span><span class="o">.</span><span class="na">ADMIN</span><span class="o">)</span>
       <span class="o">.</span><span class="na">filter</span><span class="o">(</span>
           <span class="o">(</span><span class="n">ctx</span><span class="o">,</span> <span class="n">chain</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
-            <span class="c1">// some user defined function that returns a user role</span>
+            <span class="c1">// some user defined function that determines the role</span>
             <span class="n">Access</span> <span class="n">userRole</span> <span class="o">=</span> <span class="n">getUserRole</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
-            <span class="c1">// routeRoles are provided through the Context interface</span>
+            <span class="c1">// the route&#39;s registered roles can be retrieved by the Context interface</span>
             <span class="k">if</span> <span class="o">(!</span><span class="n">ctx</span><span class="o">.</span><span class="na">routeRoles</span><span class="o">().</span><span class="na">contains</span><span class="o">(</span><span class="n">userRole</span><span class="o">))</span> <span class="o">{</span>
               <span class="c1">// request can be aborted by throwing an exception or by not calling chain.proceed()</span>
               <span class="k">throw</span> <span class="k">new</span> <span class="n">HttpResponseException</span><span class="o">(</span><span class="mi">403</span><span class="o">,</span> <span class="s">&quot;unauthorized&quot;</span><span class="o">);</span>
@@ -272,25 +457,26 @@
 </pre></div>
 </div>
 
-  <h2 id="json">Json Content</h2>
-  <p>
-    Jex has a <a
-      href="https://javadoc.io/doc/io.avaje/avaje-jex/latest/io.avaje.jex/io/avaje/jex/spi/JsonService.html"><code>JsonService</code></a>
-    SPI to allow for (de)serialization from/to json. It requires only the <code>toJson</code>/<code>fromJson</code>
-    methods to be implemented.
-  </p>
+    <h2 id="json">Json Content</h2>
+    <p>
+      Jex has a <a
+        href="https://javadoc.io/doc/io.avaje/avaje-jex/latest/io.avaje.jex/io/avaje/jex/spi/JsonService.html"><code>JsonService</code></a>
+      SPI to allow for (de)serialization from/to json. It requires only the <code>toJson</code>/<code>fromJson</code>
+      methods to be implemented.
+    </p>
 
-  <p>
-    If jackson or avaje-jsonb is present on the class path, jex will create a default JsonService automatically if none
-    are manually registered.
-  </p>
+    <p>
+      If jackson or avaje-jsonb is present on the class path, jex will create a default JsonService automatically if
+      none
+      are manually registered.
+    </p>
 
-  <p>When a JsonService is available, we can use the Context methods <code>bodyAsClass</code> and
-    <code>bodyAsType</code> to deserialize json and the <code>json</code> method to serialize and send a response
-    back
-  </p>
+    <p>When a JsonService is available, we can use the Context methods <code>bodyAsClass</code> and
+      <code>bodyAsType</code> to deserialize json and the <code>json</code> method to serialize and send a response
+      back
+    </p>
 
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
     <span class="o">.</span><span class="na">jsonService</span><span class="o">(</span><span class="k">new</span> <span class="n">JacksonJsonService</span><span class="o">())</span>
     <span class="o">.</span><span class="na">post</span><span class="o">(</span>
         <span class="s">&quot;/json&quot;</span><span class="o">,</span>
@@ -301,22 +487,23 @@
 </pre></div>
 </div>
 
-  <h2 id="static">Static Resources</h2>
-  <p>
-    There is a separate module for static resources that allows you to serve static resources from the classpath or
-    filesystem.
-  </p>
-  <p>
-    It provides a <code>StaticContent</code> class to configure the location, http path of your static resources, and other attributes.
-  </p>
-  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <h2 id="static">Static Resources</h2>
+    <p>
+      There is a separate module for static resources that allows you to serve static resources from the classpath or
+      filesystem.
+    </p>
+    <p>
+      It provides a <code>StaticContent</code> class to configure the location, http path of your static resources, and
+      other attributes.
+    </p>
+    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-jex-static-content<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{avaje.jex.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">StaticContent</span> <span class="n">singleFile</span> <span class="o">=</span>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">StaticContent</span> <span class="n">singleFile</span> <span class="o">=</span>
     <span class="n">StaticContent</span><span class="o">.</span><span class="na">createFile</span><span class="o">(</span><span class="s">&quot;src/main/resources/example.txt&quot;</span><span class="o">).</span><span class="na">httpPath</span><span class="o">(</span><span class="s">&quot;/single&quot;</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
 <span class="n">StaticContent</span> <span class="n">directoryCP</span> <span class="o">=</span>
     <span class="n">StaticContent</span><span class="o">.</span><span class="na">createCP</span><span class="o">(</span><span class="s">&quot;/public/&quot;</span><span class="o">).</span><span class="na">httpPath</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">).</span><span class="na">directoryIndex</span><span class="o">(</span><span class="s">&quot;index.html&quot;</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
@@ -326,6 +513,43 @@
         <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">directoryCP</span><span class="o">);</span> <span class="c1">// will serve files from the /public classpath directory</span>
 </pre></div>
 </div>
+    <details>
+      <summary>Available Configuration: (click to expand) </summary>
+      <table style="width:75%;" class="table">
+        <tr>
+          <th style="width: 50%;">Method</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td><strong><code>directoryIndex("index.html")</code></strong></td>
+          <td>The index file to be served when a directory is requested.</td>
+        </tr>
+        <tr>
+          <td><strong><code>httpPath("/public")</code></strong></td>
+          <td>Sets the HTTP path for the static resource handler.</td>
+        </tr>
+        <tr>
+          <td><strong><code>preCompress()</code></strong></td>
+          <td>Sent resources will be pre-compressed and cached in memory when this is enabled.</td>
+        </tr>
+        <tr>
+          <td><strong><code>putMimeTypeMapping("sus", "application/sus")</code></strong></td>
+          <td>Adds a custom file extension MIME mapping to the configuration.</td>
+        </tr>
+        <tr>
+          <td><strong><code>putResponseHeader("key", value)</code></strong></td>
+          <td>Adds a new response header to the configuration.</td>
+        </tr>
+        <tr>
+          <td><strong><code>resourceLoader(ClassResourceLoader.fromClass(clazz))</code></strong></td>
+          <td>Sets a custom resource loader for loading class/module path resources.</td>
+        </tr>
+        <tr>
+          <td><strong><code>skipFilePredicate(ctx -> !ctx.path().contains("/skip"))</code></strong></td>
+          <td>Sets a predicate to filter files based on the request context.</td>
+        </tr>
+      </table>
+    </details>
 
   <p><br><br><br><br><br><br></p>
 
