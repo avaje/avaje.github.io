@@ -35,6 +35,10 @@
 </li>
 <li><a href="#static">Static Resources</a>
 </li>
+<li><a href="#config">Server Configuration</a>
+</li>
+<li><a href="#ssl">Configuring Https</a>
+</li>
 </ul>
 <p>&nbsp;</p>
     </nav>
@@ -525,7 +529,7 @@
           <td>The index file to be served when a directory is requested.</td>
         </tr>
         <tr>
-          <td><strong><code>httpPath("/public")</code></strong></td>
+          <td><strong><code>route("/public")</code></strong></td>
           <td>Sets the HTTP path for the static resource handler.</td>
         </tr>
         <tr>
@@ -550,6 +554,103 @@
         </tr>
       </table>
     </details>
+
+    <h2 id="config">Server Configuration</h2>
+    <p>
+      Below are the available configuration options for the Jex server:
+    </p>
+    <table style="width:75%;" class="table">
+      <tr>
+        <th style="width: 50%;">Method</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td><strong><code>compression(c->{...})</code></strong></td>
+        <td>Configures compression settings using a consumer function.</td>
+      </tr>
+      <tr>
+        <td><strong><code>contextPath("/")</code></strong></td>
+        <td>Sets the contextPath passed to the underlying HttpServer.</td>
+      </tr>
+      <tr>
+        <td><strong><code>executor(executor)</code></strong></td>
+        <td>Sets the executor service used to handle incoming requests. (Defaults to a virtual thred executor)</td>
+      </tr>
+      <tr>
+        <td><strong><code>health(true)</code></strong></td>
+        <td>Enables/Disables a default health endpoint.</td>
+      </tr>
+      <tr>
+        <td><strong><code>host("host")</code></strong></td>
+        <td>Sets the host on which the HttpServer will bind to.</td>
+      </tr>
+      <tr>
+        <td><strong><code>httpsConfig(httpsConfigurator)</code></strong></td>
+        <td>Enables https with the provided
+          <code><a  href="https://docs.oracle.com/en/java/javase/21/docs/api/jdk.httpserver/com/sun/net/httpserver/HttpsConfigurator.html">HttpsConfigurator</a></code>.
+        </td>
+      </tr>
+      <tr>
+        <td><strong><code>ignoreTrailingSlashes(false)</code></strong></td>
+        <td>Configures whether trailing slashes in request URIs should be ignored.</td>
+      </tr>
+      <tr>
+        <td><strong><code>jsonService(jsonService)</code></strong></td>
+        <td>Sets the JSON service used for (de)serialization.</td>
+      </tr>
+      <tr>
+        <td><strong><code>port(8080)</code></strong></td>
+        <td>Sets the port number on which the HttpServer will listen for incoming requests.</td>
+      </tr>
+      <tr>
+        <td><strong><code>renderer("ftl", ftlRenderer)</code></strong></td>
+        <td>Registers a template renderer for a specific file extension.</td>
+      </tr>
+      <tr>
+        <td><strong><code>socketBacklog(int backlog)</code></strong></td>
+        <td>Sets the underlying HttpServer socket backlog.</td>
+      </tr>
+    </table>
+
+    <h2 id="ssl">Configuring Https</h2>
+    <p>
+      The JDK HttpsServer can be configured using a <code>HttpsConfigurator</code> instance to provide SSL termination.
+      The below example demonstrates how to configure a <code>HttpsConfigurator</code> with <code>SSLContext</code>.
+    </p>
+
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="o">[]</span> <span class="n">passphrase</span> <span class="o">=</span> <span class="s">&quot;changeit&quot;</span><span class="o">.</span><span class="na">toCharArray</span><span class="o">();</span>
+
+<span class="k">try</span> <span class="o">{</span>
+  <span class="c1">// Load the keystore</span>
+  <span class="n">KeyStore</span> <span class="n">ks</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;JKS&quot;</span><span class="o">);</span>
+  <span class="n">ks</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="s">&quot;keystore.jks&quot;</span><span class="o">),</span> <span class="n">passphrase</span><span class="o">);</span>
+
+  <span class="c1">// Set up the key manager factory</span>
+  <span class="n">KeyManagerFactory</span> <span class="n">kmf</span> <span class="o">=</span> <span class="n">KeyManagerFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;SunX509&quot;</span><span class="o">);</span>
+  <span class="n">kmf</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">ks</span><span class="o">,</span> <span class="n">passphrase</span><span class="o">);</span>
+
+  <span class="c1">// Set up the trust manager factory</span>
+  <span class="n">TrustManagerFactory</span> <span class="n">tmf</span> <span class="o">=</span> <span class="n">TrustManagerFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;SunX509&quot;</span><span class="o">);</span>
+  <span class="n">tmf</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">ks</span><span class="o">);</span>
+
+  <span class="c1">// Set up the SSL context</span>
+  <span class="n">SSLContext</span> <span class="n">sslContext</span> <span class="o">=</span> <span class="n">SSLContext</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;TLS&quot;</span><span class="o">);</span>
+  <span class="n">sslContext</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">kmf</span><span class="o">.</span><span class="na">getKeyManagers</span><span class="o">(),</span> <span class="n">tmf</span><span class="o">.</span><span class="na">getTrustManagers</span><span class="o">(),</span> <span class="kc">null</span><span class="o">);</span>
+
+  <span class="c1">// Create Server</span>
+  <span class="k">var</span> <span class="n">https</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HttpsConfigurator</span><span class="o">(</span><span class="n">sslContext</span><span class="o">);</span>
+
+  <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;Hello World&quot;</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">configure</span><span class="o">(</span><span class="n">c</span> <span class="o">-&gt;</span> <span class="n">c</span><span class="o">.</span><span class="na">httpsConfig</span><span class="o">(</span><span class="n">https</span><span class="o">).</span><span class="na">port</span><span class="o">(</span><span class="mi">8443</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 
     <p><br><br><br><br><br><br></p>
 
