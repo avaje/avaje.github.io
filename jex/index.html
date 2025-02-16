@@ -43,8 +43,8 @@
 </li>
 <li><a href="#alternate">Alternate Implementations</a>
     <ul>
-      <li><a href="#robaho">Robaho</a></li>
       <li><a href="#jetty">Jetty</a></li>
+      <li><a href="#robaho">Robaho</a></li>
     </ul>
 </li>
 </ul>
@@ -98,6 +98,7 @@
     <li>Json (de)serialization SPI</li>
     <li>Automatic Compression</li>
     <li>Context abstraction over HttpExchange to easily retrieve and send request/response data.</li>
+    <li>Multi-Server with any implementation of jdk.httpserver (Jetty, Robaho, built-in, etc)</li>
   </ul>
 
   <h2 id="quick-start">Quick Start</h2>
@@ -301,7 +302,7 @@
     response.
   </p>
 
-  <p>See the <a href="https://javadoc.io/doc/io.avaje/avaje-jex/latest/io.avaje.jex/io/avaje/jex/Context.html"> Context
+  <p>See the <a href="https://javadoc.io/doc/io.avaje/avaje-jex/latest/io.avaje.jex/io/avaje/jex/http/Context.html"> Context
       Javadoc</a> for a description of all the methods available</p>
   <details>
     <summary>Some <em>Context</em> Methods: (click to expand) </summary>
@@ -414,8 +415,8 @@
         <td>Returns map of all query parameters.</td>
       </tr>
       <tr>
-        <td><strong><code>url()</code></strong></td>
-        <td>Returns request url.</td>
+        <td><strong><code>uri()</code></strong></td>
+        <td>Returns request uri.</td>
       </tr>
       <tr>
         <td><strong><code>fullUrl()</code></strong></td>
@@ -723,7 +724,7 @@
 
     <h2 id="ssl">Configuring Https</h2>
     <p>
-      The JDK HttpsServer can be configured using a <code>HttpsConfigurator</code> instance to provide SSL termination.
+      The underlying HttpsServer can be configured using a <code>HttpsConfigurator</code> instance to provide SSL termination.
       The below example demonstrates how to configure a <code>HttpsConfigurator</code> with an <code>SSLContext</code>.
     </p>
 
@@ -763,29 +764,8 @@
 
     <h2 id="alternate">Alternate HttpServer Implementations</h2>
 
-    <p>The JDK provides an SPI to swap the underlying <code>HttpServer</code>, so you can easily use jex with
+    <p>The JDK provides an SPI to swap the underlying <code>HttpServer</code>, so you can easily use jex as a wrapper for
       alternate implementations by adding them as a dependency.</p>
-
-    <h3 id="robaho">Robaho</h3>
-
-    <p><a href="https://github.com/robaho/httpserver">Robaho's
-        server</a> is a zero-dependency implementation with some key optimizations. In certain benchmarks, performance seems
-      to be increased by 10x over the built-in server and up to 5x over the jetty implementation.</p>
-    <a href="https://mvnrepository.com/artifact/io.github.robaho/httpserver"><img
-        src="https://img.shields.io/maven-central/v/io.github.robaho/httpserver.svg?label=robaho.version"></a>
-    <br></br>
-    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>avaje-jex<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>&#36;{jex.version}<span class="nt">&lt;/version&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-<span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>io.github.robaho<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>httpserver<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>&#36;{robaho.version}<span class="nt">&lt;/version&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-</pre></div>
-</div>
 
     <h3 id="jetty">Jetty</h3>
 
@@ -813,6 +793,26 @@
 </pre></div>
 </div>
 
+    <h3 id="robaho">Robaho</h3>
+
+    <p><a href="https://github.com/robaho/httpserver">Robaho's
+        server</a> is a zero-dependency implementation with some key optimizations. In certain benchmarks, performance seems
+      to be increased by 10x over the built-in server and up to 5x over the jetty implementation.</p>
+    <a href="https://mvnrepository.com/artifact/io.github.robaho/httpserver"><img
+        src="https://img.shields.io/maven-central/v/io.github.robaho/httpserver.svg?label=robaho.version"></a>
+    <br></br>
+    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{jex.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.github.robaho<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>httpserver<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{robaho.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
     <p><br><br><br><br><br><br></p>
 
   </article>
