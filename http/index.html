@@ -60,12 +60,13 @@
 </li>
 <li><a href="#context">Context</a>
     <ul>
-      <li><a href="#javalin-context">Javalin Context</a></li>
-      <li><a href="#helidon-request">Helidon request</a></li>
-      <li><a href="#helidon-request">Helidon response</a></li>
+      <li><a href="#javalin-context">Javalin/Jex</a></li>
+      <li><a href="#helidon-request">Helidon</a></li>
       <li><a href="#request-scoped">Request scope</a></li>
       <li><a href="#instrument-context">Instrumenting Context</a></li>
     </ul>
+</li>
+<li><a href="#jstachio">Jstachio templating</a>
 </li>
 <li><a href="#type-conversions">Type conversions</a>
 </li>
@@ -1438,16 +1439,16 @@ The generated Javalin code for the above is.
 </div>
 <h2 id="context">Context</h2>
 
-<h3 id="javalin-context">Javalin Context</h3>
+<h3 id="javalin-context">Javalin/Jex Context</h3>
 <p>
-  The Javalin <code>Context</code> can be passed as a method argument or injected
+  The Javalin/Jex <code>Context</code> can be passed as a method argument or injected
   as a dependency of the controller.
 </p>
 
 <h4>Context as method argument</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span>
 <span class="n">Response</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
-  <span class="c1">// use Javalin context as desired</span>
+  <span class="c1">// use context as desired</span>
   <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">202</span><span class="o">);</span>
   <span class="o">...</span>
   <span class="k">return</span> <span class="k">new</span> <span class="n">Response</span><span class="o">();</span>
@@ -1455,7 +1456,7 @@ The generated Javalin code for the above is.
 
 <span class="nd">@Post</span>
 <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
-  <span class="c1">// use Javalin context as desired</span>
+  <span class="c1">// use context as desired</span>
   <span class="o">...</span>
 <span class="o">}</span>
 </pre></div>
@@ -1595,6 +1596,112 @@ The generated Javalin code for the above is.
 <span class="o">}</span>
 </pre></div>
 </div>
+
+<h2 id="jstachio"><a href="https://jstach.io/jstachio/">JStachio</a> Integration</h2>
+<p>
+  JStachio is a type-safe mustache templating engine. The various generators will automatically read jstachio annotations on return types, and generate code to automatically call the engine.
+</p>
+<p>
+  Example: <a target="_blank" href="https://github.com/dinject/examples/blob/master/javalin-maven-java-basic/src/main/java/org/example/myapp/web/HelloController.java#L30">HelloController</a>
+</p>
+
+<h4>1. Add Dependency</h4>
+<a href="https://mvnrepository.com/artifact/io.jstach/jstachio"><img
+        src="https://img.shields.io/maven-central/v/io.jstach/jstachio.svg?label=jstachio.version"></a>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>io.jstach<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>jstachio<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>&#36;{jstachio.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="c">&lt;!-- jstachio annotation processor --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>io.jstach<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>jstachio-apt<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>&#36;{jstachio.version}<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+<h4>2. Create Models and Templates</h4>
+<p>
+  Create a model and annotate with <code>@JStache</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@JStache</span><span class="o">(</span><span class="nx">path</span><span class="o">=</span><span class="s">&quot;index.mustache&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="n">record</span> <span class="nf">IndexPage</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">){}</span>
+</pre></div>
+</div>
+<p>
+  Create a template in <em>src/main/resources/index.mustache</em>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">Hello</span> <span class="o">{{</span><span class="n">message</span><span class="o">}}!&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+
+<h4>3. Add model to your Controller</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span><span class="o">(</span><span class="s">&quot;/jstache&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">JstacheController</span> <span class="o">{</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/hello&quot;</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">IndexPage</span> <span class="nf">hello</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">IndexPage</span><span class="o">(</span><span class="s">&quot;Hello World!&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The generated code will include jstachio templating for the returned models. The generated code is:
+</p>
+
+<details>
+    <summary>Helidon 4.x</summary>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">private</span> <span class="kt">void</span> <span class="nf">_hello</span><span class="o">(</span><span class="n">ServerRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">res</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+  <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">OK_200</span><span class="o">);</span>
+  <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">NO_CONTENT_204</span><span class="o">).</span><span class="na">send</span><span class="o">();</span>
+  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">content</span> <span class="o">=</span> <span class="n">JStachio</span><span class="o">.</span><span class="na">render</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="n">res</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">contentType</span><span class="o">(</span><span class="n">HTML_UTF8</span><span class="o">);</span>
+    <span class="n">res</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">content</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</details>
+
+<details>
+  <summary>Jex</summary>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">private</span> <span class="kt">void</span> <span class="nf">_hello</span><span class="o">(</span><span class="n">Context</span> <span class="n">ctx</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+  <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+  <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">content</span> <span class="o">=</span> <span class="n">JStachio</span><span class="o">.</span><span class="na">render</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="na">html</span><span class="o">(</span><span class="n">content</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</details>
+
+<details>
+  <summary>Javalin</summary>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">ApiBuilder</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/jstache/hello&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+  <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">content</span> <span class="o">=</span> <span class="n">JStachio</span><span class="o">.</span><span class="na">render</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="na">html</span><span class="o">(</span><span class="n">content</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">});</span>
+</pre></div>
+</div>
+
+</details>
+<br>
 <h2 id="type-conversions">Type conversions</h2>
 <p>
   There are built in type conversions for the following types:
@@ -1606,6 +1713,9 @@ The generated Javalin code for the above is.
 </ul>
 <p>
  For multivalue parameters like query parameters or headers, we can use <code>List&ltT&gt</code> or <code>Set&ltT&gt</code> where <code>T</code> is any of the previously mentioned types.
+</p>
+<p>
+ For optional parameters, we can use <code>Optional&ltT&gt</code> where <code>T</code> is any of the previously mentioned types.
 </p>
 <p>
   In the following example there is a type conversion for <em>startDate</em> and <em>active</em>.

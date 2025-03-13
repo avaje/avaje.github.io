@@ -37,6 +37,8 @@
 </li>
 <li><a href="#static">Static Resources</a>
 </li>
+<li><a href="#sse">Server Sent Events</a>
+</li>
 <li><a href="#config">Server Configuration</a>
 </li>
 <li><a href="#ssl">Configuring Https</a>
@@ -600,6 +602,32 @@
 </pre></div>
 </div>
 
+    <h2 id="sse">Server Sent Events</h2>
+    <p>
+      You can use <em>app.sse()</em> to create an SSE handler.
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">app</span> <span class="o">=</span> <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+
+<span class="n">app</span><span class="o">.</span><span class="na">sse</span><span class="o">(</span><span class="s">&quot;/sse&quot;</span><span class="o">,</span> <span class="n">client</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="n">client</span><span class="o">.</span><span class="na">sendEvent</span><span class="o">(</span><span class="s">&quot;connected&quot;</span><span class="o">,</span> <span class="s">&quot;Hello, SSE&quot;</span><span class="o">);</span>
+  <span class="n">client</span><span class="o">.</span><span class="na">onClose</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Client disconnected&quot;</span><span class="o">));</span>
+  <span class="n">client</span><span class="o">.</span><span class="na">close</span><span class="o">();</span> <span class="c1">// close the client</span>
+<span class="o">});</span>
+</pre></div>
+</div>
+    <p>
+      SSE Clients are automatically closed when leaving the handler, if you need to use the client outside the handler, you
+      can use <em>client.keepAlive()</em> to block the handler thread to keep the client alive.
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Queue</span><span class="o">&lt;</span><span class="n">SseClient</span><span class="o">&gt;</span> <span class="n">clients</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConcurrentLinkedQueue</span><span class="o">&lt;</span><span class="n">SseClient</span><span class="o">&gt;();</span>
+
+<span class="n">app</span><span class="o">.</span><span class="na">sse</span><span class="o">(</span><span class="s">&quot;/sse&quot;</span><span class="o">,</span> <span class="n">client</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="n">client</span><span class="o">.</span><span class="na">onClose</span><span class="o">(()</span> <span class="o">-</span> <span class="o">&gt;</span> <span class="n">clients</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">client</span><span class="o">));</span>
+      <span class="n">clients</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">client</span><span class="o">);</span>
+      <span class="n">client</span><span class="o">.</span><span class="na">keepAlive</span><span class="o">();</span> <span class="c1">// handler thread is blocked</span>
+<span class="o">});</span>
+</pre></div>
+</div>
     <h2 id="static">Static Resources</h2>
     <p>
       There is a separate module that allows you to serve static resources from the classpath or
@@ -618,9 +646,9 @@
 </pre></div>
 </div>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">StaticContent</span> <span class="n">singleFile</span> <span class="o">=</span>
-    <span class="n">StaticContent</span><span class="o">.</span><span class="na">createFile</span><span class="o">(</span><span class="s">&quot;src/main/resources/example.txt&quot;</span><span class="o">).</span><span class="na">httpPath</span><span class="o">(</span><span class="s">&quot;/single&quot;</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+    <span class="n">StaticContent</span><span class="o">.</span><span class="na">ofFile</span><span class="o">(</span><span class="s">&quot;src/main/resources/example.txt&quot;</span><span class="o">).</span><span class="na">httpPath</span><span class="o">(</span><span class="s">&quot;/single&quot;</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
 <span class="n">StaticContent</span> <span class="n">directoryCP</span> <span class="o">=</span>
-    <span class="n">StaticContent</span><span class="o">.</span><span class="na">createCP</span><span class="o">(</span><span class="s">&quot;/public/&quot;</span><span class="o">).</span><span class="na">httpPath</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">).</span><span class="na">directoryIndex</span><span class="o">(</span><span class="s">&quot;index.html&quot;</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+    <span class="n">StaticContent</span><span class="o">.</span><span class="na">ofClassPath</span><span class="o">(</span><span class="s">&quot;/public/&quot;</span><span class="o">).</span><span class="na">httpPath</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">).</span><span class="na">directoryIndex</span><span class="o">(</span><span class="s">&quot;index.html&quot;</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
 <span class="n">Jex</span> <span class="n">app</span> <span class="o">=</span>
     <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
         <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">singleFile</span><span class="o">)</span> <span class="c1">// will serve the src/main/resources/example.txt</span>
