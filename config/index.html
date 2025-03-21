@@ -32,10 +32,7 @@
     <nav class="side scroll">
       <ul>
         <li><a href="#about">Avaje Config</a>
-          <ul>
-            <li><a href="#dependency">Dependency</a></li>
-          </ul>
-        </li>
+        <li><a href="#quick">Quick Start</a></li>
         <li><a href="#eval">Expression evaluation</a></li>
         <li><a href="#startup">Startup</a></li>
         <li><a href="#loading">Loading configuration</a>
@@ -104,8 +101,9 @@
     </table>
 
     <p>&nbsp;</p>
-    <h3 id="dependency">Dependency</h3>
-<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <h3 id="quick">Quick Start</h3>
+    <h4>Add Dependency</h4>
+    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-config<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{config-version}<span class="nt">&lt;/version&gt;</span>
@@ -113,8 +111,19 @@
 </pre></div>
 </div>
 
+    <h4>Add a <em>src/main/resources/application.properties</em> file (or yml)</h4>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">database</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">username</span><span class="o">=</span><span class="n">notSecretUsername</span>
+<span class="n">database</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">password</span><span class="o">=</span><span class="n">secretPassword</span>
+</pre></div>
+</div>
 
-    <p>&nbsp;</p>
+    <h4>Retrieve properties with <em>Config.get</em></h4>
+
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">username</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;database.example.username&quot;</span><span class="o">);</span>
+<span class="n">String</span> <span class="n">password</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;database.example.password&quot;</span><span class="o">);</span>
+</pre></div>
+</div>
+
     <h2 id="eval">Expression evaluation</h2>
     <p>
       Expressions start with <code>&dollar;{</code> end with <code>}</code>. They can optionally
