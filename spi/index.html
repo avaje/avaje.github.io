@@ -23,6 +23,11 @@
 </li>
 <li><a href="#service">@Service</a>
 </li>
+<li><a href="#plugin">Provides Maven Plugin</a>
+  <ul>
+    <li><a href="#goals">Goals</a></li>
+  </ul>
+</li>
 </ul>
 <p>&nbsp;</p>
     </nav>
@@ -95,10 +100,10 @@
 </pre></div>
 </div>
 
-<h4>JDK 23+ note:</h4>
-<p>In JDK 23+, annotation processors are disabled by default, so we need to add a compiler property to re-enable.</p>
+  <h4>JDK 23+ note:</h4>
+  <p>In JDK 23+, annotation processors are disabled by default, so we need to add a compiler property to re-enable.</p>
 
-<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;properties&gt;</span>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;properties&gt;</span>
   <span class="nt">&lt;maven.compiler.proc&gt;</span>full<span class="nt">&lt;/maven.compiler.proc&gt;</span>
 <span class="nt">&lt;/properties&gt;</span>
 </pre></div>
@@ -133,7 +138,9 @@
 
   <h3>Module Validation</h3>
   <p>
-    For modular projects, the processor will validate that all the required <em>provides</em> clauses are accounted for. A compile error describing what `provides` statements are missing will be throw if validations fail. So given the following class and module-info:
+    For modular projects, the processor will validate that all the required <em>provides</em> clauses are accounted for.
+    A compile error describing what `provides` statements are missing will be throw if validations fail. So given the
+    following class and module-info:
   </p>
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ServiceProvider</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">BassServiceProvider</span> <span class="kd">implements</span> <span class="n">MusicService</span> <span class="o">{</span>
@@ -142,24 +149,25 @@
 </pre></div>
 </div>
 
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">my</span><span class="o">.</span><span class="na">module</span> <span class="o">{</span>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">my</span><span class="o">.</span><span class="na">module</span> <span class="o">{</span>
 
   <span class="n">requires</span> <span class="kd">static</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">spi</span><span class="o">;</span>
   <span class="c1">//provides not defined</span>
 <span class="o">}</span>
 </pre></div>
 </div>
-<p>
-  You will get the compile error:
-</p>
-<pre>
+  <p>
+    You will get the compile error:
+  </p>
+  <pre>
   Compilation failure /src/main/java/module-info.java:[1,1]
   Missing `provides MusicService with BassServiceProvider;`
-</pre>
-<h2 id="service">@Service</h2>
+  </pre>
+  <h2 id="service">@Service</h2>
   <p>
     As a library developer, should you wish to define an spi interface for multiple layers of extension, the
-    <code>@Service</code> annotation will help ensure those using <code>@ServiceProvider</code> will automatically register the correct top-level type.
+    <code>@Service</code> annotation will help ensure those using <code>@ServiceProvider</code> will automatically
+    register the correct top-level type.
   </p>
   <p>
     Consider the example of avaje-validaton:
@@ -175,18 +183,75 @@
 </pre></div>
 </div>
 
-<p>
-  To reduce calls to the <code>ServiceLoader</code>, avaje-validation only loads the top level <code>ValidationExtension</code> interface instead of loading the individual interfaces.
-  The presence of the <code>@Service</code> annotation ensures the below will be registered correctly.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//this class is registered as a ValidationExtension rather than a ValidatorCustomizer</span>
+  <p>
+    To reduce calls to the <code>ServiceLoader</code>, avaje-validation only loads the top level
+    <code>ValidationExtension</code> interface instead of loading the individual interfaces.
+    The presence of the <code>@Service</code> annotation ensures the below will be registered correctly.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//this class is registered as a ValidationExtension rather than a ValidatorCustomizer</span>
 <span class="nd">@ServiceProvider</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Customizer</span> <span class="kd">implements</span> <span class="n">ValidatorCustomizer</span> <span class="o">{</span>
   <span class="o">....</span>
 <span class="o">}</span>
 </pre></div>
 </div>
-  <p><br><br><br><br><br><br></p>
+
+  <h2 id="plugin">Provides Maven Plugin (JDK 24+)</h1>
+
+    <p>If on JDK 24+, the provides maven plugin can be used to automatically post-process modular applications'
+      <code>module-info.class</code> files to add all the required <code>provides</code> clauses for all services
+      registered under <code>META-INF/services</code>.
+    </p>
+
+    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;plugin&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-provides-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>2.1<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;executions&gt;</span>
+    <span class="nt">&lt;execution&gt;</span>
+      <span class="nt">&lt;goals&gt;</span>
+        <span class="nt">&lt;goal&gt;</span>disable-apt-validation<span class="nt">&lt;/goal&gt;</span>
+        <span class="nt">&lt;goal&gt;</span>add-module-spi<span class="nt">&lt;/goal&gt;</span>
+      <span class="nt">&lt;/goals&gt;</span>
+    <span class="nt">&lt;/execution&gt;</span>
+  <span class="nt">&lt;/executions&gt;</span>
+<span class="nt">&lt;/plugin&gt;</span>
+</pre></div>
+</div>
+
+    <h3 id="goals">Goals</h3>
+
+    <h3 id="disable">disable-apt-validation</h3>
+    <p>Most avaje processors will fail compilation if the module-info is missing <code>provides</code> clauses for the
+      generated SPI classes.
+      This goal generates a file before compilation that
+      signals to any apt project using avaje-prisms's <code>ModuleInfoReader</code> for module-info service validation
+      to not fail compilation.
+    </p>
+
+    <h3 id="add">add-module-spi</h3>
+    <p>Given a module-info:</p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">avaje</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
+  <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">inject</span><span class="o">;</span>
+  <span class="n">requires</span> <span class="kd">static</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">spi</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+    <p>And a <code>META-INF/services/io.avaje.inject.spi.InjectExtension</code> file (either manually created or
+      generated by
+      an
+      APT):</p>
+    <pre>org.example.ExampleModule</pre>
+    <p>This goal will transform the module-info classfile after compilation to roughly look like:</p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">avaje</span><span class="o">.</span><span class="na">example</span> <span class="o">{</span>
+  <span class="n">requires</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">inject</span><span class="o">;</span>
+  <span class="n">requires</span> <span class="kd">static</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na">spi</span><span class="o">;</span>
+  <span class="n">provides</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">InjectExtension</span> <span class="n">with</span> <span class="n">org</span><span class="o">.</span><span class="na field">example</span><span class="o">.</span><span class="na">ExampleModule</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+    <p><br><br><br><br><br><br></p>
 
 
   </article>
