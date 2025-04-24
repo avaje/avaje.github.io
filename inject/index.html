@@ -1117,6 +1117,17 @@ The inject annotation processor will determine the dependency wiring order of a 
   Similarly a <code>destroyMethod</code> which execute on shutdown like <code>@PreDestroy</code>.
 </p>
 
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
+<span class="kd">class</span> <span class="nc">Configuration</span> <span class="o">{</span>
+  <span class="o">...</span>
+  <span class="nd">@Bean</span><span class="o">(</span><span class="nx">initMethod</span> <span class="o">=</span> <span class="s">&quot;init&quot;</span><span class="o">,</span> <span class="nx">destroyMethod</span> <span class="o">=</span> <span class="s">&quot;close&quot;</span><span class="o">)</span>
+  <span class="n">CoffeeMaker</span> <span class="nf">buildCoffeeMaker</span><span class="o">(</span><span class="n">Pump</span> <span class="n">pump</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">CoffeeMaker</span><span class="o">(</span><span class="n">pump</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 <p>
   The CoffeeMaker has the appropriate methods that are executed as part of the lifecycle.
 </p>
