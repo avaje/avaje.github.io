@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="shortcut icon" href="/images/favicon.ico">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu|Kalam&display=swap">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/site.css">
@@ -77,7 +77,9 @@
       </nav>
     </header>
 
-    <h1 id="about">Avaje Config</h1>
+    <h1 id="overview">
+      <span class="logo">Avaje</span>&thinsp;Config
+    </h1>
     <p>
       <em>avaje-config</em> provides external configuration for JVM apps. We can provide configuration
       via <em>yaml</em> or <em>properties</em> files and specify which files to load using
@@ -94,9 +96,9 @@
       </tr>
       <tr>
         <td><a target="_blank" href="https://github.com/avaje/avaje-config/blob/master/LICENSE">Apache2</a></td>
-        <td><a target="_blank" href="https://github.com/avaje/avaje-config">Github</a></td>
+        <td><a target="_blank" href="https://github.com/avaje/avaje-config">GitHub</a></td>
         <td><a target="_blank" href="https://javadoc.io/doc/io.avaje/avaje-config/latest/io.avaje.config/io/avaje/config/package-summary.html">Javadoc</a></td>
-        <td><a target="_blank" href="https://github.com/avaje/avaje-config/issues">Github</a>
+        <td><a target="_blank" href="https://github.com/avaje/avaje-config/issues">GitHub</a>
         </td> <td><a href="https://github.com/avaje/avaje-config/releases"><img src="https://img.shields.io/maven-central/v/io.avaje/avaje-config.svg?label=Maven%20Central"></a></td>
       </tr>
     </table>
@@ -526,11 +528,11 @@
 
     <h2 id="aws-appconfig">AWS App Config</h2>
     <p>
-      If using AWS App Config as a configuration source (refer: <a href="https://docs.aws.amazon.com/appconfig/">https://docs.aws.amazon.com/appconfig</a>), 
+      If using AWS App Config as a configuration source (refer: <a href="https://docs.aws.amazon.com/appconfig/">https://docs.aws.amazon.com/appconfig</a>),
       then we can use the <em>avaje-aws-appconfig</em> component.
     </p>
 
-    <h4>Step 1: Add dependency</h4> 
+    <h4>Step 1: Add dependency</h4>
     <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-aws-appconfig<span class="nt">&lt;/artifactId&gt;</span>
@@ -542,7 +544,7 @@
     <h4>Step 2: Add configuration</h4>
     <p>
       In src/main/resources add configuration like below to specify for <em>aws.appconfig</em> the <em>application, environment, configuration</em>.
-    </p>    
+    </p>
     <div class="syntax yml"><div class="highlight"><pre><span></span><span class="c1"># In src/main/resources</span>
 <span class="nt">aws.appconfig</span><span class="p">:</span>
     <span class="nt">application</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&#36;{ENVIRONMENT_NAME:dev}-my-application</span>
@@ -567,7 +569,7 @@
  <span class="nt">&quot;logger&quot;</span><span class="p">:</span><span class="s2">&quot;io.avaje.config&quot;</span><span class="p">,</span>
  <span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;Loaded properties from [resource:application.yaml, ConfigurationSource:AppConfigPlugin] &quot;</span><span class="p">}</span>
 </pre></div>
-</div>	
+</div>
     <p>
       To increase the logging we can set the log level of <em>io.avaje.config.appconfig</em> to DEBUG or TRACE.
     </p>

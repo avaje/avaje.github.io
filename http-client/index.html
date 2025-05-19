@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="shortcut icon" href="/images/favicon.ico">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu|Kalam&display=swap">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
   <link rel="stylesheet" href="/css/reset.css">
   <link rel="stylesheet" href="/css/site.css">
@@ -137,7 +137,9 @@
     </header>
     
 
-<h1 id="overview">Avaje Http Client</h1>
+<h1 id="overview">
+  <span class="logo">Avaje</span>&thinsp;Http&thinsp;Client
+</h1>
 
 <table style="width: 100%;">
   <tr>
@@ -149,9 +151,9 @@
   </tr>
   <tr>
     <td><a href="https://discord.gg/Qcqf9R27BR">Discord</td>
-    <td><a target="_blank" href="https://github.com/avaje/avaje-http/tree/master/http-client">Github</a></td>
+    <td><a target="_blank" href="https://github.com/avaje/avaje-http/tree/master/http-client">GitHub</a></td>
     <td><a target="_blank" href="https://javadoc.io/doc/io.avaje/avaje-http-client">Javadoc</a></td>
-    <td><a target="_blank" href="https://github.com/avaje/avaje-http/issues">Github</a></td>
+    <td><a target="_blank" href="https://github.com/avaje/avaje-http/issues">GitHub</a></td>
     <td><a href="https://github.com/avaje/avaje-http/releases"><img src="https://img.shields.io/maven-central/v/io.avaje/avaje-http-client.svg?label=Maven%20Central"></a></td>
   </tr>
 </table>
@@ -193,7 +195,6 @@
 <ul>
   <li>Generates the implementation as source code via annotation processing</li>
   <li>No reflection and no use of dynamic proxies</li>
-  <li>Targets <em>avaje-http-client / JDK HttpClient</em> only</li>
 </ul>
 <p>
   This client API generation targets <em>avaje-http-client / JDK HttpClient</em> only
@@ -298,7 +299,7 @@
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
 
   <span class="n">implementation</span> <span class="s1">&#39;com.fasterxml.jackson.core:jackson-databind:2.14.2&#39;</span>
-  <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-client:1.35&#39;</span>
+  <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-client:3.2&#39;</span>
   <span class="o">...</span>
 <span class="o">}</span>
 </pre></div>
@@ -309,10 +310,10 @@
   <em>avaje-http-client-generator</em> annotation processor.
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
-    <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-client:1.35&#39;</span>
+    <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-client:3.2&#39;</span>
 
-    <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-api:1.17&#39;</span>
-    <span class="n">annotationProcessor</span> <span class="s1">&#39;io.avaje:avaje-http-client-generator:1.35&#39;</span>
+    <span class="n">implementation</span> <span class="s1">&#39;io.avaje:avaje-http-api:3.2&#39;</span>
+    <span class="n">annotationProcessor</span> <span class="s1">&#39;io.avaje:avaje-http-client-generator:3.2&#39;</span>
     <span class="o">...</span>
 <span class="o">}</span>
 </pre></div>
@@ -2035,7 +2036,7 @@ The generated code for the above is:
 
 <h2 id="jpms">@Client Java Module Setup</h2>
 <p>
-  If using java modules with generated Client Interfaces, in the <code>module-info.java</code> we need to:
+  When using java modules with generated Client Interfaces, in the <code>module-info.java</code> we need to:
 </p>
 <ol>
   <li>Add a <em>requires</em> clause for <em>io.avaje.http.api</em></li>
@@ -2058,126 +2059,6 @@ The generated code for the above is:
  In the example above, <code>org.example.GeneratedHttpComponent</code> is generated code typically found in
   <code>target/generated-sources/annotations</code>.
 </p>
-
-<h2 id="10k">10K requests - Loom vs Async</h2>
-<p>
-  The following is a very quick and rough comparison of running 10,000 requests
-  using <em>Async</em> vs <em>Loom</em>.
-</p>
-<p>
-  The intention is to test the thought that in a "future Loom world" the
-  desire to use <code>async()</code> execution with HttpClient reduces.
-</p>
-<p>
-  TLDR: Caveat, caveat, more caveats ... initial testing shows Loom to be just a
-  touch faster (~10%) than async.
-</p>
-<p>
-  To run my tests I use <a target="_blank" href="https://github.com/avaje/avaje-jex">Jex</a> as the server
-  (Jetty based) and have it running using Loom. For whatever testing you do
-  you will need a server that can handle a very large number of concurrent requests.
-</p>
-<p>
-  The Loom blocking request (make 10K of these)
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span>  <span class="n">httpClient</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;s200&quot;</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">asString</span><span class="o">();</span>
-</pre></div>
-</div>
-<p>
-  The equivalent async request (make 10K of these joining the CompletableFuture's).
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">future</span> <span class="o">=</span> <span class="n">httpClient</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;s200&quot;</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">async</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">asString</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">whenComplete</span><span class="o">((</span><span class="n">hres</span><span class="o">,</span> <span class="n">throwable</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
-    <span class="o">...</span>
-  <span class="o">});</span>
-</pre></div>
-</div>
-
-<h3 id="10k-async">10K requests using Async and reactive streams</h3>
-<p>
-  Use <code>.async()</code> to execute the requests which internally is using JDK
-  HttpClient's reactive streams. The <code>whenComplete()</code> callback is invoked
-  when the response is ready. Collect all the resulting CompletableFuture
-  and wait for them all to complete.
-</p>
-<p>
-Outline:
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Collect all the CompletableFuture&#39;s</span>
-<span class="n">List</span><span class="o">&lt;</span><span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;&gt;</span> <span class="n">futures</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
-
-<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10_000</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-  <span class="n">futures</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">httpClient</span><span class="o">.</span><span class="na">request</span><span class="o">().</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;s200&quot;</span><span class="o">)</span>
-    <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">async</span><span class="o">().</span><span class="na">asString</span><span class="o">()</span>
-    <span class="o">.</span><span class="na">whenComplete</span><span class="o">((</span><span class="n">hres</span><span class="o">,</span> <span class="n">throwable</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
-        <span class="c1">// confirm 200 response etc</span>
-        <span class="o">...</span>
-    <span class="o">}));</span>
-<span class="o">}</span>
-
-<span class="c1">// wait for all requests to complete via join() ...</span>
-<span class="n">CompletableFuture</span><span class="o">.</span><span class="na">allOf</span><span class="o">(</span><span class="n">futures</span><span class="o">.</span><span class="na">toArray</span><span class="o">(</span><span class="k">new</span> <span class="n">CompletableFuture</span><span class="o">[</span><span class="mi">0</span><span class="o">])).</span><span class="na">join</span><span class="o">();</span>
-</pre></div>
-</div>
-
-<h3 id="10k-loom">10K requests using Loom</h3>
-<p>
-  With Loom Java 17 EA Release we can use <code>Executors.newVirtualThreadExecutor()</code>
-  to return an ExecutorService that uses Loom Virtual Threads. These are backed
-  by "Carrier threads" (via ForkedJoinPool).
-</p>
-<p>
-Outline:
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// use Loom&#39;s Executors.newVirtualThreadExecutor()</span>
-<span class="k">try</span> <span class="o">(</span><span class="n">ExecutorService</span> <span class="n">executorService</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newVirtualThreadExecutor</span><span class="o">())</span> <span class="o">{</span>
-    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10_000</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-        <span class="n">executorService</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="k">this</span><span class="o">::</span><span class="n">task</span><span class="o">);</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">private</span> <span class="kt">void</span> <span class="nf">task</span><span class="o">()</span> <span class="o">{</span>
-  <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">hres</span> <span class="o">=</span>
-    <span class="n">httpClient</span><span class="o">.</span><span class="na">request</span><span class="o">().</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;s200&quot;</span><span class="o">)</span>
-     <span class="o">.</span><span class="na">GET</span><span class="o">()</span>
-     <span class="o">.</span><span class="na">asString</span><span class="o">();</span>
-
-  <span class="c1">// confirm 200 response etc</span>
-  <span class="o">...</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-<p>
-Caveat: Proper performance benchmarks are really hard and take a lot of effort.
-</p>
-<p>
-  Running some "rough/approx performance comparison tests" using <em>Loom</em>
-  build <code>17 EA 2021-09-14 / (build 17-loom+7-342)</code> vs <em>Async</em> for my environment
-  and 10K request scenarios has loom execution around 10% faster than async.
-</p>
-<p>
-  It looks like Loom and Async run in pretty much the same time although it
-  currently looks that Loom is just a touch faster (perhaps due to how it does
-  park/unpark). More investigation required.
-</p>
-<p>
-  Date: 2021-06 <br/>
-  Build: <code>17 EA 2021-09-14 / (build 17-loom+7-342)</code>.
-</p>
-<pre>
-  openjdk version "17-loom" 2021-09-14
-  OpenJDK Runtime Environment (build 17-loom+7-342)
-  OpenJDK 64-Bit Server VM (build 17-loom+7-342, mixed mode, sharing)
-</pre>
 
 
   </article>
