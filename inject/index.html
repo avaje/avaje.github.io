@@ -134,7 +134,7 @@
     <li><a href="#programmatic-testing">Programmatic Testing</a></li>
   </ul>
 </li>
-<li><a href="#why">Why avaje-inject exists?</a>
+<li><a href="#why">Why does avaje-inject exist?</a>
   <ul>
     <li><a href="#why-history">Short history of DI</a></li>
     <li><a href="#why-comparison">Comparison to other DI</a></li>
@@ -324,7 +324,7 @@
   <em>@Primary + @Secondary</em>. These provide injection priority in the case when multiple injection
   candidates are available.
 </p>
-<h2 id="quick-start">Quick Start</h2>
+<h2 id="quick-start">Quick Start</h2><hr/>
 <h4>1. Add <em>avaje-inject</em> as a dependency.</h4>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
@@ -394,7 +394,7 @@
 <span class="n">Example</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Example</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
 </pre></div>
 </div>
-<h2 id="dependency">Dependencies</h2>
+<h2 id="dependency">Dependencies</h2><hr/>
 
 <h3 id="maven">Maven</h3>
 <p>
@@ -419,12 +419,12 @@
 </p>
 
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
-  <span class="o">...</span>
-  <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:&#36;{inject.version}&#39;</span><span class="o">)</span>
-  <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:&#36;{inject.version}&#39;</span><span class="o">)</span>
+ <span class="o">...</span>
+ <span class="n">implementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject:&#36;{inject.version}&#39;</span><span class="o">)</span>
+ <span class="n">annotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:&#36;{inject.version}&#39;</span><span class="o">)</span>
 
-  <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:&#36;{inject.version}&#39;</span><span class="o">)</span>
-  <span class="n">testAnnotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:&#36;{inject.version}&#39;</span><span class="o">)</span>
+ <span class="n">testImplementation</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-test:&#36;{inject.version}&#39;</span><span class="o">)</span>
+ <span class="n">testAnnotationProcessor</span><span class="o">(</span><span class="s1">&#39;io.avaje:avaje-inject-generator:&#36;{inject.version}&#39;</span><span class="o">)</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -448,7 +448,7 @@
 </div>
 
 
-<h2 id="jpms">Java Module Setup</h2>
+<h2 id="jpms">Java Module Setup</h2><hr/>
 <p>
   If using java modules, in the <code>module-info.java</code> we need to:
 </p>
@@ -479,7 +479,7 @@
   you will need to add the <a href="#autoRequires">maven/gradle inject plugin</a> so that the generated DI classes from the dependencies are discovered.
 </p>
 
-<h2 id="generated">Generated Sources</h2>
+<h2 id="generated">Generated Sources</h2><hr/>
 
 <h3>DI classes</h3>
 
@@ -573,7 +573,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 </pre></div>
 </div>
 </details>
-<h2 id="injection">Injection</h2>
+<h2 id="injection">Injection</h2><hr/>
 
 <h3 id="singleton">@Singleton</h3>
 <p>
@@ -1133,8 +1133,7 @@ The inject annotation processor will determine the dependency wiring order of a 
   The CoffeeMaker has the appropriate methods that are executed as part of the lifecycle.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
-
-  <span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="o">{</span>
     <span class="c1">// lifecycle executed on start/PostConstruct</span>
   <span class="o">}</span>
   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">close</span><span class="o">()</span> <span class="o">{</span>
@@ -1334,7 +1333,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 <span class="o">}</span>
 </pre></div>
 </div>
-<h2 id="qualifiers">Qualifiers</h2>
+<h2 id="qualifiers">Qualifiers</h2><hr/>
 
 <h3 id="named">@Named</h3>
 <p>
@@ -1528,18 +1527,18 @@ The inject annotation processor will determine the dependency wiring order of a 
  <span class="o">}</span>
 </pre></div>
 </div>
-<h2 id="assistInject">Assisted Injection</h3>
-  Assisted injection is a dependency injection pattern used to construct an object where some parameters may be provided by the DI framework and others must be passed in at creation time (“assisted” if you will) by the user.
+<h2 id="assistInject">Assisted Injection</h3><hr/>
+Assisted injection is a dependency injection pattern used to construct an object where some parameters may be provided by the DI framework and others must be passed in at creation time (“assisted” if you will) by the user.
 
-  <br><br>Avaje Inject will generate a factory implementation responsible for combining all of the parameters and creating the object.
+<br><br>Avaje Inject will generate a factory implementation responsible for combining all of the parameters and creating the object.
 
-  <h3 id="assistFactory">@AssistFactory</h3>
-  <p>
-    To use assisted injection, we annotate our desired class with <code>@AssistFactory</code> to signal the generator to create a factory class.
-     <code>@AssistFactory</code> requires an interface/abstract class type that has the assisted types as parameters.
-  </p>
+<h3 id="assistFactory">@AssistFactory</h3>
 <p>
-   To mark fields/method parameters as assisted, we annotate them with @Assisted, as shown below:
+    To use assisted injection, we annotate our desired class with <code>@AssistFactory</code> to signal the generator to create a factory class.
+    <code>@AssistFactory</code> requires an interface/abstract class type that has the assisted types as parameters.
+</p>
+<p>
+    To mark fields/method parameters as assisted, we annotate them with @Assisted, as shown below:
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@AssistFactory</span><span class="o">(</span><span class="nx">CarFactory</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
@@ -1623,7 +1622,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 <span class="o">}</span>
 </pre></div>
 </div>
-<h2 id="lifecycle">Lifecycle</h2>
+<h2 id="lifecycle">Lifecycle</h2><hr/>
 
 <h3 id="post-construct">@PostConstruct</h3>
 <p>
@@ -1721,7 +1720,7 @@ The inject annotation processor will determine the dependency wiring order of a 
       <span class="o">.</span><span class="na">build</span><span class="o">()</span>
 </pre></div>
 </div>
-<h2 id="conditional">Conditional Beans</h2>
+<h2 id="conditional">Conditional Beans</h2><hr/>
 
 <h3 id="requirebean">@RequiresBean</h3>
 <p>
@@ -1879,7 +1878,7 @@ Additionally, meta annotation can be placed on other meta annotation to easily c
     <td><code>@Profile(value = "spirit", notEqualTo = "broken")</code></td>
   </tr>
 </table>
-<h2 id="aop">Aspect Oriented Programming</h3>
+<h2 id="aop">Aspect Oriented Programming</h3><hr/>
 This library has several contructs that support Aspect Oriented Programmming
 
 <h3 id="aspect">@Aspect</h3>
@@ -2311,7 +2310,7 @@ The classic use case for this is registering controllers or routes to
   See <a href="#testing">Testing</a> for more on wiring with test doubles.
 </p>
 
-<h2 id="events">Events</h2>
+<h2 id="events">Events</h2><hr/>
 
 <h3 id="observes">@Observes/@ObservesAsync</h3>
 <p>
@@ -2477,7 +2476,7 @@ The downside of annotating the injection point is that we can't specify the qual
 </pre></div>
 </div>
 
-<h2 id="modules">Modules</h2>
+<h2 id="modules">Modules</h2><hr/>
 <p>
   To wire all the beans into a scope, <i>avaje-inject</i> generates module classes that run all the constructors/factory methods and adds all beans to the <i>scope</i>.
 </p>
@@ -2705,7 +2704,7 @@ These files contain all the metadata for all the modules and plugins provided by
   based on provides, requires, requiresPackages. In the example above the "feature-toggle" module must be wired first,
   and then the beans it contains are available when wiring the "job-system".
 </p>
-<h2 id="plugins">Plugins</h3>
+<h2 id="plugins">Plugins</h3><hr/>
 
 <P>If you want to execute code when creating a bean scope, you can implement the <code>InjectPlugin</code> SPI.
   Typically, a plugin might provide a default dependency via <code>BeanScopeBuilder.provideDefault()</code>.
@@ -2739,7 +2738,7 @@ These files contain all the metadata for all the modules and plugins provided by
 <span class="o">}</span>
 </pre></div>
 </div>
-<h2 id="testing">Testing</h2>
+<h2 id="testing">Testing</h2><hr/>
 
 <h3 id="unit-testing">Unit Testing</h3>
 <p>
@@ -2802,7 +2801,7 @@ These files contain all the metadata for all the modules and plugins provided by
 
 
 
-<h2 id="component-testing">Component Testing</h2>
+<h2 id="component-testing">Component Testing</h2><hr/>
 <p>
   Component testing is where we look to run tests that use most of the objects with their real
   behaviour with less mocked / stubbed behaviour. With component testing we are looking to test a scenario / piece
@@ -3339,7 +3338,7 @@ These files contain all the metadata for all the modules and plugins provided by
 </pre></div>
 </div>
 
-<h2 id="why">Why avaje inject exists</h2>
+<h2 id="why">Why does avaje-inject exist?</h2><hr/>
 
 <h3 id="why-history">Short History of DI on the JVM</h3>
 <p>
@@ -3427,7 +3426,7 @@ These files contain all the metadata for all the modules and plugins provided by
   DI and focused on DI alone.
 </p>
 
-<h2 id="spring">Spring DI</h2>
+<h2 id="spring">Spring DI</h2><hr/>
 
 <h4>@Factory + @Bean</h4>
 <p>
@@ -3541,7 +3540,7 @@ These files contain all the metadata for all the modules and plugins provided by
 </table>
 
 
-<h2 id=value>Why we don't have @Value/Refreshable Scopes</h2>
+<h2 id=value>Why we don't have @Value/Refreshable Scopes</h2><hr/>
 <p>
   Both Spring and Micronaut have a <code>@Value</code> and by implication, they have chosen to combine "external configuration" in with "dependency injection".
   With avaje-inject a design decision was made to keep these two ideas separate.

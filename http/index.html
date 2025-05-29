@@ -99,7 +99,7 @@
 <header>
   <nav id="top">
     <div class="breadcrumb">
-      <a href="/" title="home">Avaje</a> &nbsp;&nbsp;/&nbsp;&nbsp;HTTP
+      <a href="/" title="home">avaje</a> &nbsp;&nbsp;/&nbsp;&nbsp;http
     </div>
     <ul>
       <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
@@ -165,14 +165,14 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
   <li>Requires fewer annotations than typical JAX-RS - avoid annotation overload</li>
 </ul>
 
-<h2><a href="/http-client/">HTTP Client</a></h2>
+<h2><a href="/http-client/">HTTP Client</a></h2><hr/>
 <p>
   Avaje <a href="/http-client/">http client</a> is a lightweight wrapper over the JDK's own HttpClient
   that also supports client interfaces with annotation processing to generate source code that implements
   the API.
 </p>
 
-<h2 id="quick-start">Quick Start</h2>
+<h2 id="quick-start">Quick Start</h2><hr/>
 <p>
   1. Add <em>avaje-http-api</em> dependency.
 </p>
@@ -240,7 +240,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 </pre></div>
 </div>
 
-<h2 id="jpms">Java Module Setup</h2>
+<h2 id="jpms">Java Module Setup</h2><hr/>
 <p>
   In the <code>module-info.java</code> we need to define the avaje modules:
 </p>
@@ -255,7 +255,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 </pre></div>
 </div>
 
-<h2 id="generated">Generated Adapter</h2>
+<h2 id="generated">Generated Adapter</h2><hr/>
 <p>Given the above controller and the corresponding framework generator, the below class will be generated</p>
 
 <details>
@@ -439,7 +439,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 </div>
 </details>
 
-<h2 id=usage>Usage</h2>
+<h2 id=usage>Usage</h2><hr/>
 <p>
   The natural way to use the generated adapters is to
   get a DI library to find and wire them.
@@ -473,7 +473,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 </pre></div>
 </div>
 
-<h4>Usage with Helidon SE (4.x)</h2>
+<h4>Usage with Helidon SE (4.x)</h2><hr/>
 <p>
 The annotation processor will generate controller classes implementing the Helidon <code>HttpFeature</code> interface, which we can register with the Helidon <code>HttpRouting</code>.
 </p>
@@ -490,7 +490,7 @@ The annotation processor will generate controller classes implementing the Helid
 </pre></div>
 </div>
 
-<h2 id="dependencies">Dependencies</h2>
+<h2 id="dependencies">Dependencies</h2><hr/>
 
 <h3 id="maven">Maven</h3>
 <p>
@@ -588,7 +588,7 @@ The annotation processor will generate controller classes implementing the Helid
 <img src="/images/gradle-idea-build.png" width="100%">
 
 
-<h2 id="controllers">Controllers</h2>
+<h2 id="controllers">Controllers</h2><hr/>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
 <span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">ContactController</span> <span class="o">{</span>
@@ -696,7 +696,7 @@ The annotation processor will generate controller classes implementing the Helid
   become <a href="#request-scoped">request scoped</a>.
 </p>
 
-<h2 id="path">@Path</h2>
+<h2 id="path">@Path</h2><hr/>
 <p>
   <code>@Path</code> is put on the controller class. The path is prepended to the paths
   specified by <code>@Get</code>, <code>@Post</code> etc.
@@ -790,7 +790,7 @@ GET /customer/active/{customerType}
 </pre></div>
 </div>
 
-<h2 id="path-parameters">Path parameters</h2>
+<h2 id="path-parameters">Path parameters</h2><hr/>
 <p>
   Path parameters start with <code>{</code> and end with <code>}</code>.
 </p>
@@ -823,15 +823,15 @@ GET /customer/active/{customerType}
 <span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/{id}/{startDate}/{sort}&quot;</span><span class="o">)</span>
 <span class="nx">List</span><span class="o">&lt;</span><span class="nx">Bazz</span><span class="o">&gt;</span> <span class="nf">findBazz</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)</span> <span class="kt">long</span> <span class="nx">id</span><span class="o">,</span> <span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;startDate&quot;</span><span class="o">)</span> <span class="nx">LocalDate</span> <span class="nx">startDate</span><span class="o">,</span> <span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;sort&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">sort</span><span class="o">)</span> <span class="o">{</span>
 
-  <span class="c1">// we start getting &quot;annotation noise&quot; ...</span>
-  <span class="c1">// making the code hard to read</span>
+ <span class="c1">// we start getting &quot;annotation noise&quot; ...</span>
+ <span class="c1">// making the code hard to read</span>
 
 <span class="o">}</span>
 </pre></div>
 </div>
 
 
-<h2 id="matrix-parameters">Matrix parameters</h2>
+<h2 id="matrix-parameters">Matrix parameters</h2><hr/>
 <p>
   Matrix parameters are optional sub-parameters that relate to a specific segment of the path.
   They are an alternative to using query parameters when you have optional parameters
@@ -885,14 +885,14 @@ GET /products/chair/commercial;style=classical
 <span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/products/{type;category;vendor}/{range;style}&quot;</span><span class="o">)</span>
 <span class="nx">List</span><span class="o">&lt;</span><span class="nx">Product</span><span class="o">&gt;</span> <span class="nf">products</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;type&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">type</span><span class="o">,</span> <span class="nd">@MatrixParam</span><span class="o">(</span><span class="s">&quot;category&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">category</span><span class="o">,</span> <span class="nd">@MatrixParam</span><span class="o">(</span><span class="s">&quot;vendor&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">vendor</span><span class="o">,</span> <span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;type&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">range</span><span class="o">,</span> <span class="nd">@MatrixParam</span><span class="o">(</span><span class="s">&quot;style&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">style</span><span class="o">)</span> <span class="o">{</span>
 
-  <span class="c1">// we start getting &quot;annotation noise&quot; ...</span>
-  <span class="c1">// making the code hard to read</span>
-  <span class="o">...</span>
+ <span class="c1">// we start getting &quot;annotation noise&quot; ...</span>
+ <span class="c1">// making the code hard to read</span>
+ <span class="o">...</span>
 <span class="o">}</span>
 </pre></div>
 </div>
 
-<h2 id="query-parameters">@QueryParam</h2>
+<h2 id="query-parameters">@QueryParam</h2><hr/>
 <p>
   Explicitly specify query parameters using <code>@QueryParam</code>.
 </p>
@@ -962,7 +962,7 @@ GET /products/chair/commercial;style=classical
 <p>
   Query parameters are considered optional / nullable.
 </p>
-<h2 id="bean-param">@BeanParam</h2>
+<h2 id="bean-param">@BeanParam</h2><hr/>
 <p>
   Annotate a bean parameter in a controller method with <code>@BeanParam</code> to map various request values into a class.
   The properties on the bean default to being <code>query parameters</code>.
@@ -1046,7 +1046,7 @@ GET /products/chair/commercial;style=classical
 <span class="o">}</span>
 </pre></div>
 </div>
-<h2 id="post">Request Body</h2>
+<h2 id="post">Request Body</h2><hr/>
 <p>
   Avaje auto detects that a parameter is a request body if the type is a <code>POJO</code>/<code>byte[]</code>/<code>InputStream</code> and not marked with a <code>@BeanParam</code> annotation. To mark a string parameter as a body, use the <code>@BodyString</code> annotation.
 </p>
@@ -1069,7 +1069,7 @@ GET /products/chair/commercial;style=classical
 </pre></div>
 </div>
 
-<h2 id="form">@Form</h2>
+<h2 id="form">@Form</h2><hr/>
 <p>
   If a method has both <code>@Post</code> and <code>@Form</code> then the
   method parameters default to be form parameters.
@@ -1084,7 +1084,7 @@ GET /products/chair/commercial;style=classical
 </pre></div>
 </div>
 
-<h2 id="form-param">@FormParam</h2>
+<h2 id="form-param">@FormParam</h2><hr/>
 <p>
   For the example above we could alternatively use explicit <code>@FormParam</code>
   on each of the form parameters rather than <code>@Form</code>. We then get:
@@ -1128,7 +1128,7 @@ GET /products/chair/commercial;style=classical
 </pre></div>
 </div>
 
-<h2 id="form-beans">@Form "Form Beans"</h2>
+<h2 id="form-beans">@Form "Form Beans"</h2><hr/>
 <p>
   When posting a form with a lot of parameters, try defining a bean with
   properties for each of the form parameters rather than a controller method with lots of arguments.
@@ -1257,7 +1257,7 @@ The generated Javalin code for the above is.
 <span class="o">});</span>
 </pre></div>
 </div>
-<h2 id="produces">@Produces</h2>
+<h2 id="produces">@Produces</h2><hr/>
 <p>
   Use <code>@Produces</code> to modify the response content type, default status code and generated OpenAPI definition.
   When not specified, it defaults to <code>application/json</code>.
@@ -1307,7 +1307,7 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 
-<h2 id="header">@Header</h2>
+<h2 id="header">@Header</h2><hr/>
 <p>
   Use <code>@Header</code> for a header parameter.
   It the header parameter name is not explicitly specified then
@@ -1338,7 +1338,7 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 
-<h2 id="cookie">@Cookie</h2>
+<h2 id="cookie">@Cookie</h2><hr/>
 <p>
   Use <code>@Cookie</code> for a Cookie parameter.
 </p>
@@ -1375,7 +1375,7 @@ The generated Javalin code for the above is.
 <span class="o">}</span>
 </pre></div>
 </div>
-<h2 id="filter">@Filter</h2>
+<h2 id="filter">@Filter</h2><hr/>
 <p>
   Annotate methods with <code>@Filter</code> for HTTP filter web routes. Filter web routes behave similarly to void <code>@Get</code> methods (They can use header/query/cookie parameters with type conversion)
 </p>
@@ -1401,7 +1401,7 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 
-<h2 id="exceptions">@ExceptionHandler</h2>
+<h2 id="exceptions">@ExceptionHandler</h2><hr/>
  As the name implies, this annotation marks a handler method for handling exceptions that are thrown by other handlers.
 
  <p>Exception handler methods may have parameters of the following types:
@@ -1446,7 +1446,7 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 
-<h2 id="javalin-filter">(Javalin-only) @Before/@After</h2>
+<h2 id="javalin-filter">(Javalin-only) @Before/@After</h2><hr/>
 <p>
   For Javalin applications, use <code>@Before/@After</code> to mark a handler as a Javalin before/after handler.
 </p>
@@ -1462,7 +1462,7 @@ The generated Javalin code for the above is.
 <span class="o">}</span>
 </pre></div>
 </div>
-<h2 id="context">Context</h2>
+<h2 id="context">Context</h2><hr/>
 
 <h3 id="javalin-context">Javalin/Jex Context</h3>
 <p>
@@ -1622,7 +1622,7 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 
-<h2 id="jstachio"><a href="https://jstach.io/jstachio/">JStachio</a> Integration</h2>
+<h2 id="jstachio"><a href="https://jstach.io/jstachio/">JStachio</a> Integration</h2><hr/>
 <p>
   JStachio is a type-safe mustache templating engine. The various generators will automatically read jstachio annotations on return types, and generate code to automatically call the engine.
 </p>
@@ -1727,7 +1727,7 @@ The generated Javalin code for the above is.
 
 </details>
 <br>
-<h2 id="type-conversions">Type conversions</h2>
+<h2 id="type-conversions">Type conversions</h2><hr/>
 <p>
   There are built in type conversions for the following types:
 </p>
@@ -1808,7 +1808,7 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 
-<h2 id="bean-validation">Bean validation</h2>
+<h2 id="bean-validation">Bean validation</h2><hr/>
 <p>
   Bean validation is done through through the validator interface. It can validate a request body and/or Form Bean/BeanParam
 </p>
@@ -2021,7 +2021,7 @@ The generated Javalin code for the above is.
 <span class="o">}</span>
 </pre></div>
 </div>
-<h2 id="roles">Roles</h2>
+<h2 id="roles">Roles</h2><hr/>
 <p>
   We can optionally add declarative security role checking for Javalin and Jex.
 </p>
@@ -2039,7 +2039,7 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 
-<h2 id="roles-javalin">Javalin Roles</h2>
+<h2 id="roles-javalin">Javalin Roles</h2><hr/>
 <p>
   Example reference <a target="_blank" href="https://github.com/avaje/avaje-http/blob/master/tests/test-javalin/src/main/java/org/example/myapp/web/HelloController.java#L58">test-javalin - HelloController</a>
 </p>
@@ -2120,7 +2120,7 @@ The generated Javalin code for the above is.
 
 
 
-<h2 id="roles-jex">Jex Roles</h2>
+<h2 id="roles-jex">Jex Roles</h2><hr/>
 <p>
   Example reference <a target="_blank" href="https://github.com/avaje/avaje-http/blob/master/tests/test-jex/src/main/java/org/example/web/HelloController.java#L33">test-jex - HelloController</a>
 </p>
@@ -2200,7 +2200,7 @@ The generated Javalin code for the above is.
 </pre></div>
 </div>
 
-<h2 id="openapi">OpenAPI</h2>
+<h2 id="openapi">OpenAPI</h2><hr/>
 <p>
   An OpenAPI description of the API is always generated.
 </p>
@@ -2413,7 +2413,7 @@ The generated Javalin code for the above is.
 </div>
 
 
-<h2 id="jaxrs">JAX-RS</h2>
+<h2 id="jaxrs">JAX-RS</h2><hr/>
 <p>
   Why not use the standard JAX-RS annotations?
 </p>
