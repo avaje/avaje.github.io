@@ -823,8 +823,8 @@ GET /customer/active/{customerType}
 <span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/{id}/{startDate}/{sort}&quot;</span><span class="o">)</span>
 <span class="nx">List</span><span class="o">&lt;</span><span class="nx">Bazz</span><span class="o">&gt;</span> <span class="nf">findBazz</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)</span> <span class="kt">long</span> <span class="nx">id</span><span class="o">,</span> <span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;startDate&quot;</span><span class="o">)</span> <span class="nx">LocalDate</span> <span class="nx">startDate</span><span class="o">,</span> <span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;sort&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">sort</span><span class="o">)</span> <span class="o">{</span>
 
- <span class="c1">// we start getting &quot;annotation noise&quot; ...</span>
- <span class="c1">// making the code hard to read</span>
+  <span class="c1">// we start getting &quot;annotation noise&quot; ...</span>
+  <span class="c1">// making the code hard to read</span>
 
 <span class="o">}</span>
 </pre></div>
@@ -885,9 +885,9 @@ GET /products/chair/commercial;style=classical
 <span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/products/{type;category;vendor}/{range;style}&quot;</span><span class="o">)</span>
 <span class="nx">List</span><span class="o">&lt;</span><span class="nx">Product</span><span class="o">&gt;</span> <span class="nf">products</span><span class="o">(</span><span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;type&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">type</span><span class="o">,</span> <span class="nd">@MatrixParam</span><span class="o">(</span><span class="s">&quot;category&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">category</span><span class="o">,</span> <span class="nd">@MatrixParam</span><span class="o">(</span><span class="s">&quot;vendor&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">vendor</span><span class="o">,</span> <span class="nd">@PathParam</span><span class="o">(</span><span class="s">&quot;type&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">range</span><span class="o">,</span> <span class="nd">@MatrixParam</span><span class="o">(</span><span class="s">&quot;style&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">style</span><span class="o">)</span> <span class="o">{</span>
 
- <span class="c1">// we start getting &quot;annotation noise&quot; ...</span>
- <span class="c1">// making the code hard to read</span>
- <span class="o">...</span>
+  <span class="c1">// we start getting &quot;annotation noise&quot; ...</span>
+  <span class="c1">// making the code hard to read</span>
+  <span class="o">...</span>
 <span class="o">}</span>
 </pre></div>
 </div>

@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu|Kalam&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="#overview">Overview</a>
+</li>
+<li><a href="#quick-start">Quick Start</a>
+</li>
+
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">jsonb</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-nima" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+  <h1 id="overview">
+    <span class="logo">Avaje</span>&thinsp;Nima
+  </h1>
+
+  <table style="width: 100%;">
+    <tr>
+      <th>Discord</th>
+      <th>Source</th>
+      <th>API Docs</th>
+      <th>Issues</th>
+      <th>Releases</th>
+    </tr>
+    <tr>
+      <td><a href="https://discord.gg/Qcqf9R27BR">Discord</td>
+      <td><a target="_blank" href="https://github.com/avaje/avaje-nima">GitHub</a></td>
+      <td><a target="_blank"
+          href="https://javadoc.io/doc/io.avaje/avaje-nima/latest/io.avaje.nima/io/avaje/nima/package-summary.html">Javadoc</a>
+      </td>
+      <td><a target="_blank" href="https://github.com/avaje/avaje-nima/issues">GitHub</a></td>
+      <td><a href="https://github.com/avaje/avaje-nima/releases"><img
+            src="https://img.shields.io/maven-central/v/io.avaje/avaje-nima.svg?label=Maven%20Central"></a></td>
+    </tr>
+  </table>
+
+  <p><br><br>
+    A combination of Helidon SE Webserver and Avaje libraries, includes:
+  </p>
+  <ul>
+    <li>Helidon 4 SE WebServer (Uses Virtual Threads)</li>
+    <li>avaje-inject - Dependency injection using source code generation via annotation processing</li>
+    <li>avaje-http - Controllers generated as source code using annotation processing</li>
+    <li>avaje-jsonb - JSON adapters generated as source code using annotation processing</li>
+    <li>avaje-validator - JSR validation generated as source code using annotation processing</li>
+    <li>avaje-config - External configuration</li>
+  </ul>
+
+
+  <h2 id="maven">Maven dependencies</h2>
+  <h4>1. Add <em>avaje-nima</em> dependencies</h4>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-nima<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.nima.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+
+<span class="c">&lt;!-- test dependency --&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-nima-test<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.nima.version}<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>test<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+  <h4>2. Add the annotation processor</h4>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;build&gt;</span>
+  <span class="nt">&lt;plugins&gt;</span>
+    <span class="nt">&lt;plugin&gt;</span>
+      <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+      <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+      <span class="nt">&lt;version&gt;</span>3.14.0<span class="nt">&lt;/version&gt;</span>
+      <span class="nt">&lt;configuration&gt;</span>
+        <span class="c">&lt;!-- Annotation processors --&gt;</span>
+        <span class="nt">&lt;annotationProcessorPaths&gt;</span>
+          <span class="nt">&lt;path&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>avaje-nima-generator<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>&#36;{avaje-nima.version}<span class="nt">&lt;/version&gt;</span>
+          <span class="nt">&lt;/path&gt;</span>
+        <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
+      <span class="nt">&lt;/configuration&gt;</span>
+    <span class="nt">&lt;/plugin&gt;</span>
+  <span class="nt">&lt;/plugins&gt;</span>
+<span class="nt">&lt;/build&gt;</span>
+</pre></div>
+</div>
+  <p>
+    Note the <code>avaje-nima-generator</code> is actually a composite of:
+  </p>
+  <ul>
+    <li>avaje-http-helidon-generator - for the route adapter</li>
+    <li>avaje-inject-generator - for dependency injection</li>
+    <li>avaje-jsonb-generator - for json adapters</li>
+    <li>avaje-validator-generator - for bean validation</li>
+    <li>avaje-record-builder - for record builders</li>
+    <li>avaje-spi-service - for automatic service generation</li>
+    <li>jstachio-apt - for mustache template rendering</li>
+    <li>avaje-http-client-generator - for test client generation</li>
+  </ul>
+
+
+  <h2 id="firstController">Controller</h2>
+  <p>
+    Create a package (e.g. <code>org.example.web</code>) and create you first
+    controller in the package.
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.inject.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.jsonb.Json</span><span class="o">;</span>
+
+<span class="nd">@Controller</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloController</span> <span class="o">{</span>
+
+  <span class="nd">@Produces</span><span class="o">(</span><span class="s">&quot;text/plain&quot;</span><span class="o">)</span>
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">)</span>
+  <span class="n">String</span> <span class="nf">hello</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">&quot;hello world&quot;</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/json&quot;</span><span class="o">)</span>
+  <span class="n">HelloBean</span> <span class="nf">one</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">HelloBean</span><span class="o">(</span><span class="mi">97</span><span class="o">,</span> <span class="s">&quot;Hello JSON&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Json</span>
+  <span class="kd">public</span> <span class="n">record</span> <span class="nf">HelloBean</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h4>Generated code</h4>
+  <p>
+    After compiling HelloController we should see in <code>target/generated-sources/annotations</code>:
+  </p>
+  <ul>
+    <li><code>HelloController$DI</code> - which performs the dependency injection wiring of the controller</li>
+    <li><code>HelloController$Route</code> - which registers the controller routes with Helidon and adapts the
+      Helidon request and response to our controller code</li>
+    <li><code>HelloController$Route$DI</code> - the dependency injection for the routes</li>
+    <li><code>HelloController$HelloBeanJsonAdapter</code> - the JSON adapter for HelloBean</li>
+  </ul>
+
+  <h4>Generated test code</h4>
+  <p>
+    And for test purposes in <code>target/generated-test-sources/test-annotations</code>
+    a couple of things are generated for us:
+  </p>
+  <ul>
+    <li><code>HelloControllerTestAPI</code> - a test client we can use to test the controller</li>
+    <li><code>HelloControllerTestAPIHttpClient</code> - the test client implementation</li>
+  </ul>
+
+  <h4>Test client - HelloControllerTestAPI</h4>
+  <p>
+    We can use the generated test client to create a component test, and test our controller.
+    The name of the generated test clients is: <code>{controllerName}</code> + <code>TestAPI</code>.
+  </p>
+
+  <h2 id="firstControllerTest">Controller component test</h2>
+  <p>
+    Create a test class called <code>HelloControllerTest</code> to test the controller.
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.inject.test.InjectTest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.inject.Inject</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.net.http.HttpResponse</span><span class="o">;</span>
+
+<span class="kn">import static</span> <span class="nn">org.assertj.core.api.Assertions.assertThat</span><span class="o">;</span>
+
+<span class="nd">@InjectTest</span>
+<span class="kd">class</span> <span class="nc">HelloControllerTest</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span> <span class="nx">HelloControllerTestAPI</span> <span class="nx">client</span><span class="o">;</span>
+
+  <span class="nd">@Test</span>
+  <span class="kt">void</span> <span class="nf">hello</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  <ul>
+    <li>Use <code>@InjectTest</code> for a DI component test which can wire dependencies</li>
+    <li>Use <code>@Inject HelloControllerTestAPI client</code> to wire the test http client. The webserver will
+    start on a random port and be available for this test.</li>
+  </ul>
+
+  <h2 id="main">Main method</h2>
+  <p>
+    Create a main method to run the application.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.nima.Nima</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">var</span> <span class="n">webServer</span> <span class="o">=</span> <span class="n">Nima</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">port</span><span class="o">(</span><span class="mi">8080</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="n">webServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  <p>
+    Now you can run the application main method,
+  </p>
+  <div class="syntax sh"><div class="highlight"><pre><span></span><span class="m">21</span>:23:37.951 <span class="o">[</span>main<span class="o">]</span> INFO  io.avaje.inject - Wired beans in 77ms
+<span class="m">21</span>:23:38.001 <span class="o">[</span>features-thread<span class="o">]</span> INFO  i.h.common.features.HelidonFeatures - Helidon SE <span class="m">4</span>.2.2 features: <span class="o">[</span>Config, Encoding, Media, Metrics, Registry, WebServer<span class="o">]</span>
+<span class="m">21</span>:23:38.005 <span class="o">[</span>start @default <span class="o">(</span>/0.0.0.0:8080<span class="o">)]</span> INFO  io.helidon.webserver.ServerListener - <span class="o">[</span>0x2132b530<span class="o">]</span> http://0.0.0.0:8080 bound <span class="k">for</span> socket <span class="s1">&#39;@default&#39;</span>
+<span class="m">21</span>:23:38.008 <span class="o">[</span>main<span class="o">]</span> INFO  io.helidon.webserver.LoomServer - Started all channels in <span class="m">6</span> milliseconds. <span class="m">369</span> milliseconds since JVM startup. Java <span class="m">21</span>.0.5+9-LTS-239
+  
+</pre></div>
+</div>
+  <p>
+    ... and perform a quick test using curl.
+  </p>
+  <div class="syntax sh"><div class="highlight"><pre><span></span>curl http://localhost:8080
+hello world
+
+curl http://localhost:8080/json
+<span class="o">{</span><span class="s2">&quot;id&quot;</span>:97,<span class="s2">&quot;name&quot;</span>:<span class="s2">&quot;Hello JSON&quot;</span><span class="o">}</span>
+</pre></div>
+</div>
+
+  <h2 id="errorHandlers">Error handlers</h2>
+  <p>
+    Commonly we want define all the global exception handling in a single exception handler.
+    We can do this by creating a controller than just has <code>@ExceptionHandler</code> methods.
+  </p>
+  <p>
+    An example ErrorHandlers controller is:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Controller</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.ExceptionHandler</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Produces</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.http.BadRequestException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.webserver.http.ServerRequest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.slf4j.Logger</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.slf4j.LoggerFactory</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.UUID</span><span class="o">;</span>
+
+<span class="nd">@Controller</span>
+<span class="kd">final</span> <span class="kd">class</span> <span class="nc">ErrorHandlers</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Logger</span> <span class="n">log</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="n">ErrorHandlers</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">statusCode</span> <span class="o">=</span> <span class="mi">500</span><span class="o">)</span>
+  <span class="nd">@ExceptionHandler</span>
+  <span class="n">ErrorResponse</span> <span class="nf">defaultError</span><span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">,</span> <span class="n">ServerRequest</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">(</span><span class="n">req</span><span class="o">);</span>
+    <span class="k">var</span> <span class="n">traceId</span> <span class="o">=</span> <span class="n">log</span><span class="o">(</span><span class="n">ex</span><span class="o">,</span> <span class="n">path</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">ErrorResponse</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">statusCode</span><span class="o">(</span><span class="mi">500</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="n">path</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">traceId</span><span class="o">(</span><span class="n">traceId</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">message</span><span class="o">(</span><span class="s">&quot;Unhandled server error&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">statusCode</span> <span class="o">=</span> <span class="mi">400</span><span class="o">)</span>
+  <span class="nd">@ExceptionHandler</span>
+  <span class="n">ErrorResponse</span> <span class="nf">badRequest</span><span class="o">(</span><span class="n">BadRequestException</span> <span class="n">ex</span><span class="o">,</span> <span class="n">ServerRequest</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">(</span><span class="n">req</span><span class="o">);</span>
+    <span class="k">var</span> <span class="n">traceId</span> <span class="o">=</span> <span class="n">log</span><span class="o">(</span><span class="n">ex</span><span class="o">,</span> <span class="n">path</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">ErrorResponse</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">statusCode</span><span class="o">(</span><span class="mi">400</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="n">path</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">traceId</span><span class="o">(</span><span class="n">traceId</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">message</span><span class="o">(</span><span class="s">&quot;Unhandled server error&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">path</span><span class="o">(</span><span class="n">ServerRequest</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">req</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">req</span><span class="o">.</span><span class="na">path</span><span class="o">()</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">?</span> <span class="n">req</span><span class="o">.</span><span class="na">path</span><span class="o">().</span><span class="na">path</span><span class="o">()</span> <span class="o">:</span> <span class="kc">null</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="n">UUID</span> <span class="nf">log</span><span class="o">(</span><span class="n">Throwable</span> <span class="n">ex</span><span class="o">,</span> <span class="n">String</span> <span class="n">path</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">UUID</span> <span class="n">traceId</span> <span class="o">=</span> <span class="n">UUID</span><span class="o">.</span><span class="na">randomUUID</span><span class="o">();</span>
+    <span class="n">log</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="s">&quot;Unhandled server error path:{} trace:{}&quot;</span><span class="o">,</span> <span class="n">path</span><span class="o">,</span> <span class="n">traceId</span><span class="o">,</span> <span class="n">ex</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">traceId</span><span class="o">;</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+  <p>
+    With the above example the error response has a JSON payload. The code for the
+    <code>ErrorResponse</code> is:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.avaje.jsonb.Json</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.recordbuilder.RecordBuilder</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.UUID</span><span class="o">;</span>
+
+<span class="nd">@Json</span>
+<span class="nd">@RecordBuilder</span>
+<span class="kd">public</span> <span class="n">record</span> <span class="nf">ErrorResponse</span><span class="o">(</span>
+
+  <span class="kt">int</span> <span class="n">statusCode</span><span class="o">,</span>
+  <span class="n">String</span> <span class="n">path</span><span class="o">,</span>
+  <span class="n">UUID</span> <span class="n">traceId</span><span class="o">,</span>
+  <span class="n">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">ErrorResponseBuilder</span> <span class="nf">builder</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">ErrorResponseBuilder</span><span class="o">.</span><span class="na">builder</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  <details>
+    <summary>Generated Code: (click to expand) </summary>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-helidon-generator&quot;</span><span class="o">)</span>
+<span class="nd">@Component</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">ErrorHandlers&#36;Route</span> <span class="kd">implements</span> <span class="n">HttpFeature</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">ErrorHandlers</span> <span class="n">controller</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonType</span><span class="o">&lt;</span><span class="n">ErrorResponse</span><span class="o">&gt;</span> <span class="n">errorResponseJsonType</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">ErrorHandlers&#36;Route</span><span class="o">(</span><span class="n">ErrorHandlers</span> <span class="n">controller</span><span class="o">,</span> <span class="n">Jsonb</span> <span class="n">jsonb</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">controller</span> <span class="o">=</span> <span class="n">controller</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">errorResponseJsonType</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">ErrorResponse</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setup</span><span class="o">(</span><span class="n">HttpRouting</span><span class="o">.</span><span class="na">Builder</span> <span class="n">routing</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">routing</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="n">Exception</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">this</span><span class="o">::</span><span class="n">_defaultError</span><span class="o">);</span>
+    <span class="n">routing</span><span class="o">.</span><span class="na">error</span><span class="o">(</span><span class="n">BadRequestException</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="k">this</span><span class="o">::</span><span class="n">_badRequest</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">_defaultError</span><span class="o">(</span><span class="n">ServerRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">res</span><span class="o">,</span> <span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">INTERNAL_SERVER_ERROR_500</span><span class="o">);</span>
+    <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">defaultError</span><span class="o">(</span><span class="n">ex</span><span class="o">,</span> <span class="n">req</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">NO_CONTENT_204</span><span class="o">).</span><span class="na">send</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">contentType</span><span class="o">(</span><span class="n">MediaTypes</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">);</span>
+      <span class="n">errorResponseJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">JsonOutput</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">res</span><span class="o">));</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">_badRequest</span><span class="o">(</span><span class="n">ServerRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">res</span><span class="o">,</span> <span class="n">BadRequestException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">BAD_REQUEST_400</span><span class="o">);</span>
+    <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">badRequest</span><span class="o">(</span><span class="n">ex</span><span class="o">,</span> <span class="n">req</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">NO_CONTENT_204</span><span class="o">).</span><span class="na">send</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">contentType</span><span class="o">(</span><span class="n">MediaTypes</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">);</span>
+      <span class="n">errorResponseJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">JsonOutput</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">res</span><span class="o">));</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+  </details>
+
+  <h2 id="filters">Filters</h2>
+  <p>
+    To add a Filter we can add a controller that has a <code>@Filter</code> method
+    that takes a <code>FilterChain</code>, <code>RoutingRequest</code> and
+    optionally a <code>RoutingResponse</code>.
+  </p>
+  <p>
+    An example filter that reads a "Caller-Id" request header and rejects the
+    request if one isn't provided.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.avaje.http.api.Controller</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Filter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.http.BadRequestException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.http.HeaderName</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.http.HeaderNames</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.webserver.http.FilterChain</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.webserver.http.RoutingRequest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.webserver.http.ServerRequest</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Optional</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Set</span><span class="o">;</span>
+
+<span class="nd">@Controller</span>
+<span class="kd">final</span> <span class="kd">class</span> <span class="nc">CallerIdFilter</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">HeaderName</span> <span class="n">CALLER_ID</span> <span class="o">=</span> <span class="n">HeaderNames</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="s">&quot;Caller-Id&quot;</span><span class="o">);</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">BYPASS</span> <span class="o">=</span> <span class="n">Set</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;/ping&quot;</span><span class="o">);</span>
+
+  <span class="nd">@Filter</span>
+  <span class="kt">void</span> <span class="nf">filter</span><span class="o">(</span><span class="n">FilterChain</span> <span class="n">chain</span><span class="o">,</span> <span class="n">RoutingRequest</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">(</span><span class="n">req</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">BYPASS</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="n">path</span><span class="o">))</span> <span class="o">{</span>
+      <span class="n">chain</span><span class="o">.</span><span class="na">proceed</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="n">String</span> <span class="n">callerId</span> <span class="o">=</span> <span class="n">callerId</span><span class="o">(</span><span class="n">req</span><span class="o">).</span><span class="na">orElseThrow</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">BadRequestException</span><span class="o">(</span><span class="s">&quot;Caller-Id required&quot;</span><span class="o">));</span>
+      <span class="n">handleCallerMetrics</span><span class="o">(</span><span class="n">path</span><span class="o">,</span> <span class="n">callerId</span><span class="o">);</span>
+      <span class="n">chain</span><span class="o">.</span><span class="na">proceed</span><span class="o">();</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">handleCallerMetrics</span><span class="o">(</span><span class="n">String</span> <span class="n">path</span><span class="o">,</span> <span class="n">String</span> <span class="n">callerId</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// capture metrics</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">callerId</span><span class="o">(</span><span class="n">RoutingRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">first</span><span class="o">(</span><span class="n">CALLER_ID</span><span class="o">);</span>
+  <span class="o">}</span>
+
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">path</span><span class="o">(</span><span class="n">ServerRequest</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">req</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">req</span><span class="o">.</span><span class="na">path</span><span class="o">()</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">?</span> <span class="n">req</span><span class="o">.</span><span class="na">path</span><span class="o">().</span><span class="na">path</span><span class="o">()</span> <span class="o">:</span> <span class="kc">null</span><span class="o">;</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+
+  <p><br><br><br><br><br><br></p>
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>
