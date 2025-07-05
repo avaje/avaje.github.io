@@ -2717,8 +2717,8 @@ These files contain all the metadata for all the modules and plugins provided by
 
 <p>Below is an example plugin that provides a default ExampleBean instance. </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//this is read at compile-time to tell the avaje generator what bean classes are provided</span>
-<span class="n">PluginProvides</span><span class="o">({</span><span class="n">ExampleBean</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
-<span class="n">ublic</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">DefaultBeanProvider</span> <span class="kd">implements</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">InjectPlugin</span> <span class="o">{</span>
+<span class="n">@PluginProvides</span><span class="o">({</span><span class="n">ExampleBean</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
+<span class="n">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">DefaultBeanProvider</span> <span class="kd">implements</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">InjectPlugin</span> <span class="o">{</span>
 
  <span class="c1">//this is called at runtime to tell avaje beanscope what bean classes this plugin provides</span>
  <span class="nd">@Override</span>
