@@ -452,24 +452,21 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 
 <h4>Usage with Javalin</h4>
 
-<p>The annotation processor will generate controller classes implementing the javalin <code>Plugin</code> interface, which means we can register them using:
+<p>The annotation processor will generate controller classes implementing the <code>AvajeJavalinPlugin</code> interface (concrete subclass of Javalin <code>Plugin<Void></code>), which means we can register them using:
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">Plugin</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="o">...;</span> <span class="c1">//retrieve using a DI framework</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">AvajeJavalinPlugin</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="o">...;</span> <span class="c1">// retrieve using a DI framework.</span>
 
-<span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">cfg</span> <span class="o">-&gt;</span> <span class="n">routes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">cfg</span><span class="o">.</span><span class="na">plugins</span><span class="o">::</span><span class="n">register</span><span class="o">)).</span><span class="na">start</span><span class="o">();</span>
+<span class="n">Javalin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">cfg</span> <span class="o">-&gt;</span> <span class="n">routes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">cfg</span><span class="o">::</span><span class="n">registerPlugin</span><span class="o">)).</span><span class="na">start</span><span class="o">();</span>
 </pre></div>
 </div>
 
 <h4>Usage with Jex</h4>
 
-<p>The annotation processor will generate controller classes implementing the javalin <code>Routing.HttpService</code> interface, which means we can register them using:
+<p>The annotation processor will generate controller classes implementing the Jex <code>Routing.HttpService</code> interface, which means we can register them using:
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
-  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span> <span class="o">)</span> <span class="o">{</span>
-    <span class="n">List</span><span class="o">&lt;</span><span class="n">Routing</span><span class="o">.</span><span class="na">HttpService</span><span class="o">&gt;</span> <span class="n">services</span> <span class="o">=</span> <span class="c1">// Retrieve HttpServices via DI;</span>
-    <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">().</span><span class="na">routing</span><span class="o">(</span><span class="n">services</span><span class="o">).</span><span class="na">start</span><span class="o">();</span>
-  <span class="o">}</span>
-<span class="o">}</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">Routing</span><span class="o">.</span><span class="na">HttpService</span><span class="o">&gt;</span> <span class="n">services</span> <span class="o">=</span> <span class="o">...;</span> <span class="c1">// retrieve using a DI framework.</span>
+  
+<span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">().</span><span class="na">routing</span><span class="o">(</span><span class="n">services</span><span class="o">).</span><span class="na">start</span><span class="o">();</span>
 </pre></div>
 </div>
 
