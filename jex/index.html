@@ -780,8 +780,7 @@
 
     <h3 id="ssl-plugin">SSL Plugin</h3>
     <p>
-      The <code>SslPlugin</code> can be configured using either an existing <code>SSLContext</code> or through the
-      fluent configuration API:
+      The <code>SslPlugin</code> can be configured using a fluent configuration API:
     </p>
 
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">sslPlugin</span> <span class="o">=</span> <span class="n">SslPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">config</span> <span class="o">-&gt;</span>
@@ -877,12 +876,6 @@
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-jex<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{jex.version}<span class="nt">&lt;/version&gt;</span>
-<span class="nt">&lt;/dependency&gt;</span>
-
-<span class="nt">&lt;dependency&gt;</span>
-  <span class="nt">&lt;groupId&gt;</span>org.eclipse.jetty<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>jetty-server<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>&#36;{jetty.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 <span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>org.eclipse.jetty<span class="nt">&lt;/groupId&gt;</span>
