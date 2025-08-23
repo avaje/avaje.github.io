@@ -41,7 +41,13 @@
 </li>
 <li><a href="#config">Server Configuration</a>
 </li>
-<li><a href="#ssl">Configuring Https</a>
+<li><a href="#ssl">SSL/TLS Configuration</a>
+    <ul>
+      <li><a href="#ssl-plugin">SSL Plugin</a></li>
+      <li><a href="#ssl-keystore">Key Stores</a></li>
+      <li><a href="#ssl-pem">PEM Certificates</a></li>
+      <li><a href="#ssl-mtls">Mutual TLS (mTLS)</a></li>
+    </ul>
 </li>
 <li><a href="#alternate">Alternate Implementations</a>
     <ul>
@@ -731,6 +737,12 @@
         </td>
       </tr>
       <tr>
+        <td><strong><code>httpsConfig(sslContext)</code></strong></td>
+        <td>Enables https with the provided
+          <code><a  href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/javax/net/ssl/SSLContext.html">SSLContext</a></code>.
+        </td>
+      </tr>
+      <tr>
         <td><strong><code>ignoreTrailingSlashes(false)</code></strong></td>
         <td>Configures whether trailing slashes in request URIs should be ignored.</td>
       </tr>
@@ -752,43 +764,100 @@
       </tr>
     </table>
 
-    <h2 id="ssl">Configuring Https</h2><hr/>
+    <h2 id="ssl">SSL/TLS Configuration</h2>
+    <hr/>
     <p>
-      The underlying HttpsServer can be configured using a <code>HttpsConfigurator</code> instance to provide SSL termination.
-      The below example demonstrates how to configure a <code>HttpsConfigurator</code> with an <code>SSLContext</code>.
+      Jex provides a streamlined SSL plugin for configuring HTTPS with support for loading key stores, PEM certificates, and
+      mutual TLS (mTLS).
+    </p>
+    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex-ssl<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.jex.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+    <h3 id="ssl-plugin">SSL Plugin</h3>
+    <p>
+      The <code>SslPlugin</code> can be configured using either an existing <code>SSLContext</code> or through the
+      fluent configuration API:
     </p>
 
-    <div class="syntax java"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="o">[]</span> <span class="n">passphrase</span> <span class="o">=</span> <span class="s">&quot;changeit&quot;</span><span class="o">.</span><span class="na">toCharArray</span><span class="o">();</span>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">sslPlugin</span> <span class="o">=</span> <span class="n">SslPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">config</span> <span class="o">-&gt;</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">keystoreFromClasspath</span><span class="o">(</span><span class="s">&quot;keystore.p12&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">));</span>
 
-<span class="k">try</span> <span class="o">{</span>
-  <span class="c1">// Load the keystore</span>
-  <span class="n">KeyStore</span> <span class="n">ks</span> <span class="o">=</span> <span class="n">KeyStore</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;JKS&quot;</span><span class="o">);</span>
-  <span class="n">ks</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="k">new</span> <span class="n">FileInputStream</span><span class="o">(</span><span class="s">&quot;keystore.jks&quot;</span><span class="o">),</span> <span class="n">passphrase</span><span class="o">);</span>
+<span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">sslPlugin</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;Hello Secure World&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">port</span><span class="o">(</span><span class="mi">8443</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</pre></div>
+</div>
 
-  <span class="c1">// Set up the key manager factory</span>
-  <span class="n">KeyManagerFactory</span> <span class="n">kmf</span> <span class="o">=</span> <span class="n">KeyManagerFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;SunX509&quot;</span><span class="o">);</span>
-  <span class="n">kmf</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">ks</span><span class="o">,</span> <span class="n">passphrase</span><span class="o">);</span>
+    <h3 id="ssl-keystore">Key Store Configuration</h3>
+    <p>
+      The SSL configuration supports loading key stores from multiple sources with optional separate identity passwords:
+    </p>
 
-  <span class="c1">// Set up the trust manager factory</span>
-  <span class="n">TrustManagerFactory</span> <span class="n">tmf</span> <span class="o">=</span> <span class="n">TrustManagerFactory</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;SunX509&quot;</span><span class="o">);</span>
-  <span class="n">tmf</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">ks</span><span class="o">);</span>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">sslPlugin</span> <span class="o">=</span> <span class="n">SslPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">config</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// From file system</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">keystoreFromPath</span><span class="o">(</span><span class="s">&quot;/path/to/keystore.p12&quot;</span><span class="o">,</span> <span class="s">&quot;keystorePassword&quot;</span><span class="o">,</span> <span class="s">&quot;identityPassword&quot;</span><span class="o">);</span>
 
-  <span class="c1">// Set up the SSL context</span>
-  <span class="n">SSLContext</span> <span class="n">sslContext</span> <span class="o">=</span> <span class="n">SSLContext</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="s">&quot;TLS&quot;</span><span class="o">);</span>
-  <span class="n">sslContext</span><span class="o">.</span><span class="na">init</span><span class="o">(</span><span class="n">kmf</span><span class="o">.</span><span class="na">getKeyManagers</span><span class="o">(),</span> <span class="n">tmf</span><span class="o">.</span><span class="na">getTrustManagers</span><span class="o">(),</span> <span class="kc">null</span><span class="o">);</span>
+    <span class="c1">// From classpath</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">keystoreFromClasspath</span><span class="o">(</span><span class="s">&quot;ssl/keystore.jks&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">);</span>
 
-  <span class="c1">// Create Server</span>
-  <span class="k">var</span> <span class="n">https</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HttpsConfigurator</span><span class="o">(</span><span class="n">sslContext</span><span class="o">);</span>
+    <span class="c1">// From input stream</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">keystoreFromInputStream</span><span class="o">(</span><span class="n">inputStream</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">);</span>
+<span class="o">});</span>
+</pre></div>
+</div>
 
-  <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
-      <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;Hello World&quot;</span><span class="o">))</span>
-      <span class="o">.</span><span class="na">config</span><span class="o">(</span><span class="n">c</span> <span class="o">-&gt;</span> <span class="n">c</span><span class="o">.</span><span class="na">httpsConfig</span><span class="o">(</span><span class="n">https</span><span class="o">).</span><span class="na">port</span><span class="o">(</span><span class="mi">8443</span><span class="o">))</span>
-      <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+    <h3 id="ssl-pem">PEM Certificate Configuration</h3>
+    <p>
+      For PEM-formatted certificates and private keys, the plugin supports various sources and optional private key
+      passwords:
+    </p>
 
-<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">sslPlugin</span> <span class="o">=</span> <span class="n">SslPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">config</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// From file system</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">pemFromPath</span><span class="o">(</span><span class="s">&quot;/path/to/cert.pem&quot;</span><span class="o">,</span> <span class="s">&quot;/path/to/private-key.pem&quot;</span><span class="o">,</span> <span class="s">&quot;keyPassword&quot;</span><span class="o">);</span>
 
-  <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
-<span class="o">}</span>
+    <span class="c1">// From classpath</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">pemFromClasspath</span><span class="o">(</span><span class="s">&quot;ssl/certificate.pem&quot;</span><span class="o">,</span> <span class="s">&quot;ssl/private-key.pem&quot;</span><span class="o">);</span>
+
+    <span class="c1">// From strings (useful for environment variables or external config)</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">pemFromString</span><span class="o">(</span><span class="n">certPemString</span><span class="o">,</span> <span class="n">privateKeyPemString</span><span class="o">);</span>
+
+    <span class="c1">// From input streams</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">pemFromInputStream</span><span class="o">(</span><span class="n">certInputStream</span><span class="o">,</span> <span class="n">keyInputStream</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">);</span>
+<span class="o">});</span>
+</pre></div>
+</div>
+
+    <h3 id="ssl-mtls">Mutual TLS (mTLS) Configuration</h3>
+    <p>
+      For client certificate authentication, configure trust settings using the <code>TrustConfig</code> interface:
+    </p>
+
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">sslPlugin</span> <span class="o">=</span> <span class="n">SslPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">config</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="c1">// Configure server identity</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">keystoreFromClasspath</span><span class="o">(</span><span class="s">&quot;server-keystore.p12&quot;</span><span class="o">,</span> <span class="s">&quot;serverPassword&quot;</span><span class="o">);</span>
+
+    <span class="c1">// Configure client certificate trust</span>
+    <span class="n">config</span><span class="o">.</span><span class="na">withTrustConfig</span><span class="o">(</span><span class="n">trust</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="c1">// Trust specific client certificates</span>
+        <span class="n">trust</span><span class="o">.</span><span class="na">certificateFromClasspath</span><span class="o">(</span><span class="s">&quot;client-cert.pem&quot;</span><span class="o">)</span>
+             <span class="o">.</span><span class="na">certificateFromPath</span><span class="o">(</span><span class="s">&quot;/path/to/another-client-cert.crt&quot;</span><span class="o">);</span>
+
+        <span class="c1">// Or use a trust store</span>
+        <span class="n">trust</span><span class="o">.</span><span class="na">trustStoreFromClasspath</span><span class="o">(</span><span class="s">&quot;truststore.jks&quot;</span><span class="o">,</span> <span class="s">&quot;trustPassword&quot;</span><span class="o">);</span>
+
+        <span class="c1">// Mix different certificate formats</span>
+        <span class="n">trust</span><span class="o">.</span><span class="na">certificateFromString</span><span class="o">(</span><span class="n">pemCertString</span><span class="o">)</span>
+             <span class="o">.</span><span class="na">certificateFromInputStream</span><span class="o">(</span><span class="n">certInputStream</span><span class="o">);</span>
+    <span class="o">});</span>
+<span class="o">});</span>
 </pre></div>
 </div>
 
