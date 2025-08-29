@@ -50,14 +50,23 @@
     <li><a href="#external">@External</a></li>
     <li><a href="#list">List and Set</a></li>
     <li><a href="#provider">Provider</a></li>
-    <li><a href="#factory">@Factory</a></li>
-    <li><a href="#bean">@Bean</a></li>
     <li><a href="#beantypes">Limiting Injectable Types</a></li>
+  </ul>
+</li>
+<li><a href="#factory">@Factory</a>
+  <ul>
+    <li><a href="#bean">@Bean</a></li>
+  </ul>
+</li>
+<li><a href="#prototype">Prototype Scope</a>
+</li>
+<li><a href="#lazy">Lazy Beans</a>
+</li>
+<li><a href="#priorities">Bean Priority</a>
+  <ul>
     <li><a href="#primary">@Primary</a></li>
     <li><a href="#priority">@Priority</a></li>
     <li><a href="#secondary">@Secondary</a></li>
-    <li><a href="#prototype">@Prototype</a></li>
-    <li><a href="#lazy">@Lazy</a></li>
   </ul>
 </li>
 <li><a href="#qualifiers">Qualifiers</a>
@@ -96,10 +105,10 @@
 <li><a href="#scope">Scope</a>
   <ul>
     <li><a href="#default-scope">Default Scope</a></li>
+    <li><a href="#prototype-scope">Prototype Scope</a></li>
     <li><a href="#scope-test-scope">Test Scope</a></li>
     <li><a href="#request-scope">Request Scope</a></li>
     <li><a href="#custom-scope">Custom Scope</a></li>
-    <li><a href="#bean-scope">BeanScope</a></li>
   </ul>
 </li>
 <li><a href="#events">Events</a>
@@ -195,8 +204,8 @@
 </p>
 <p>
   The dependency injection classes are generated source code.
-  This allows us to seamlessly incorporate debug breakpoints into the DI code, enabling us to step through the code as if it were manually written.
-  We can use existing IDE tools to search where code is called (e.g. Constructors and lifecycle
+  This allows a seamless debugging experience where breakpoints can be set into the DI code. You can step through the code as if it were manually written
+  and use existing IDE tools to search where code is called (e.g. Constructors and lifecycle
   methods.)
 </p>
 <p>
@@ -210,7 +219,7 @@
   <tr>
     <td>
       <p>
-        Do we care about the size of a DI library? Why is dagger and avaje-inject so much
+        Do we care about the size of a DI library? Why is avaje-inject so much
         smaller?
       </p>
       <p>
@@ -355,7 +364,7 @@
 </div>
 
 <h4>2a. JDK 23+ </h4>
-<p>In JDK 23+, annotation processors are disabled by default, so we need to add a compiler property to re-enable.</p>
+<p>In JDK 23+, annotation processors are disabled by default, so on maven we add a compiler property to re-enable.</p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;properties&gt;</span>
   <span class="nt">&lt;maven.compiler.proc&gt;</span>full<span class="nt">&lt;/maven.compiler.proc&gt;</span>
 <span class="nt">&lt;/properties&gt;</span>
@@ -435,7 +444,7 @@
   See example at: https://github.com/dinject/examples/blob/master/basic-di-kotlin-maven/pom.xml
 </p>
 <p>
-  For use with Kotlin we register <em>avaje-inject-generator</em> as a <code>kapt</code> processor
+  For use with Kotlin, register <em>avaje-inject-generator</em> as a <code>kapt</code> processor
   to the Kotlin compiler rather than <em>annotationProcessor</em>.
 </p>
 <div class="syntax groovy"><div class="highlight"><pre><span></span><span class="n">dependencies</span> <span class="o">{</span>
@@ -451,7 +460,7 @@
 
 <h2 id="jpms">Java Module Setup</h2><hr/>
 <p>
-  If using java modules, in the <code>module-info.java</code> we need to:
+  If using java modules, in the <code>module-info.java</code>:
 </p>
 <ol>
   <li>Add a <em>requires</em> clause for <em>io.avaje.inject</em></li>
@@ -578,9 +587,8 @@ The inject annotation processor will determine the dependency wiring order of a 
 
 <h3 id="singleton">@Singleton</h3>
 <p>
-  Put <code>@Singleton</code> on beans that we want dependency injection on.
-  These are beans that are created ("wired") by dependency injection and put into the scope.
-  They are then available to be injected into other beans.
+  Put <code>@Singleton</code> on beans that to include them in dependency injection.
+  These are beans that are created ("wired") by dependency injection and put into the scope, available to be injected into other beans.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
@@ -591,22 +599,17 @@ The inject annotation processor will determine the dependency wiring order of a 
 <h3 id="component">@Component</h3>
 <p>
   <code>@Component</code> is similar to JSR-330 <code>@Singleton</code> except it is <em>avaje-inject</em>
-  specific. In general, we prefer to use the JSR-330 standard annotations but there are a couple of cases
-  where would choose to use the avaje-inject specific <code>@Component</code> instead.
+  specific. It's preferable to use the JSR-330 standard annotations, but there are a few cases
+  where <code>@Component</code> has an advantage.
 </p>
 <ul>
-  <li>A project is using another DI library (for example, Guice) to process the standard
+  <li>A project is using another DI library (for example, Guice) that processes the standard
     <code>@Singleton</code> and we want avaje-inject to co-exist but ignore anything annotated with
     <code>@Singleton</code>.
   </li>
   <li>
-    A project wants to work with <em>both</em> <code>javax.inject</code> and <code>jakarta.inject</code>
-  </li>
+    A project wants to work with <em>both</em> <code>javax.inject</code> and <code>jakarta.inject</code> for some reason.
 </ul>
-<p>
-  In these cases we may choose to use the <em>avaje-inject</em> specific <code>@Component</code> rather than
-  JSR-330 <code>@Singleton</code>.
-</p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Component</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
   <span class="o">...</span>
@@ -621,15 +624,11 @@ The inject annotation processor will determine the dependency wiring order of a 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">ignoreSingleton</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
 </pre></div>
 </div>
-<p>
-  With <code>ignoreSingleton = true</code> avaje-inject will ignore <code>@Singleton</code> with the
-  view that some other DI library is also being used and is handling those components.
-</p>
 
 <h3 id="import">@Component.Import</h3>
 <p>
   Put <code>@Component.Import</code> on a class/package-info to create dependency injection on external classes (e.g. mvn dependencies).
-  It has the same effect as if the bean was directly annotated by <code>@Component</code>.
+  It has the same effect as if the bean was directly annotated by <code>@Singleton</code> or <code>@Component</code>.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Component.Import</span><span class="o">(</span><span class="nx">TeaMaker</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 <span class="nd">@Singleton</span>
@@ -640,14 +639,15 @@ The inject annotation processor will determine the dependency wiring order of a 
 
 <h3 id="inject">@Inject</h3>
 <p>
-  Put <code>@Inject</code> on the constructor that should be used for constructor dependency injection.
-</p>
-<p>
-  If we want to use field injection put the <code>@Inject</code> on the field. The field must not
-  be <code>private</code> and must not be <code>final</code> for field injection.
+  Put <code>@Inject</code> on the constructor/field used for constructor dependency injection.
 </p>
 
 <h3 id="constructor">Constructor Injection</h3>
+
+<p>
+  The below CoffeeMaker uses constructor injection. Both a Pump and Ginder will be injected into the
+  constructor when the bean scope creates the CoffeeMaker.
+</p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
 
@@ -660,17 +660,17 @@ The inject annotation processor will determine the dependency wiring order of a 
     <span class="k">this</span><span class="o">.</span><span class="na">pump</span> <span class="o">=</span> <span class="n">pump</span><span class="o">;</span>
     <span class="k">this</span><span class="o">.</span><span class="na">grinder</span> <span class="o">=</span> <span class="n">grinder</span><span class="o">;</span>
   <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="nf">CoffeeMaker</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">//other constructor</span>
+  <span class="o">}</span>
   <span class="o">...</span>
 </pre></div>
 </div>
-<p>
-  The above CoffeeMaker is using constructor injection. Both a Pump and Ginder will be injected into the
-  constructor when the DI creates (or "wires") the CoffeeMaker.
-</p>
 
 <h4>Single Constructors</h4>
 <p>
-  If there is only one constructor, <b>we don't need
+  If there is only one constructor, <b>you don't need
   to specify <code>@Inject</code></b>. This includes records and kotlin data classes.
 </p>
 
@@ -714,27 +714,26 @@ The inject annotation processor will determine the dependency wiring order of a 
 </p>
 <h4>Constructor injection preferred</h4>
 <p>
-  Generally there is a preference to use constructor injection over field injection as constructor
-  injection:
+  Constructor injection has many advantages over field injection as it:
 </p>
 <ul>
-  <li>Promotes immutability / use of final fields / proper initialisation</li>
+  <li>Promotes immutability / use of final fields / proper initialization</li>
   <li>Communicates required dependencies at compile time. Helps when dependencies
     change to keep test code in line.</li>
   <li>Helps identify when there are too many dependencies. Too many constructor
     arguments is a more obvious code smell compared to field injection.
-    Promotes single responsibility principal.</li>
+    Promotes single responsibility principle.</li>
 </ul>
 
 <h4>Circular dependencies</h4>
 <p>
-  We use field injection or method injection to handle <a href="#circular">circular dependencies</a>.
+  Field/method injection is effective to solve <a href="#circular">circular dependencies</a>.
   See <a href="#circular">below</a> for more details.
 </p>
 
 <h4>Kotlin field injection</h4>
 <p>
-  For Kotlin we can consider using <em>lateinit</em> on the property with field injection.
+  For Kotlin, consider using <em>lateinit</em> on the property with field injection.
 </p>
 <div class="syntax kotlin"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="k">class</span> <span class="nc">Grinder</span> <span class="p">{</span>
@@ -769,7 +768,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 
 <h3 id="mixed">Mixed constructor, field and method injection</h3>
 <p>
-  We are allowed to mix constructor, field and method injection. In the below example the Grinder
+  Classes can mix constructor, field and method injection. In the below example, the Grinder
   is injected into the constructor and the Pump is injected by field injection.
 </p>
 
@@ -789,11 +788,11 @@ The inject annotation processor will determine the dependency wiring order of a 
 
 <h3 id="circular">Circular Dependencies</h3>
 <p>
-  When we have a circular dependency then we need to use either <a href="#field">field injection</a>
+  Resolving circular dependencies requires either <a href="#field">field injection</a>
   or <a href="#method">method injection</a> on one of the dependencies.
 </p>
 <p>
-  For example, lets say we have A and B where A depends on B and B depends on A. In this case
+  Say we have A and B where A depends on B and B depends on A. In this case
   we can't use constructor injection for both A and B like:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// circular dependency with constructor injection, this will not work!!</span>
@@ -820,10 +819,6 @@ The inject annotation processor will determine the dependency wiring order of a 
   cannot determine the order in which to construct the beans. <em>avaje-inject</em> will
   detect this and product a compilation error outlining the beans involved and ask us
   to change to use field injection for one of the dependencies.
-</p>
-<p>
-  We cannot use constructor injection for both A and B, instead we must use
-  either field/method injection on either A or B like:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">class</span> <span class="nc">A</span> <span class="o">{</span>
@@ -892,16 +887,10 @@ The inject annotation processor will determine the dependency wiring order of a 
 <span class="o">}</span>
 </pre></div>
 </div>
-<h5>Spring DI Note</h5>
-<p>
-  Spring users will be familiar with the use of <code>@Autowired(required=false)</code>
-  for wiring optional dependencies. With <em>avaje-inject</em> we instead use <code>Optional</code>
-  or <code>@Nullable</code> to inject optional dependencies.
-</p>
 
 <h3 id="nullable">@Nullable</h3>
 <p>
-  As an alternative to Optional we can use <code>@Nullable</code> to indicate that a dependency
+  As an alternative to Optional, <code>@Nullable</code> is used to indicate that a dependency
   is optional / can be null. Any <code>@Nullable</code> annotation can be used, it does not
   matter which package the annotation is in.
 </p>
@@ -927,6 +916,13 @@ The inject annotation processor will determine the dependency wiring order of a 
 <span class="o">}</span>
 </pre></div>
 </div>
+
+<h5>Spring DI Note</h5>
+<p>
+  Spring users will be familiar with the use of <code>@Autowired(required=false)</code>
+  for wiring optional dependencies. With <em>avaje-inject</em>, the equivalent is to use <code>Optional</code>
+  or <code>@Nullable</code> to inject optional dependencies.
+</p>
 
 <h3 id="external">@External</h3>
 <p>
@@ -1006,9 +1002,11 @@ The inject annotation processor will determine the dependency wiring order of a 
 <span class="o">}</span>
 </pre></div>
 </div>
+
 <p>
-  We can then have another bean that has <code>Provider&lt;T&gt;</code> injected into it.
-  It calls <code>get()</code> to get an instance to then use.
+  When using <code>Provider&lt;T&gt;</code> <code>get()</code> a new instance is returned each time we
+  call <code>get()</code>. This is effectively the
+  same as <em>Prototype scope</em>.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
@@ -1031,26 +1029,40 @@ The inject annotation processor will determine the dependency wiring order of a 
 </div>
 
 <p>
-  When using <code>Provider&lt;T&gt;</code> <code>get()</code> we can get a new instance each time we
-  call <code>get()</code>. In the above example, the <code>FooProvider.get()</code> method
-  returns a new instance each time <code>get()</code> is called. This is effectively the
-  same as <em>Prototype scope</em>.
-</p>
-<p>
   An alternative to implementing the <code>Provider&lt;T&gt;</code> interface is
   to instead use <code><a href="#factory">@Factory</a></code> and <code><a href="#bean">@Bean</a></code>
-  as can be more flexible and convenient.
+  which can be more flexible and convenient.
 </p>
 
+<h3 id="beantypes">Limiting Injectable Types</h3>
+<p>
+  When you annotate a bean with <code>@Singleton</code> or create via a </code>@Factory</code> class, the bean class and all interfaces it implements and super classes it extends become injectable.
+<br>For cases where this is not desired, use <code>@BeanTypes</code> to limit the types available to inject a particular bean.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
+<span class="nd">@BeanTypes</span><span class="o">(</span><span class="nx">Appliance</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="kd">implements</span> <span class="n">Machine</span><span class="o">,</span> <span class="n">Appliance</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+<span class="c1">//we can only retrieve the bean as an instance of Appliance</span>
+<span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Appliance</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="c1">//throws not found exception</span>
+<span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</pre></div>
+</div>
+
 <h2 id="factory">@Factory</h2>
+<hr/>
 <p>
   Factory beans allow us to programmatically creating a bean. Often the logic is based
   on external configuration, environment variables, system properties etc.
 </p>
 <p>
-  We annotate a class with <code>@Factory</code> to tell us that it contains methods
-  that create beans. The factory class can itself have dependencies and the methods
-  can also have dependencies.
+  Annotate a class with <code>@Factory</code> to tell the processor that it contains methods
+  that creates beans.
 </p>
 <p>
   <em>@Factory</em> <em>@Bean</em> are equivalent to Spring DI <em>@Configuration</em> <em>@Bean</em>
@@ -1060,7 +1072,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 
 <h3 id="bean">@Bean</h3>
 <p>
-  We annotate methods on the factory class that create a bean with <code>@Bean</code>.
+  Annotate methods on the factory class that creates a bean with <code>@Bean</code>.
   These methods can have dependencies and will execute in the appropriate order
   depending on the dependencies they require.
 </p>
@@ -1098,8 +1110,8 @@ The inject annotation processor will determine the dependency wiring order of a 
 </div>
 <h3 id="beanclose">@Bean autocloseable</h3>
 <p>
-  The avaje annotation processor reads the bean method return types to detect if the bean is an instance of <code>Closeable</code> or <code>AutoCloseable</code>.
-  In the case where you are wiring an interface that doesn't implement these types, but the concrete class implements, we can specify <code>autocloseable</code> to inform the processor.
+  The avaje annotation processor reads the return types to detect if the bean is an instance of <code>Closeable</code> or <code>AutoCloseable</code>.
+  In the case where you are wiring an interface that doesn't implement these types, but the concrete class implements, specify <code>autocloseable</code> to inform the processor.
  </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
@@ -1114,9 +1126,9 @@ The inject annotation processor will determine the dependency wiring order of a 
 </div>
 <h3 id="initMethod">@Bean initMethod & destroyMethod</h3>
 <p>
-  With <code>@Bean</code> we can specify an <code>initMethod</code>
-  which will be executed on startup like <code>@PostConstruct</code>.
-  Similarly a <code>destroyMethod</code> which execute on shutdown like <code>@PreDestroy</code>.
+  With <code>@Bean</code>, <code>initMethod</code> is used to register a method on the type
+  which will be executed on startup similar to <code>@PostConstruct</code>.
+  Similarly a <code>destroyMethod</code> can be specified to execute on shutdown like <code>@PreDestroy</code>.
 </p>
 
 <h4>Example</h4>
@@ -1146,14 +1158,12 @@ The inject annotation processor will determine the dependency wiring order of a 
 </div>
 <h3 id="optionalBean">Optional @Bean</h3>
 <p>
-  We can use <code>Optional&lt;T&gt;</code> to indicate that the method produces
+  Use <code>Optional&lt;T&gt;</code> to indicate that the method produces
   an optional dependency.
 </p>
 <p>
-  Often the dependency is only provided based on external configuration
-  a bit like a feature toggle / config toggle. For example, we might do
-  this in a CI/CD environment until such time that the dependency is
-  always "ON" in all environments and then we change to make the dependency
+  Often, a dependency is only provided based on external configuration.
+  For example, in a CI/CD environment a bean may not be needed, while in a different environment must be wired.
   not optional.
 </p>
 
@@ -1176,109 +1186,9 @@ The inject annotation processor will determine the dependency wiring order of a 
 <span class="o">}</span>
 </pre></div>
 </div>
-<h3 id="useOfFactory">Use of @Factory @Bean</h3>
-<p>
-  It is good to use <code>@Factory</code> for all the dependencies we want to
-  create programmatically. Many teams will have a standard location/package they use to
-  put a "configuration factory bean" where all programmatically created dependencies are
-  defined as a general approach.
-</p>
-<p>
-  If we see logic in constructors then we typically would try to move that logic to a
-  factory bean method and keep the constructors simple. Logic in constructors typically
-  makes it harder from a testing perspective.
-</p>
 
-<h2 id="beantypes">Limiting Injectable Types</h2>
-<p>
-  When you annotate a bean with <code>@Singleton</code> or create via a </code>@Factory</code> class, the bean class and all interfaces it implements and super classes it extends become injectable.
-<br>For cases where this is not desired, we can use <code>@BeanTypes</code> to limit the types available to inject a particular bean.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
-<span class="nd">@BeanTypes</span><span class="o">(</span><span class="nx">Appliance</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="kd">implements</span> <span class="n">Machine</span><span class="o">,</span> <span class="n">Appliance</span> <span class="o">{</span>
-  <span class="o">...</span>
-</pre></div>
-</div>
-
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
-<span class="c1">//we can only retrieve the bean as an instance of Appliance</span>
-<span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Appliance</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-<span class="c1">//throws not found exception</span>
-<span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</pre></div>
-</div>
-
-<h2 id="primary">@Primary</h2>
-<p>
-  A bean with <code>@Primary</code> is deemed to be highest priority and will be injected and used
-  when it is available. This is functionally the same as Spring and Micronaut <em>@Primary</em>.
-</p>
-<p>
-  There should only ever be <b>one</b> bean implementation marked as <em>@Primary</em> for
-  a given dependency.
-</p>
-
-<h4>Example</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Highest priority EmailServer</span>
-<span class="c1">// Used when available (e.g. module in the class path)</span>
-<span class="nd">@Primary</span>
-<span class="nd">@Singleton</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PreferredEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
-  <span class="o">...</span>
-</pre></div>
-</div>
-
-<h2 id="priority">@Priority</h2>
-<p>
-  A bean with <code>@Priority</code> allows you to define a custom priority and will only be injected
-  if there are no other higher priority bean candidates.
-</p>
-<h4>Example</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Lower priority EmailServer</span>
-<span class="c1">// Only used if no other higher priortiy EmailServer is available</span>
-<span class="nd">@Priority</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span>
-<span class="nd">@Singleton</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DefaultEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
-  <span class="o">...</span>
-</pre></div>
-</div>
-
-<h2 id="secondary">@Secondary</h2>
-<p>
-  A bean with <code>@Secondary</code> is deemed to be lowest priority and will only be injected
-  if there are no other candidates to inject. We use <code>@Secondary</code> to indicate a
-  "default" or "fallback" implementation that will be superseded by any other available implementation.
-</p>
-<p>
-  This is functionally the same as Spring and Micronaut <em>@Secondary</em>.
-</p>
-<h4>Example</h4>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Lowest priority EmailServer</span>
-<span class="c1">// Only used if no other EmailServer is available</span>
-<span class="nd">@Secondary</span>
-<span class="nd">@Singleton</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DefaultEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
-  <span class="o">...</span>
-</pre></div>
-</div>
-
-<h3 id="primary-usage">Use of @Primary and @Secondary</h3>
-<p>
-  <code>@Primary</code> and <code>@Secondary</code> are used when there are
-  multiple candidates to inject. They provide a "priority" to determine which dependency to
-  inject and use when injecting a single implementation and multiple candidates are available
-  to inject.
-</p>
-<p>
-  We typically use <em>@Primary</em> and <em>@Secondary</em> when we are
-  building multi-module applications. We have multiple modules (jars) that provide implementations.
-  We use <em>@Secondary</em> to indicate a "default" or "fallback" implementation to use
-  and we use <em>@Primary</em> to indicate the best implementation to use when it is available.
-  <em>avaje-inject</em> DI will then wire depending on which modules (jars) are included in the classpath.
-</p>
-
-<h3 id="prototype">@Prototype</h3>
+<h2 id="prototype">@Prototype Scoped Beans</h2>
+<hr/>
 <p>When the <em>@Prototype</em> annotation is added to a class/factory bean method, a new instance of the bean will be created each time it is requested or wired.</p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Prototype</span>
@@ -1301,9 +1211,20 @@ The inject annotation processor will determine the dependency wiring order of a 
 </pre></div>
 </div>
 
-<h3 id="lazy">@Lazy</h3>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
+<span class="kt">void</span> <span class="nf">main</span><span class="o">()</span> <span class="o">{</span>
+  <span class="c1">//every time this bean is requested, it is constructed anew.</span>
+  <span class="k">var</span> <span class="n">beans</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+  <span class="c1">// two separate instances</span>
+  <span class="k">assert</span> <span class="n">beans</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Proto</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">!=</span> <span class="n">beans</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Proto</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h2 id="lazy">@Lazy Beans</h2>
+<hr/>
 <p>
-  We can use <code>@Lazy</code> on beans/factory methods to defer bean initialization until the bean is requested and one of its method are called. Once requested, the same singleton will be returned by all subsequent bean requests.
+  Place <code>@Lazy</code> on beans/factory methods to defer bean initialization until the bean is requested and one of its method are called. Once requested, the same singleton will be returned by all subsequent bean requests.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Lazy</span>
@@ -1339,7 +1260,7 @@ The inject annotation processor will determine the dependency wiring order of a 
 
 <h4>2. Use a <em>Provider</em></h4>
 
-<p>Lazy providers have the<em>Singleton scope</em>. The same singleton instance will be returned on all requests to <em>Provider#get</em>.</p>
+<p>Lazy providers have the <em>Singleton scope</em>. The same singleton instance will be returned on all requests to <em>Provider#get</em>.</p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">class</span> <span class="nc">UseSloth</span>  <span class="o">{</span>
@@ -1354,18 +1275,91 @@ The inject annotation processor will determine the dependency wiring order of a 
 
     <span class="c1">// get the singleton Sloth instance</span>
     <span class="n">Sloth</span> <span class="n">sloth</span> <span class="o">=</span> <span class="n">slothProvider</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+    <span class="c1">//same instance returned</span>
+    <span class="k">assert</span> <span class="n">sloth</span> <span class="o">==</span> <span class="n">slothProvider</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
     <span class="o">...</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
 </div>
+
+<h2 id="priorities">Bean Priority</h2>
+<hr/>
+
+<p>
+  For cases where multiple beans have the same type and qualifier, the following annotations can control the wiring priority.
+</p>
+
+<h3 id="primary">@Primary</h3>
+<p>
+  A bean with <code>@Primary</code> is deemed to be highest priority and will be injected and used over all others.
+</p>
+<p>
+  There should only ever be <b>one</b> bean implementation marked as <em>@Primary</em> for
+  a given dependency.
+</p>
+
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Highest priority EmailServer</span>
+<span class="c1">// Used when available (e.g. module in the class path)</span>
+<span class="nd">@Primary</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">PreferredEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+<h3 id="priority">@Priority</h3>
+<p>
+  A bean with <code>@Priority</code> allows you to define a custom priority and will only be injected
+  if there are no other higher priority bean candidates.
+</p>
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Lower priority EmailServer</span>
+<span class="c1">// Only used if no other higher priortiy EmailServer is available</span>
+<span class="nd">@Priority</span><span class="o">(</span><span class="mi">5</span><span class="o">)</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DefaultEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+<h3 id="secondary">@Secondary</h3>
+<p>
+  A bean with <code>@Secondary</code> is deemed to be lowest priority and will only be injected
+  if there are no other candidates to inject. <code>@Secondary</code> can be used to indicate a
+  "default" or "fallback" implementation that will be superseded by any other available implementation.
+</p>
+<h4>Example</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Lowest priority EmailServer</span>
+<span class="c1">// Only used if no other EmailServer is available</span>
+<span class="nd">@Secondary</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DefaultEmailSender</span> <span class="kd">implements</span> <span class="n">EmailServer</span> <span class="o">{</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
+
+<h3 id="primary-usage">Use of @Primary and @Secondary</h3>
+<p>
+  <code>@Primary</code> and <code>@Secondary</code> are used when there are
+  multiple candidates to inject. They provide a "priority" to determine which dependency to
+  inject and use when injecting a single implementation and multiple candidates are available
+  to inject.
+</p>
+<p>
+  <em>@Primary</em> and <em>@Secondary</em> are typically used when building multi-module applications.
+  With have multiple modules (jars) that provide implementations, <em>@Secondary</em> can indicate a "default" or "fallback" implementation to use
+  and <em>@Primary</em> can indicate the best implementation to use when it is available.
+  <em>avaje-inject</em> DI will then wire depending on which modules (jars) are included in the classpath.
+</p>
 <h2 id="qualifiers">Qualifiers</h2><hr/>
 
 <h3 id="named">@Named</h3>
 <p>
-  When we have multiple beans that implement a common interface we can qualify
+  When multiple bean candidates exist, we can qualify
   which instance to use by specifying <code>@Named</code> on the beans and where
-  they are injected. This is a standard part of most Java DI frameworks.
+  they are injected.
 </p>
 <p>
   Qualifier names are case insensitive.
@@ -1560,11 +1554,11 @@ Assisted injection is a dependency injection pattern used to construct an object
 
 <h3 id="assistFactory">@AssistFactory</h3>
 <p>
-    To use assisted injection, we annotate our desired class with <code>@AssistFactory</code> to signal the generator to create a factory class.
+    To use assisted injection, annotate a class with <code>@AssistFactory</code> to signal the generator to create a factory class.
     <code>@AssistFactory</code> requires an interface/abstract class type that has the assisted types as parameters.
 </p>
 <p>
-    To mark fields/method parameters as assisted, we annotate them with @Assisted, as shown below:
+    To mark fields/method parameters as assisted, annotate them with @Assisted, as shown below:
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@AssistFactory</span><span class="o">(</span><span class="nx">CarFactory</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
@@ -1652,7 +1646,7 @@ Assisted injection is a dependency injection pattern used to construct an object
 
 <h3 id="post-construct">@PostConstruct</h3>
 <p>
-  Put <code>@PostConstruct</code> on a method that we want to run on startup just after all the
+  Put <code>@PostConstruct</code> on a method to run it on startup just after all the
   beans have been wired.
 </p>
 <p>
@@ -1672,7 +1666,7 @@ Assisted injection is a dependency injection pattern used to construct an object
 
 <h4>@PostConstruct with BeanScope</h3>
 <p>
-  Since post construct methods execute after all the beans have been wired, we can also add the completed BeanScope as a parameter.
+  Since post construct methods execute after all the beans have been wired, the completed BeanScope can be a parameter.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
@@ -1689,10 +1683,7 @@ Assisted injection is a dependency injection pattern used to construct an object
 
 <h3 id="pre-destroy">@PreDestroy</h3>
 <p>
-  Put <code>@PreDestroy</code> on a method that we want to run on shutdown.
-</p>
-<p>
-  Typically we want this method to close resources.
+  Put <code>@PreDestroy</code> on a method to run on shutdown. (Typically to close resources)
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">CoffeeMaker</span> <span class="o">{</span>
@@ -1736,8 +1727,8 @@ Assisted injection is a dependency injection pattern used to construct an object
 
 <h3 id="shutdownHook">Shutdown hook</h3>
 <p>
-  When <code>BeanScope</code> is created, we can specify if it should register a JVM shutdown hook.
-  This is fired when the JVM is shutdown and this in turn invokes the PreDestroy methods. Otherwise,
+  When <code>BeanScope</code> is created, you can specify if it should register a JVM shutdown hook.
+  This is fired when the JVM is shutdown to invoke the PreDestroy methods. Otherwise,
   <code>PreDestroy</code> methods are closed when the BeanScope is closed.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">BeanScope</span> <span class="n">beanScope</span> <span class="o">=</span>
@@ -1777,8 +1768,8 @@ Assisted injection is a dependency injection pattern used to construct an object
 </div>
 
 <h3 id="profile">@Profile</h3>
- <p>When the property <code>avaje.profiles</code> is set, we can use <code>@Profile</code> on a <code>@Factory</code> class, <code>@Factory</code> method,
-  or <code>@Singleton</code> class so that a bean will only be registered when the given wiring profiles are present/absent.</p>
+ <p>When the property <code>avaje.profiles</code> is set, use <code>@Profile</code> on a <code>@Factory</code> class, <code>@Factory</code> method,
+  or <code>@Singleton</code> class to ensure that a bean will only be registered when the given wiring profiles are present/absent.</p>
 <p>
 
 </p>
@@ -1910,10 +1901,10 @@ This library has several contructs that support Aspect Oriented Programmming
 <h3 id="aspect">@Aspect</h3>
 <p>
   Create an annotation class and annotate it with <code>@Aspect</code> to define an aspect annotation.
-  To control the execution order of multiple aspects, we can use the ordering property of the <code>@Aspect</code>.
+  To control the execution order of multiple aspects, use the ordering property of the <code>@Aspect</code>.
   To import an existing annotation, use <code>@Aspect.Import</code>.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Aspect</span><span class="o">(</span><span class="nx">ordering</span><span class="o">=</span><span class="mi">1</span><span class="o">)</span> <span class="c1">// Determines priority among other aspects</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Aspect</span><span class="o">(</span><span class="nx">ordering</span> <span class="o">=</span> <span class="mi">1</span><span class="o">)</span> <span class="c1">// Determines priority among other aspects</span>
 <span class="nd">@Target</span><span class="o">(</span><span class="nx">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
 <span class="nd">@Retention</span><span class="o">(</span><span class="nx">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
 <span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">MyAround</span> <span class="o">{</span>
@@ -1954,7 +1945,7 @@ The AspectProvider should be a <code>@Singleton</code> or <code>@Component</code
 </div>
 
 <p>
-With the provider set, we can use our newly created aspect annotation on a class/method to intercept calls.
+With the provider set, use the created aspect annotation on a class/method to intercept calls.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
@@ -2010,7 +2001,7 @@ With the provider set, we can use our newly created aspect annotation on a class
 
 <h3 id="fallback">@AOPFallback</h3>
 <p>
-  We can use <code>@AOPFallback</code> to register a fallback method for an aspect method invocation.
+  <code>@AOPFallback</code> registers a recovery method for an aspect method invocation.
   Recovery methods must return the same type as the target method and may have 4 options for arguments:
 
  <ul>
@@ -2038,7 +2029,7 @@ With the provider set, we can use our newly created aspect annotation on a class
 </div>
 
 <p>
- Inside our method interceptor, we can use <code>Invocation#invokeRecoveryMethod</code> to recover from an exception.
+ Inside our method interceptor, use <code>Invocation#invokeRecoveryMethod</code> to recover from an exception.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
@@ -2064,7 +2055,9 @@ With the provider set, we can use our newly created aspect annotation on a class
 <span class="o">}</span>
 </pre></div>
 </div>
-<h2 id="default-scope">Default Scope</h2>
+<h2 id="scope">Scopes</h2>
+<hr/>
+<h3 id="default-scope">Default Scope</h3>
 <p>
   All beans are instantiated within a <i>scope</i>. Beans annotated with <code>@Singleton</code>
   are in the "default scope".
@@ -2085,7 +2078,12 @@ With the provider set, we can use our newly created aspect annotation on a class
   in the classpath (i.e. wire all the "default scope" modules in the classpath together into the BeanScope).
 </p>
 
-<h2 id="scope-test-scope">Test scope</h2>
+<h3 id="prototype-scope">Prototype Scope</h3>
+<p>
+  Beans annotated with <code>@Prototype</code> are created on demand when requested. See also: <a href="#prototype">@Prototype</a>.
+</p>
+
+<h3 id="scope-test-scope">Test scope</h3>
 <p>
   Test scope is a special scope used for testing. It effectively provides <em>default dependencies to
   use for all tests</em>.
@@ -2094,30 +2092,28 @@ With the provider set, we can use our newly created aspect annotation on a class
   Refer to <a href="#test-scope">Testing - Test Scope</a> for more details.
 </p>
 
-
-<h2 id="request-scope">Request Scope - @Controller</h2>
+<h3 id="request-scope">Request Scope - @Controller</h3>
 <p>
   When using <a href="/http">avaje-http</a> we annotate controllers with <code>@Controller</code>.
   <em>avaje-inject</em> will detect when controllers have a request scope dependency and automatically
   make them request scoped.
 </p>
 <p>
-  For the following example, the ContactController has a dependency on Javalin Context. This means this
+  For the following example, the ContactController has a dependency on Jex Context. This means this
   controller must use request scope.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Automatically becomes request scoped</span>
-<span class="c1">//  ... because Javalin Context is a dependency</span>
+<span class="c1">//  ... because Jex Context is a dependency</span>
 <span class="c1">//  ... controller instantiated per request</span>
 
-<span class="nd">@Controller</span>
-<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
+<span class="nd">@Controller</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
 <span class="kd">class</span> <span class="nc">ContactController</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">;</span>
 
-  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Context</span> <span class="n">context</span><span class="o">;</span> <span class="c1">// Javalin Context</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">Context</span> <span class="n">context</span><span class="o">;</span> <span class="c1">// Jex Context</span>
 
-  <span class="c1">// Inject Javalin context via constructor</span>
+  <span class="c1">// Inject Jex context via constructor</span>
   <span class="nd">@Inject</span>
   <span class="n">ContactController</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">this</span><span class="o">.</span><span class="na">context</span> <span class="o">=</span> <span class="n">context</span><span class="o">;</span>
@@ -2126,7 +2122,7 @@ With the provider set, we can use our newly created aspect annotation on a class
 
   <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
   <span class="n">Contact</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-    <span class="c1">// use the javalin context ...</span>
+    <span class="c1">// use the Jex context ...</span>
     <span class="k">var</span> <span class="n">fooCookie</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">cookieStore</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">);</span>
     <span class="o">...</span>
   <span class="o">}</span>
@@ -2134,7 +2130,7 @@ With the provider set, we can use our newly created aspect annotation on a class
 </pre></div>
 </div>
 
-<h2 id="custom-scope">@Scope - custom scopes</h2>
+<h3 id="custom-scope">@Scope - custom scopes</h3>
 <p>
   We can define our own custom scopes. To do this we create an annotation that is meta-annotated with <code>@Scope</code>.
   We use this custom scope annotation rather than <code>@Singleton</code>.
@@ -2152,7 +2148,7 @@ With the provider set, we can use our newly created aspect annotation on a class
   use the default scope.
 </p>
 
-<h3>Example: Custom Scope</h3>
+<h4>Example: Custom Scope</h4>
 
 <h5>Step 1: Define the custom scope annotation</h5>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Scope</span>
@@ -2252,95 +2248,12 @@ With the provider set, we can use our newly created aspect annotation on a class
 <span class="o">}</span>
 </pre></div>
 </div>
-
-
-<h3 id="bean-scope">BeanScope</h3>
-<p>
-  The methods on BeanScope that we use to obtain beans out of the scope are:
-</p>
-
-<h5>get(<em>type</em>)</h5>
-<p>
-  Return a single bean given the type.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">StoreManager</span> <span class="n">storeManager</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">StoreManager</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-<span class="n">StoreManager</span><span class="o">.</span><span class="na">processOrders</span><span class="o">();</span>
-</pre></div>
-</div>
-
-<h5>get(<em>type</em>, <em>qualifier</em>)</h5>
-<p>
-  Return a single bean given the type and qualifier name.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Store</span> <span class="n">blueStore</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">Store</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="s">&quot;blue&quot;</span><span class="o">);</span>
-<span class="n">blueStore</span><span class="o">.</span><span class="na">checkOrders</span><span class="o">();</span>
-</pre></div>
-</div>
-
-<h5>list(<em>type</em>)</h5>
-<p>
-  Return the list of beans that implement the interface.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. register all routes for a web framework</span>
-
-<span class="n">List</span><span class="o">&lt;</span><span class="n">WebRoute</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">list</span><span class="o">(</span><span class="n">WebRoute</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</pre></div>
-</div>
-
-<h5>listByAnnotation(<em>annotation type</em>)</h5>
-<p>
-  Return the list of beans that have an annotation.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. register all controllers with web a framework</span>
-<span class="c1">// .. where Controller is an annotation on the beans</span>
-
-<span class="n">List</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">controllers</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">listByAnnotation</span><span class="o">(</span><span class="n">Controller</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</pre></div>
-</div>
-<p>
-The classic use case for this is registering controllers or routes to
- web frameworks like Sparkjava, Javalin, Rapidoid, Helidon, Undertow etc.
-</p>
-
-<h5>listByPriority(<em>type</em>)</h5>
-<p>
-  Return the list of beans that implement the interface sorting by priority.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// e.g. filters that should be applied in @Priority order</span>
-
-<span class="n">List</span><span class="o">&lt;</span><span class="n">Filter</span><span class="o">&gt;</span> <span class="n">filters</span> <span class="o">=</span> <span class="n">beanScope</span><span class="o">.</span><span class="na">listByPriority</span><span class="o">(</span><span class="n">Filter</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-</pre></div>
-</div>
-
-<h4 id="context-builder">BeanScope.builder()</h4>
-<p>
-  We can programmatically create a BeanScope with the option on providing
-  some instances to use as dependencies. Most often we will do this for
-  component testing providing mocks, spies etc to be wired into the beans.
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// provide dependencies to be wired</span>
-<span class="c1">// ... can be real things or test doubles</span>
-<span class="n">MyDependency</span> <span class="n">dependency</span> <span class="o">=</span> <span class="o">...</span>
-
-<span class="k">try</span> <span class="o">(</span><span class="n">BeanScope</span> <span class="n">scope</span> <span class="o">=</span> <span class="n">BeanScope</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">bean</span><span class="o">(</span><span class="n">MyDependency</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">dependency</span><span class="o">)</span>
-  <span class="o">...</span>
-  <span class="o">.</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
-
-  <span class="n">CoffeeMaker</span> <span class="n">coffeeMaker</span> <span class="o">=</span> <span class="n">scope</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">CoffeeMaker</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-  <span class="n">coffeeMaker</span><span class="o">.</span><span class="na">makeIt</span><span class="o">();</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-<p>
-  See <a href="#testing">Testing</a> for more on wiring with test doubles.
-</p>
-
 <h2 id="events">Events</h2><hr/>
 
 <h3 id="observes">@Observes/@ObservesAsync</h3>
 <p>
-  Put <code>@Observes/@ObservesAsync</code> on the event parameter of an observer method. An observer method is a non-abstract method of a managed bean class. We can set the priority of the observer using the <em>priority</em> member of the annotation.
+  Put <code>@Observes/@ObservesAsync</code> on the event parameter of an observer method. An observer method is a non-abstract method of a managed bean class.
+  The <em>priority</em> member of the annotations controls the priority of the observer.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Singleton</span>
@@ -2515,19 +2428,14 @@ The downside of annotating the injection point is that we can't specify the qual
 
 <h4>requires - external dependency</h4>
 <p>
-  We use <code>@InjectModule(requires = ...)</code> to specify an external dependency that will
-  be programmatically provided.
+  <code>@InjectModule(requires = ...)</code> can specify an external dependency that will
+  be programmatically provided. This prevents compilation errors when the processor cannot find the dependency at compile-time. See also <a href="#external">@External</a>.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// at compile time, allow injection of MyExternalDependency</span>
 <span class="c1">// ... even though it doesn&#39;t exist in this module</span>
 <span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">requires</span> <span class="o">=</span> <span class="nx">MyExternalDependency</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 </pre></div>
 </div>
-<p>
-  When compiling the annotation processor checks that dependencies exist or are listed
-  in <code>requires</code> (or <code>requiresPackages)</code> meaning that they are
-  externally supplied dependencies.
-</p>
 <p>
   When creating the BeanScope we provide the externally created dependencies using
   <code>bean()</code>. These external dependencies are then injected where needed.
@@ -2559,9 +2467,8 @@ The downside of annotating the injection point is that we can't specify the qual
 
 <h3 id="multi-module">Multi-module Apps</h3>
 <p>
-  When we are wiring dependencies that span multiple jars/modules then we to provide more
-  control over the order in which the modules are wired. We provide this control
-  by using <code>@InjectModule</code> and the use of <code>provides</code>, and <code>requires</code>
+  When wiring dependencies that span multiple jars/modules, avaje provides control over the order in which the modules are wired.
+  The processor provides this control with <code>@InjectModule</code> and the use of <code>provides</code>, and <code>requires</code>
   or <code>requiresPackages</code>.
 </p>
 
@@ -2595,12 +2502,7 @@ The downside of annotating the injection point is that we can't specify the qual
 </p>
 <p>
   avaje-inject determines the order in which to wire the modules based on <code>provides, requires</code>. In this example
-  it needs to wire the modules in order of: <em>coffee-heater, coffee-pump and then coffee-main</em>.
-</p>
-<p>
-  That is, in a multi-module app avaje-inject creates one BeanScope per module and needs to
-  determine the order in which the modules are wired. It does this using the module <em>provides</em>
-  and <em>requires</em>. As the modules are wired, the beans from any previously wired modules are
+  it needs to wire the modules in order of: <em>coffee-heater, coffee-pump and then coffee-main</em>. As the modules are wired, the beans from any previously wired modules are
   available to the module being wired.
 </p>
 
@@ -2678,9 +2580,9 @@ These files contain all the metadata for all the modules and plugins provided by
 
 <h4 id="module-provides">provides</h4>
 <p>
-  List the classes that this module provides. Used to order modules.
+  List the classes that this module provides, this is usually determined automatically, but it can be manually overridden to change wiring order.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;feature-toggle&quot;</span><span class="o">,</span> <span class="nx">provides</span><span class="o">=</span><span class="nx">FeatureToggle</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;feature-toggle&quot;</span><span class="o">,</span> <span class="nx">provides</span> <span class="o">=</span> <span class="nx">FeatureToggle</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 </pre></div>
 </div>
 
@@ -2688,7 +2590,7 @@ These files contain all the metadata for all the modules and plugins provided by
 <p>
   Defines dependencies that the modules depends on that are provided by another module or manually.
 </p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;job-system&quot;</span><span class="o">,</span> <span class="nx">requires</span><span class="o">=</span><span class="nx">FeatureToggle</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@InjectModule</span><span class="o">(</span><span class="nx">name</span> <span class="o">=</span> <span class="s">&quot;job-system&quot;</span><span class="o">,</span> <span class="nx">requires</span> <span class="o">=</span> <span class="nx">FeatureToggle</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
 </pre></div>
 </div>
 <p>
@@ -2709,7 +2611,7 @@ These files contain all the metadata for all the modules and plugins provided by
 
 <h4 id="strict-wiring">strictWiring</h4>
 <p>
-   Optimizes multi-module wiring by enforcing wiring checks at compile-time. Will cause the generator to throw a descriptive
+   Optimizes multi-module wiring by enforcing wiring checks at compile-time and generating a preset wiring plan. Will cause the generator to throw a descriptive
    compilation error if all inter-module <code>InjectModule#requires</code> dependencies are not satisfied at compile time.
 </p>
 
@@ -2725,10 +2627,10 @@ These files contain all the metadata for all the modules and plugins provided by
 </div>
 
 <p>
-  <em>avaje-inject</em> uses provides, requires, requiresPackages to determine the order in which the modules are created
-  and wired. <em>avaje-inject</em> finds all the modules in the classpath (via Service loader) and then orders the modules
-  based on provides, requires, requiresPackages. In the example above the "feature-toggle" module must be wired first,
-  and then the beans it contains are available when wiring the "job-system".
+  <em>avaje-inject</em> uses provides, requires and requiresPackages to determine the order in which the modules should be created
+  and wired. <em>avaje-inject</em> finds all the modules in the classpath/modulepath (via Service loader) and then orders the modules
+  based on provides, requires, requiresPackages. In the example above the "feature-toggle" module are wired first,
+  and then the beans it contains are then available when wiring the "job-system".
 </p>
 <h2 id="plugins">Plugins</h3><hr/>
 
@@ -2768,12 +2670,10 @@ These files contain all the metadata for all the modules and plugins provided by
 
 <h3 id="unit-testing">Unit Testing</h3>
 <p>
-  When we are <em>unit testing</em> we are focused on the
-  thing we want to test (object under test) and it's dependencies.
+  When <em>unit testing</em> we are focused on the object under testing and it's dependencies.
 </p>
 <p>
-  In the test setup, code will create the thing we are testing (object under test)
-  along with it's dependencies.
+  In the test setup, code will create the object under test along with it's dependencies.
 </p>
 
 <h5>Mockito programmatic style</h5>
@@ -2823,8 +2723,6 @@ These files contain all the metadata for all the modules and plugins provided by
   provides a JUnit extension similar to the Mockito one and that uses the Mockito annotations
   <code>@Mock, @Spy, @Captor</code> and also adds <code>@Inject</code>.
 </p>
-
-
 
 
 <h2 id="component-testing">Component Testing</h2><hr/>
