@@ -182,7 +182,7 @@
 </pre></div>
 </div>
 
-  <h4>3. Add <code>@Valid</code> onto types we want to serialize.</h4>
+  <h4>3. Add <code>@Valid</code> onto types we want to validate.</h4>
   <p>
     <br>The avaje-validator-generator annotation processor will generate a ValidationAdapter as java source code for
     each type annotated with <code>@Valid</code>.
@@ -294,7 +294,8 @@
     <code>Validator</code> instance.
   </p>
 
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Customizer</span> <span class="kd">implements</span> <span class="n">ValidatorCustomizer</span> <span class="o">{</span>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ServiceProvider</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Customizer</span> <span class="kd">implements</span> <span class="n">ValidatorCustomizer</span> <span class="o">{</span>
 
   <span class="nd">@Override</span>
   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">customize</span><span class="o">(</span><span class="n">Builder</span> <span class="n">builder</span><span class="o">)</span> <span class="o">{</span>
@@ -538,8 +539,8 @@
 
   <h3 id="cascade">Cascaded Validation</h3>
   <p>
-    Avaje Validator supports validating complete object graphs. To do so, just annotate a field or property
-    representing a reference to another object with <code>@Valid</code>
+    Avaje Validator supports validating complete object graphs. Just annotate a field or property
+    representing a reference to another object with <code>@Valid</code>.
   </p>
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Valid</span>
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Ship</span> <span class="o">{</span>
@@ -572,7 +573,8 @@
     look
     at the following example:
   </p>
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">Car</span> <span class="o">{</span>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Valid</span>
+<span class="kd">class</span> <span class="nc">Car</span> <span class="o">{</span>
 
     <span class="kd">private</span> <span class="n">String</span> <span class="n">manufacturer</span><span class="o">;</span>
 
@@ -584,6 +586,7 @@
     <span class="c1">// ...</span>
 <span class="o">}</span>
 
+<span class="nd">@Valid</span>
 <span class="kd">class</span> <span class="nc">RentalCar</span> <span class="kd">extends</span> <span class="n">Car</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="n">String</span> <span class="n">rentalStation</span><span class="o">;</span>
@@ -600,7 +603,7 @@
 
   <p>
     Here the class <code>RentalCar</code> is a subclass of <code>Car</code> and adds the property
-    <code> rentalStation</code> . If an instance of <code>RentalCar</code> is
+    <code> rentalStation</code>. If an instance of <code>RentalCar</code> is
     validated, not only the <code>@NotNull</code> constraint on <code>rentalStation</code> is evaluated, but also the
     constraint on <code>manufacturer</code> from the parent class.
 
@@ -625,7 +628,7 @@
 </pre></div>
 </div>
 
-  <p>Sealed abstract classes/interfaces do not require specifying the types in the annotation.</p>
+  <p>Sealed classes/interfaces do not require specifying the types in the annotation.</p>
 
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ValidSubtypes</span>
 <span class="kd">public</span> <span class="n">sealed</span> <span class="kd">interface</span> <span class="nc">Vehicle</span> <span class="n">permits</span> <span class="n">Car</span><span class="o">,</span> <span class="n">Truck</span> <span class="o">{</span>
@@ -819,8 +822,7 @@
 
   <h2 id="methods">Method Validation</h2><hr/>
   <p>
-    Constraints can not only be applied to POJOs and their properties, but also to the
-    parameters and return values of the methods of Java types.
+    Constraints can be applied to parameters and return values of the methods of Java types.
   </p>
 
   <h3>@ValidMethod</h3>
@@ -874,7 +876,7 @@
 
   <h2 id="message">Constraint Error Messages</h2><hr/>
 
-  <h3 id="message">Declaring Messages</h3>
+  <h3>Declaring Messages</h3>
   <p>
     Constraint violation messages are initially retrieved from the <em>message</em> annotation value. Each constraint
     defines its default message value using the <em>message</em>. At declaration time, the default value can be
@@ -927,7 +929,7 @@
   <p>
     If a constraint is violated, its descriptor will be interpolated by the currently configured
     <code>MessageInterpolator</code>. The interpolated error message can then be retrieved from the resulting
-    constraint violation by calling <code>ConstraintViolation#getMessage()</code>. Below is the signature for
+    constraint violation by calling <code>ConstraintViolation#message()</code>. Below is the signature for
     <code>MessageInterpolator</code>.
   </p>
 
