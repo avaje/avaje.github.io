@@ -887,6 +887,12 @@ The inject annotation processor will determine the dependency wiring order of a 
 <span class="o">}</span>
 </pre></div>
 </div>
+<h5>Spring DI Note</h5>
+<p>
+  Spring users will be familiar with the use of <code>@Autowired(required=false)</code>
+  for wiring optional dependencies. With <em>avaje-inject</em> we instead use <code>Optional</code>
+  or <code>@Nullable</code> to inject optional dependencies.
+</p>
 
 <h3 id="nullable">@Nullable</h3>
 <p>
@@ -1446,7 +1452,7 @@ The inject annotation processor will determine the dependency wiring order of a 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">Store</span> <span class="n">store</span><span class="o">;</span>
 
   <span class="kd">public</span> <span class="nf">OrderProcessor</span><span class="o">(</span><span class="n">Store</span> <span class="n">red</span><span class="o">)</span> <span class="o">{</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">store</span> <span class="o">=</span> <span class="n">store</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">store</span> <span class="o">=</span> <span class="n">red</span><span class="o">;</span>
   <span class="o">}</span>
   <span class="o">...</span>
 </pre></div>
@@ -2645,8 +2651,8 @@ These files contain all the metadata for all the modules and plugins provided by
 
 <p>Below is an example plugin that provides a default ExampleBean instance. </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">//this is read at compile-time to tell the avaje generator what bean classes are provided</span>
-<span class="n">@PluginProvides</span><span class="o">({</span><span class="n">ExampleBean</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
-<span class="n">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">DefaultBeanProvider</span> <span class="kd">implements</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">InjectPlugin</span> <span class="o">{</span>
+<span class="n">PluginProvides</span><span class="o">({</span><span class="n">ExampleBean</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
+<span class="n">ublic</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">DefaultBeanProvider</span> <span class="kd">implements</span> <span class="n">io</span><span class="o">.</span><span class="na field">avaje</span><span class="o">.</span><span class="na field">inject</span><span class="o">.</span><span class="na field">spi</span><span class="o">.</span><span class="na">InjectPlugin</span> <span class="o">{</span>
 
  <span class="c1">//this is called at runtime to tell avaje beanscope what bean classes this plugin provides</span>
  <span class="nd">@Override</span>
