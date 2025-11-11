@@ -19,7 +19,7 @@
 <ul>
   <li><a href="#what">Overview</a>
 </li>
-<li><a href="#quick">Quick Start</a>
+<li><a href="#dependency">Dependency</a>
 </li>
 <li><a href="#properties">avaje-logger.properties</a>
 </li>
@@ -81,10 +81,11 @@
     It is designed to be used by applications that will be run in <b>K8s</b> or <b>Lambda</b>.
   </p>
 
-  <h2 id="quick">Quick Start</h2><hr/>
-  <h4>
-    1. Add <em>avaje-simple-logger</em> dependency.
-  </h4>
+  <hr>
+  <h2 id="dependency">Dependency</h2>
+  <p>
+    Add <em>avaje-simple-logger</em> as a dependency.
+  </p>
   <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-simple-logger<span class="nt">&lt;/artifactId&gt;</span>
@@ -98,10 +99,10 @@
   <p>
     Add a <code>src/main/resources/avaje-logger.properties</code> to configure the logger.
   </p>
-  <div class="syntax properties"><div class="highlight"><pre><span></span><span class="c">## specify the default log level to use for testing</span>
+  <div class="syntax properties"><div class="highlight"><pre><span></span><span class="c">## specify the default log level</span>
 <span class="na">logger.defaultLogLevel</span><span class="o">=</span><span class="s">warn</span>
 
-<span class="c">## specify some default log levels</span>
+<span class="c">## specify some log levels</span>
 <span class="na">log.level.com.foo.bar</span><span class="o">=</span><span class="s">DEBUG</span>
 <span class="na">log.level.io.avaje</span><span class="o">=</span><span class="s">INFO</span>
 </pre></div>
@@ -166,9 +167,9 @@
 <span class="c">## - short - use the class name / suffix part of the logger name after the last `.`</span>
 <span class="c">## - (some integer e.g. 100) - abbreviate the logger name to the target length (shorten the package names)</span>
 
-<span class="na">logger.nameTargetLength</span><span class="o">=</span><span class="s">full</span>
-<span class="na">logger.nameTargetLength</span><span class="o">=</span><span class="s">short</span>
-<span class="na">logger.nameTargetLength</span><span class="o">=</span><span class="s">100</span>
+<span class="c">#logger.nameTargetLength=full</span>
+<span class="c">#logger.nameTargetLength=short</span>
+<span class="c">#logger.nameTargetLength=100</span>
 
 <span class="na">logger.nameTargetLength</span><span class="o">=</span><span class="s">100</span>
 
@@ -217,10 +218,10 @@
 <span class="na">logger.component</span><span class="o">=</span><span class="s">my-application</span>
 
 <span class="c">## uses system property SERVICE_NAME or environment variable SERVICE_NAME</span>
-<span class="na">logger.component</span><span class="o">=</span><span class="s">{SERVICE_NAME}</span>
+<span class="na">logger.component</span><span class="o">=</span><span class="s">&#36;{SERVICE_NAME}</span>
 
 <span class="c">## uses system property service.name or environment variable SERVICE_NAME</span>
-<span class="na">logger.component</span><span class="o">=</span><span class="s">{service.name}</span>
+<span class="na">logger.component</span><span class="o">=</span><span class="s">&#36;{service.name}</span>
 </pre></div>
 </div>
   <h4>env</h4>
@@ -263,7 +264,7 @@
   <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
   <span class="nt">&lt;artifactId&gt;</span>avaje-simple-json-logger<span class="nt">&lt;/artifactId&gt;</span>
-  <span class="nt">&lt;version&gt;</span>0.2<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0/version&gt;
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
