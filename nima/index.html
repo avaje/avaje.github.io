@@ -19,13 +19,13 @@
 <ul>
   <li><a href="#overview">Overview</a>
 </li>
-<li><a href="#dependencies">Dependencies</a>
-</li>
-<li><a href="#annotation-processor">Annotation processor</a>
-</li>
-<li><a href="#firstController">Controller</a>
-</li>
-<li><a href="#main">Nima main method</a>
+<li><a href="#overview">Overview</a>
+  <ul>
+    <li><a href="#dependencies">Dependencies</a></li>
+    <li><a href="#annotation-processor">Annotation processor</a></li>
+    <li><a href="#firstController">Controller</a></li>
+    <li><a href="#main">Nima main()</a></li>
+  </ul>
 </li>
 <li><a href="#firstControllerTest">Controller test</a>
 </li>
@@ -33,7 +33,8 @@
 </li>
 <li><a href="#filters">Filters</a>
 </li>
-
+<li><a href="#graalvm">GraalVM native image</a>
+</li>
 </ul>
 <p>&nbsp;</p>
     </nav>
@@ -469,6 +470,130 @@ curl http://localhost:8080/json
   <span class="o">}</span>
 
 <span class="o">}</span>
+</pre></div>
+</div>
+
+  <h2 id="graalvm">GraalVM</h2>
+  <p>
+    We can build GraalVM native images with Avaje Nima and the associated dependencies
+    including Helidon SE webserver.
+  </p>
+  
+  <h4>Native profile build plugin</h4>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;profile&gt;</span>
+  <span class="nt">&lt;id&gt;</span>native<span class="nt">&lt;/id&gt;</span>
+  <span class="nt">&lt;build&gt;</span>
+    <span class="nt">&lt;plugins&gt;</span>
+      <span class="nt">&lt;plugin&gt;</span> <span class="c">&lt;!-- build native executable --&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>org.graalvm.buildtools<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>native-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>0.11.3<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;extensions&gt;</span>true<span class="nt">&lt;/extensions&gt;</span>
+        <span class="nt">&lt;executions&gt;</span>
+          <span class="nt">&lt;execution&gt;</span>
+            <span class="nt">&lt;id&gt;</span>build-native<span class="nt">&lt;/id&gt;</span>
+            <span class="nt">&lt;goals&gt;</span>
+              <span class="nt">&lt;goal&gt;</span>compile-no-fork<span class="nt">&lt;/goal&gt;</span>
+            <span class="nt">&lt;/goals&gt;</span>
+            <span class="nt">&lt;phase&gt;</span>package<span class="nt">&lt;/phase&gt;</span>
+            <span class="nt">&lt;configuration&gt;</span>
+              <span class="nt">&lt;mainClass&gt;</span>nz.co.eroad.central.access.Main<span class="nt">&lt;/mainClass&gt;</span>
+            <span class="nt">&lt;/configuration&gt;</span>
+          <span class="nt">&lt;/execution&gt;</span>
+        <span class="nt">&lt;/executions&gt;</span>
+        <span class="nt">&lt;configuration&gt;</span>
+          <span class="nt">&lt;buildArgs&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>--gc=G1<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>-R:MaxGCPauseMillis=50<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>-R:MaxHeapSize=400m<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>--emit build-report<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>--no-fallback<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>-march=compatibility<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>--allow-incomplete-classpath<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>--static-nolibc<span class="nt">&lt;/buildArg&gt;</span>
+          <span class="nt">&lt;/buildArgs&gt;</span>
+        <span class="nt">&lt;/configuration&gt;</span>
+      <span class="nt">&lt;/plugin&gt;</span>
+
+      <span class="nt">&lt;plugin&gt;</span> <span class="c">&lt;!-- build docker image for native executable --&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>com.google.cloud.tools<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>jib-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;version&gt;</span>3.4.6<span class="nt">&lt;/version&gt;</span>
+        <span class="nt">&lt;executions&gt;</span>
+          <span class="nt">&lt;execution&gt;</span>
+            <span class="nt">&lt;goals&gt;</span>
+              <span class="nt">&lt;goal&gt;</span>dockerBuild<span class="nt">&lt;/goal&gt;</span>
+            <span class="nt">&lt;/goals&gt;</span>
+            <span class="nt">&lt;phase&gt;</span>package<span class="nt">&lt;/phase&gt;</span>
+          <span class="nt">&lt;/execution&gt;</span>
+        <span class="nt">&lt;/executions&gt;</span>
+        <span class="nt">&lt;dependencies&gt;</span>
+          <span class="nt">&lt;dependency&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>com.google.cloud.tools<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>jib-native-image-extension-maven<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
+          <span class="nt">&lt;/dependency&gt;</span>
+        <span class="nt">&lt;/dependencies&gt;</span>
+
+        <span class="nt">&lt;configuration&gt;</span>
+          <span class="nt">&lt;pluginExtensions&gt;</span>
+            <span class="nt">&lt;pluginExtension&gt;</span>
+              <span class="nt">&lt;implementation&gt;</span>
+                com.google.cloud.tools.jib.maven.extension.nativeimage.JibNativeImageExtension
+              <span class="nt">&lt;/implementation&gt;</span>
+              <span class="nt">&lt;properties&gt;</span> <span class="c">&lt;!-- name of executable produced --&gt;</span>
+                <span class="nt">&lt;imageName&gt;</span>central-access-service<span class="nt">&lt;/imageName&gt;</span>
+              <span class="nt">&lt;/properties&gt;</span>
+            <span class="nt">&lt;/pluginExtension&gt;</span>
+          <span class="nt">&lt;/pluginExtensions&gt;</span>
+          <span class="nt">&lt;container&gt;</span>
+            <span class="nt">&lt;mainClass&gt;</span>nz.co.eroad.central.access.Main<span class="nt">&lt;/mainClass&gt;</span>
+            <span class="nt">&lt;ports&gt;</span>8080<span class="nt">&lt;/ports&gt;</span>
+          <span class="nt">&lt;/container&gt;</span>
+          <span class="nt">&lt;from&gt;</span> <span class="c">&lt;!-- UBI micro base image with glibc --&gt;</span>
+            <span class="nt">&lt;image&gt;</span>redhat/ubi10-micro:10.1-1762215812<span class="nt">&lt;/image&gt;</span>
+          <span class="nt">&lt;/from&gt;</span>
+          <span class="nt">&lt;to&gt;</span>
+            <span class="nt">&lt;image&gt;</span>&#36;{project.artifactId}-native:&#36;{project.version}<span class="nt">&lt;/image&gt;</span>
+          <span class="nt">&lt;/to&gt;</span>
+        <span class="nt">&lt;/configuration&gt;</span>
+      <span class="nt">&lt;/plugin&gt;</span>
+    <span class="nt">&lt;/plugins&gt;</span>
+  <span class="nt">&lt;/build&gt;</span>
+<span class="nt">&lt;/profile&gt;</span>
+</pre></div>
+</div>
+
+  <h4>MacOS specific profile</h4>
+  <p>
+    MacOS does not support G1 garbage collector in native images, so we need to
+    create a specific profile for MacOS builds that omits the G1 related build args.
+  </p>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;profile&gt;</span>
+  <span class="nt">&lt;id&gt;</span>mac<span class="nt">&lt;/id&gt;</span>
+  <span class="nt">&lt;activation&gt;</span>
+    <span class="nt">&lt;os&gt;</span>
+      <span class="nt">&lt;family&gt;</span>mac<span class="nt">&lt;/family&gt;</span>
+    <span class="nt">&lt;/os&gt;</span>
+  <span class="nt">&lt;/activation&gt;</span>
+  <span class="nt">&lt;build&gt;</span>
+    <span class="nt">&lt;plugins&gt;</span>
+      <span class="nt">&lt;plugin&gt;</span> <span class="c">&lt;!-- native build on MacOS --&gt;</span>
+        <span class="nt">&lt;groupId&gt;</span>org.graalvm.buildtools<span class="nt">&lt;/groupId&gt;</span>
+        <span class="nt">&lt;artifactId&gt;</span>native-maven-plugin<span class="nt">&lt;/artifactId&gt;</span>
+        <span class="nt">&lt;configuration&gt;</span>
+          <span class="nt">&lt;buildArgs&gt;</span> <span class="c">&lt;!-- No G1 on MacOS native image --&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>-R:MaxHeapSize=400m<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>--emit build-report<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>--no-fallback<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>-march=compatibility<span class="nt">&lt;/buildArg&gt;</span>
+            <span class="nt">&lt;buildArg&gt;</span>--static-nolibc<span class="nt">&lt;/buildArg&gt;</span>
+          <span class="nt">&lt;/buildArgs&gt;</span>
+        <span class="nt">&lt;/configuration&gt;</span>
+      <span class="nt">&lt;/plugin&gt;</span>
+    <span class="nt">&lt;/plugins&gt;</span>
+  <span class="nt">&lt;/build&gt;</span>
+<span class="nt">&lt;/profile&gt;</span>
 </pre></div>
 </div>
 
