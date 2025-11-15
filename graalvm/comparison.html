@@ -50,9 +50,9 @@
       </nav>
     </header>
     
-  <h1 id="overview">
-    Comparing GraalVM native image vs traditional JVM
-  </h1>
+  <h2>
+    Comparing GraalVM native image with JVM
+  </h2>
   <p>
     The following charts look at some applications that are built with both a
     traditional JVM and GraalVM native image. As part of the build process they
@@ -61,13 +61,13 @@
     that uses GraalVM native image with a base of <code>redhat/ubi10-micro:10.0</code>.
   </p>
   <p>
-    The applications is deployed into Kubernetes and to perform the comparison
-    we are switching the k8s deployment between the two docker images. In this way
+    The applications are deployed into Kubernetes. To perform the comparison
+    the k8s deployment switches between the two docker images. In this way
     we are looking to get a reasonable comparison between the two approaches.
   </p>
 
   <hr>
-  <h2 id="tiny">Tiny application, tiny load</h2>
+  <h2 id="tiny">Case: Tiny application, tiny load</h2>
   <p>
     This first comparison is a tiny Helidon 4 application that uses avaje-nima
     to provide a single HTTP endpoint that returns a JSON response. The load
@@ -95,6 +95,27 @@
   </ul>
 
 
+  <h2>Case: More load</h2>
+  <p>
+    For this comparison decent load is applied to an application. The only notable difference
+    is that the JVM version is using ZGC rather than G1. The GraalVM version is still using G1.
+  </p>
+
+  <p>
+    <img src="/images/graalvm-vs-jvm.png" alt="Decent load : GraalVM vs JVM" style="max-width:100%;height:auto;">
+  </p>
+
+
+  <h2>Case: Foo</h2>
+  <p>
+    For this comparison below there is no synthetically generated even load, and instead
+    the application is being used in a more real world manner with varying load. The JVM
+    version is using ZGC rather than G1. The GraalVM version is still using G1.
+  </p>
+
+  <p>
+    <img src="/images/graalvm-crossover.png" alt="Decent load : GraalVM vs JVM" style="max-width:100%;height:auto;">
+  </p>
 
   <hr/>
   <h2 id="general-notes">General notes</h2>
