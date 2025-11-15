@@ -81,7 +81,7 @@
   <p>
     <img src="/images/graalvm-tiny-app.png" alt="Tiny app : GraalVM vs JVM" style="max-width:100%;height:auto;">
   </p>
-  <h4>notes:</h4>
+  <h4>Notes:</h4>
   <ul>
     <li><b>RSS Memory:</b> We see a reduction in RSS memory from around ~250Mb to ~100Mb.</li>
     <li><b>Heap User Memory:</b> Both are using G1 with <code>MaxHeapSize=400m</code>. With GraalVM
@@ -95,18 +95,26 @@
   </ul>
 
 
-  <h2>Case: More load</h2>
+  <h2>Case: Decent load on heavier endpoint</h2>
   <p>
-    For this comparison decent load is applied to an application. The only notable difference
-    is that the JVM version is using ZGC rather than G1. The GraalVM version is still using G1.
+    For this comparison decent load is applied to an application with a more complex endpoint
+    that has a mean latency around 19ms. A notable difference is that the JVM version is using ZGC
+    rather than G1.  The GraalVM version is still using G1.
   </p>
 
   <p>
     <img src="/images/graalvm-vs-jvm.png" alt="Decent load : GraalVM vs JVM" style="max-width:100%;height:auto;">
   </p>
+  <h4>Notes:</h4>
+  <ul>
+    <li><b>RSS Memory:</b> Reduction in RSS memory from around ~450Mb to ~100Mb.</li>
+    <li><b>Heap User Memory:</b> GraalVM showing a <a href="#heap-flatter">flatter Heap Used line</a></li>
+    <li><b>CPU load</b>: GraalVM showing less CPU consumption</li>
+    <li><b>Mean Latency:</b> Not shown but around 19ms for both</li>
+    <li><b>Max Latency:</b> Not shown but pretty even at around 190ms</li>
+  </ul>
 
-
-  <h2>Case: Foo</h2>
+  <h2>Case: Interesting optimization for JSON streaming</h2>
   <p>
     For this comparison below there is no synthetically generated even load, and instead
     the application is being used in a more real world manner with varying load. The JVM
@@ -114,8 +122,27 @@
   </p>
 
   <p>
-    <img src="/images/graalvm-crossover.png" alt="Decent load : GraalVM vs JVM" style="max-width:100%;height:auto;">
+    <img src="/images/graalvm-crossover.png" alt="Optimization : GraalVM vs JVM" style="max-width:100%;height:auto;">
   </p>
+  <p>
+    You can't see this without some other charts, but the GraalVM version has a better optimization
+    for one of the endpoints that is being used (the medium blue on the first chart).
+    This endpoint is a <a href="#streaming-json">streaming endpoint</a> that
+    returns New Line Delimited JSON (NDJSON) from a Postgres database using Ebean ORM's findStream() method.
+    The GraalVM version is significantly outperforming the JVM version for this endpoint.
+  </p>
+  <p>
+    In general, GraalVM is optimizing well <a href="#no-pgo">without needing PGO</a>.
+  </p>
+  <h4>Notes:</h4>
+  <ul>
+    <li><b>RSS Memory:</b> Reduction in RSS memory from around ~250Mb to ~100Mb.</li>
+    <li><b>Heap User Memory:</b> GraalVM showing a <a href="#heap-flatter">flatter Heap Used line</a></li>
+    <li><b>CPU load</b>: GraalVM showing less CPU consumption</li>
+    <li><b>Mean Latency:</b> Mean latency not shown </li>
+    <li><b>Max Latency:</b> Not shown but pretty even</li>
+  </ul>
+
 
   <hr/>
   <h2 id="general-notes">General notes</h2>
