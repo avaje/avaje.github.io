@@ -19,7 +19,7 @@
 <ul>
   <li><a href="#overview">Overview</a>
 </li>
-<li><a href="#overview">Overview</a>
+<li><a href="#start">Getting started</a>
   <ul>
     <li><a href="#dependencies">Dependencies</a></li>
     <li><a href="#annotation-processor">Annotation processor</a></li>
@@ -77,7 +77,7 @@
   </table>
 
   <p><br><br>
-    A combination of Helidon SE Webserver and Avaje libraries, includes:
+    avaje-nima is a combination of Helidon SE Webserver and Avaje libraries, including:
   </p>
   <ul>
     <li><a href="https://helidon.io/#se">Helidon SE</a> - High performance webserver</li>
@@ -87,7 +87,15 @@
     <li><a href="/validator/">avaje-validator</a> - Bean validation</li>
     <li><a href="/config/">avaje-config</a> - External configuration</li>
   </ul>
+  <p>
+    Avaje Nima uses annotation processors to generate the necessary code at compile time
+    to wire up controllers, dependency injection, JSON adapters and validation.
+    This results in a very lightweight runtime with minimal dependencies and no reflection,
+    making it well suited for GraalVM native image applications.
+  </p>
 
+  <span id="start"></span>
+  
   <h2 id="dependencies">Dependencies</h2>
   <h4>1. Add <em>avaje-nima</em> dependencies</h4>
   <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
@@ -480,6 +488,10 @@ curl http://localhost:8080/json
   </p>
 
   <h4>Native profile build plugin</h4>
+  <p>
+    The profile below builds a native executable and then builds a docker image
+    for that native executable using a UBI micro base image with glibc.
+  </p>
   <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;profile&gt;</span>
   <span class="nt">&lt;id&gt;</span>native<span class="nt">&lt;/id&gt;</span>
   <span class="nt">&lt;build&gt;</span>
@@ -497,7 +509,7 @@ curl http://localhost:8080/json
             <span class="nt">&lt;/goals&gt;</span>
             <span class="nt">&lt;phase&gt;</span>package<span class="nt">&lt;/phase&gt;</span>
             <span class="nt">&lt;configuration&gt;</span>
-              <span class="nt">&lt;mainClass&gt;</span>nz.co.eroad.central.access.Main<span class="nt">&lt;/mainClass&gt;</span>
+              <span class="nt">&lt;mainClass&gt;</span>org.example.Main<span class="nt">&lt;/mainClass&gt;</span>
             <span class="nt">&lt;/configuration&gt;</span>
           <span class="nt">&lt;/execution&gt;</span>
         <span class="nt">&lt;/executions&gt;</span>
@@ -542,12 +554,12 @@ curl http://localhost:8080/json
                 com.google.cloud.tools.jib.maven.extension.nativeimage.JibNativeImageExtension
               <span class="nt">&lt;/implementation&gt;</span>
               <span class="nt">&lt;properties&gt;</span> <span class="c">&lt;!-- name of executable produced --&gt;</span>
-                <span class="nt">&lt;imageName&gt;</span>central-access-service<span class="nt">&lt;/imageName&gt;</span>
+                <span class="nt">&lt;imageName&gt;</span>my-service<span class="nt">&lt;/imageName&gt;</span>
               <span class="nt">&lt;/properties&gt;</span>
             <span class="nt">&lt;/pluginExtension&gt;</span>
           <span class="nt">&lt;/pluginExtensions&gt;</span>
           <span class="nt">&lt;container&gt;</span>
-            <span class="nt">&lt;mainClass&gt;</span>nz.co.eroad.central.access.Main<span class="nt">&lt;/mainClass&gt;</span>
+            <span class="nt">&lt;mainClass&gt;</span>org.example.Main<span class="nt">&lt;/mainClass&gt;</span>
             <span class="nt">&lt;ports&gt;</span>8080<span class="nt">&lt;/ports&gt;</span>
           <span class="nt">&lt;/container&gt;</span>
           <span class="nt">&lt;from&gt;</span> <span class="c">&lt;!-- UBI micro base image with glibc --&gt;</span>
