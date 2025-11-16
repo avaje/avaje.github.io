@@ -33,7 +33,7 @@
 </li>
 <li><a href="#filters">Filters</a>
 </li>
-<li><a href="#graalvm">GraalVM native image</a>
+<li><a href="#graalvm">GraalVM</a>
 </li>
 </ul>
 <p>&nbsp;</p>
@@ -490,17 +490,21 @@ curl http://localhost:8080/json
 </pre></div>
 </div>
 
-  <h2 id="graalvm">GraalVM</h2>
+  <h2 id="graalvm">GraalVM native image</h2>
   <p>
     We can build GraalVM native images with Avaje Nima and the associated dependencies
     including Helidon SE webserver.
   </p>
-
-  <h4>Native profile build plugin</h4>
   <p>
-    The profile below builds a native executable and then builds a docker image
+    The maven profile below builds a native executable and then builds a docker image
     for that native executable using a UBI micro base image with glibc.
   </p>
+  <ul>
+    <li><code>native-maven-plugin</code>: builds the native executable</li>
+    <li><code>jib-maven-plugin</code>: builds a docker image including the native executable</li>
+  </ul>
+
+  <h4>maven profile - native image build</h4>
   <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;profile&gt;</span>
   <span class="nt">&lt;id&gt;</span>native<span class="nt">&lt;/id&gt;</span>
   <span class="nt">&lt;build&gt;</span>
