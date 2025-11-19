@@ -29,7 +29,7 @@
 </li>
 <li><a href="#testing">Testing Controllers</a>
     <ul>
-      <li>Injecting:</li>
+      <li><a href="#testing">Injecting:</a></li>
       <li>- <a href="#inject-webserver">WebServer</a></li>
       <li>- <a href="#inject-httpclient">HttpClient</a></li>
       <li>- <a href="#inject-httpclient-builder">HttpClient.Builder</a></li>
@@ -476,6 +476,35 @@ curl http://localhost:8080/json
     Commonly exception handling is done in a dedicated exception handling class.
     This can be done by creating a controller that has <code>@ExceptionHandler</code> methods.
   </p>
+  <p>
+    The handler method:
+  </p>
+  <ul>
+    <li>Takes an Exception type</li>
+    <li>Optionally take a <code>ServerRequest</code></li>
+    <li>Optionally take a <code>ServerResponse</code></li>
+  </ul>
+  <p>
+    In terms of return type / error response body, the handler method can either:
+  </p>
+  <ul>
+    <li>Return void, meaning the response should be explicitly set to the ServerResponse</li>
+    <li>Return String, where the response is a <code>text/plain</code></li>
+    <li>Return another type which is deemed a <code>@Json</code> Bean</li>
+  </ul>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="kd">final</span> <span class="kd">class</span> <span class="nc">ErrorHandlers</span> <span class="o">{</span>
+
+  <span class="nd">@Produces</span><span class="o">(</span><span class="nx">statusCode</span> <span class="o">=</span> <span class="o">...)</span>
+  <span class="nd">@ExceptionHandler</span>
+  <span class="n">SomeErrorResponse</span> <span class="nf">handler</span><span class="o">(</span><span class="n">SomeException</span> <span class="n">ex</span><span class="o">,</span> <span class="n">ServerRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">res</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
 
   <h3 id="error-example">Example error controller</h3>
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
