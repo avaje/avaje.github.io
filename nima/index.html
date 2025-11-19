@@ -30,10 +30,10 @@
 <li><a href="#testing">Testing Controllers</a>
     <ul>
       <li><a href="#testing">Injecting:</a></li>
-      <li>- <a href="#inject-webserver">WebServer</a></li>
+      <li>- <a href="#inject-generated-client">Generated client</a></li>
       <li>- <a href="#inject-httpclient">HttpClient</a></li>
       <li>- <a href="#inject-httpclient-builder">HttpClient.Builder</a></li>
-      <li>- <a href="#inject-generated-client">Generated client</a></li>
+      <li>- <a href="#inject-webserver">WebServer</a></li>
     </ul>
 </li>
 <li><a href="#error-handlers">Error handlers</a>
@@ -331,14 +331,24 @@ curl http://localhost:8080/json
     into the test (with the correct port to connect to the started webserver).
   </p>
 
-  <h3 id="inject-webserver"><span>@Inject WebServer</span></h3>
-  <p>
-    We typically don't need to inject the <code>WebServer</code> unless we want to
-    check the port or stop/start the server manually.
-  </p>
 
+  <h3 id="inject-generated-client"><span>@Inject generated client</span></h3>
+  <p>
+    Given we have a <code>@Controller</code> called <code>HelloController</code> then there will
+    automatically be a generated test client called <code>HelloControllerTestAPI</code> and we
+    can inject that into our test. This allows us to use a type safe client to perform requests.
+  </p>
+  <p>
+    The generated test client uses the same method names and parameters as the controller
+    but it returns <code>HttpResponse&lt;T&gt;</code> where T is the response body type.
+    This allows us to easily check the response status code, headers and body in our test code.
+  </p>
+  <p>
+    The generated test client can be found in <code>target/generated-test-sources/test-annotations</code>
+    and is only available in test scope.
+  </p>
   <details>
-    <summary><code>example: @Inject WebServer</code></summary>
+    <summary><code>example: @Inject generated client</code></summary>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
@@ -351,19 +361,22 @@ curl http://localhost:8080/json
 <span class="nd">@InjectTest</span>
 <span class="kd">class</span> <span class="nc">MyControllerTest</span> <span class="o">{</span>
 
-  <span class="nd">@Inject</span> <span class="nx">WebServer</span> <span class="nx">webServer</span><span class="o">;</span>
-  <span class="nd">@Inject</span> <span class="nx">HttpClient</span> <span class="nx">httpClient</span><span class="o">;</span>
+  <span class="nd">@Inject</span> <span class="nx">HelloControllerTestAPI</span> <span class="nx">myClient</span><span class="o">;</span>
 
   <span class="nd">@Test</span>
-  <span class="kt">void</span> <span class="nf">testSomething</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">testUsingGeneratedClient</span><span class="o">()</span> <span class="o">{</span>
 
-    <span class="c1">// webserver started on random port</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">webServer</span><span class="o">.</span><span class="na">port</span><span class="o">()).</span><span class="na">isNotEqualTo</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+    <span class="c1">// perform test using generated client API</span>
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">myClient</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
 
-    <span class="c1">// perform test using httpClient</span>
-    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">httpClient</span><span class="o">.</span><span class="na">request</span><span class="o">().</span><span class="na">GET</span><span class="o">().</span><span class="na">asString</span><span class="o">();</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">HelloBean</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">myClient</span><span class="o">.</span><span class="na">helloJson</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+
+    <span class="n">HelloBean</span> <span class="n">body</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="na">body</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">body</span><span class="o">.</span><span class="na">id</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">97</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">body</span><span class="o">.</span><span class="na">name</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;Hello JSON&quot;</span><span class="o">);</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -469,14 +482,14 @@ curl http://localhost:8080/json
 </div>
   </details>
 
-  <h3 id="inject-generated-client"><span>@Inject generated client</span></h3>
+  <h3 id="inject-webserver"><span>@Inject WebServer</span></h3>
   <p>
-    Given we have a <code>@Controller</code> called <code>HelloController</code> then there will
-    automatically be a generated test client called <code>HelloControllerTestAPI</code> and we
-    can inject that into our test. This allows us to use a type safe client to perform requests.
+    We typically don't need to inject the <code>WebServer</code> unless we want to
+    check the port or stop/start the server manually.
   </p>
+
   <details>
-    <summary><code>example: @Inject generated client</code></summary>
+    <summary><code>example: @Inject WebServer</code></summary>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
@@ -489,22 +502,19 @@ curl http://localhost:8080/json
 <span class="nd">@InjectTest</span>
 <span class="kd">class</span> <span class="nc">MyControllerTest</span> <span class="o">{</span>
 
-  <span class="nd">@Inject</span> <span class="nx">HelloControllerTestAPI</span> <span class="nx">myClient</span><span class="o">;</span>
+  <span class="nd">@Inject</span> <span class="nx">WebServer</span> <span class="nx">webServer</span><span class="o">;</span>
+  <span class="nd">@Inject</span> <span class="nx">HttpClient</span> <span class="nx">httpClient</span><span class="o">;</span>
 
   <span class="nd">@Test</span>
-  <span class="kt">void</span> <span class="nf">testUsingGeneratedClient</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">testSomething</span><span class="o">()</span> <span class="o">{</span>
 
-    <span class="c1">// perform test using generated client API</span>
-    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">myClient</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
+    <span class="c1">// webserver started on random port</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">webServer</span><span class="o">.</span><span class="na">port</span><span class="o">()).</span><span class="na">isNotEqualTo</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
 
-    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">HelloBean</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">myClient</span><span class="o">.</span><span class="na">helloJson</span><span class="o">();</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
-
-    <span class="n">HelloBean</span> <span class="n">body</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="na">body</span><span class="o">();</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">body</span><span class="o">.</span><span class="na">id</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">97</span><span class="o">);</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">body</span><span class="o">.</span><span class="na">name</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;Hello JSON&quot;</span><span class="o">);</span>
+    <span class="c1">// perform test using httpClient</span>
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">httpClient</span><span class="o">.</span><span class="na">request</span><span class="o">().</span><span class="na">GET</span><span class="o">().</span><span class="na">asString</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
