@@ -45,6 +45,12 @@
       <li><a href="#default">@Default</a></li>
     </ul>
 </li>
+<li><a href="#req-res">ServerRequest ServerResponse</a>
+    <ul>
+      <li><a href="#req-res-method">Method parameters</a></li>
+      <li>- <a href="#request-scope">Injected</a></li>
+    </ul>
+</li>
 <li><a href="#testing">Testing Controllers</a>
     <ul>
       <li><a href="#testing">Injecting:</a></li>
@@ -1020,6 +1026,71 @@ GET /products/chair/commercial;style=classical
 <span class="o">}</span>
 </pre></div>
 </div>
+
+  <h2 id="req-res">ServerRequest ServerResponse</h2>
+  <p>
+    Helidon <code>ServerRequest</code> and <code>ServerResponse</code> can be used
+    in controller methods to access request details and manipulate the response.
+  </p>
+  <p>
+    They can either be method parameters or injected.
+  </p>
+
+  <h3 id="req-res-method">Method parameters</h3>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span>
+<span class="n">Response</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">ServerRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// use Helidon server request or response as desired</span>
+  <span class="o">...</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="n">Response</span><span class="o">();</span>
+<span class="o">}</span>
+<span class="nd">@Post</span>
+<span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">HelloDto</span> <span class="n">dto</span><span class="o">,</span> <span class="n">ServerRequest</span> <span class="n">request</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">response</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// use Helidon server request or response as desired</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h3 id="request-scope">Injecting ServerRequest and ServerResponse</h3>
+  <p>
+    When ServerRequest and/or ServerRequest are injected into the controller, we say that
+    this controller is <em>request scoped</em>, meaning a new instance of the controller
+    is created for each request.
+  </p>
+  <p>
+    In this example ProductController has the Helidon ServerRequest and ServerResponse
+    injected using field injection rather than constructor injection.
+    Note that when using field injection they can <em>not</em> be final and can <em>not</em> be private.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/products&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">ProductController</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">MyService</span> <span class="n">myService</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">ServerRequest</span> <span class="n">request</span><span class="o">;</span> <span class="c1">// Helidon request field injected</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">ServerRequest</span> <span class="n">response</span><span class="o">;</span> <span class="c1">// Helidon response field injected</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">ProductController</span><span class="o">(</span><span class="n">MyService</span> <span class="n">myService</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">myService</span> <span class="o">=</span> <span class="n">myService</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+  <span class="n">Contact</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// use the helidon request ...</span>
+    <span class="k">var</span> <span class="n">fooCookie</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">cookies</span><span class="o">().</span><span class="na">first</span><span class="o">(</span><span class="s">&quot;foo&quot;</span><span class="o">);</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+
+
 
   <h2 id="testing">Testing Controllers</h2>
   <p>
