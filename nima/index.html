@@ -290,7 +290,7 @@ curl http://localhost:8080/json
     into the test (with the correct port to connect to the started webserver).
   </p>
 
-  <h3 id="inject-webserver"><code>@Inject WebServer</code></h3>
+  <h3 id="inject-webserver"><span>@Inject WebServer</span></h3>
   <p>
     We typically don't need to inject the <code>WebServer</code> unless we want to
     check the port or stop/start the server manually.
@@ -329,7 +329,7 @@ curl http://localhost:8080/json
 </div>
   </details>
 
-  <h3 id="inject-httpclient"><code>@Inject HttpClient</code></h3>
+  <h3 id="inject-httpclient"><span>@Inject HttpClient</span></h3>
   <p>
     We can inject the <code>HttpClient</code> to perform requests against the started webserver.
   </p>
@@ -362,7 +362,7 @@ curl http://localhost:8080/json
 </div>
   </details>
 
-  <h3 id="inject-httpclient-builder"><code>@Inject HttpClient.Builder</code></h3>
+  <h3 id="inject-httpclient-builder"><span>@Inject HttpClient.Builder</span></h3>
   <p>
     We can inject the <code>HttpClient.Builder</code> to perform requests against the started webserver.
     With the Builder we can customise the HttpClient as needed including things like setting the
@@ -428,7 +428,7 @@ curl http://localhost:8080/json
 </div>
   </details>
 
-  <h3 id="inject-generated-client"><code>@Inject generated client</code></h3>
+  <h3 id="inject-generated-client"><span>@Inject generated client</span></h3>
   <p>
     Given we have a <code>@Controller</code> called <code>HelloController</code> then there will
     automatically be a generated test client called <code>HelloControllerTestAPI</code> and we
@@ -470,52 +470,6 @@ curl http://localhost:8080/json
 </div>
   </details>
 
-
-  <h2 id="firstControllerTest">Testing Controllers</h2>
-  <p>
-    <code>avaje-nima-test</code> will generate test client API's for each controller.
-    These test clients can be used to create component tests that test the controller.
-  </p>
-  <p>
-    The generated test client for a controller is: <code>{controllerName}</code> + <code>TestAPI</code>.
-    So for <code>HelloController</code> the test client is <code>HelloControllerTestAPI</code>.
-    Below is a simple test that uses the generated test client to test the <code>/</code> endpoint.
-  </p>
-  <p>
-    As the test below includes a HTTP Client (HelloControllerTestAPI), avaje-nima-test will start
-    a helidon webserver on a random port for the test to use.
-  </p>
-
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">io.avaje.inject.test.InjectTest</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">jakarta.inject.Inject</span><span class="o">;</span>
-<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
-
-<span class="kn">import</span> <span class="nn">java.net.http.HttpResponse</span><span class="o">;</span>
-
-<span class="kn">import static</span> <span class="nn">org.assertj.core.api.Assertions.assertThat</span><span class="o">;</span>
-
-<span class="nd">@InjectTest</span>
-<span class="kd">class</span> <span class="nc">HelloControllerTest</span> <span class="o">{</span>
-
-  <span class="nd">@Inject</span> <span class="nx">HelloControllerTestAPI</span> <span class="nx">client</span><span class="o">;</span>
-
-  <span class="nd">@Test</span>
-  <span class="kt">void</span> <span class="nf">hello</span><span class="o">()</span> <span class="o">{</span>
-
-    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
-    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</pre></div>
-</div>
-  <ul>
-    <li>Use <code>@InjectTest</code> to allow the test which to wire dependencies</li>
-    <li>Use <code>@Inject HelloControllerTestAPI client</code> to wire the test http client. The webserver will
-      start on a random port and be available for this test.</li>
-  </ul>
 
   <h2 id="error-handlers">Error handlers</h2>
   <p>
