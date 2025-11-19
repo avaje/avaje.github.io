@@ -440,7 +440,7 @@ curl http://localhost:8080/json
             <span class="o">.</span><span class="na">requestIntercept</span><span class="o">(</span><span class="k">new</span> <span class="n">RequestIntercept</span><span class="o">()</span> <span class="o">{</span>
                 <span class="nd">@Override</span>
                 <span class="kd">public</span> <span class="kt">void</span> <span class="nf">beforeRequest</span><span class="o">(</span><span class="n">HttpClientRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
-                    <span class="n">request</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;eroad-callerid&quot;</span><span class="o">,</span> <span class="s">&quot;local-test&quot;</span><span class="o">);</span>
+                    <span class="n">request</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;my-callerid&quot;</span><span class="o">,</span> <span class="s">&quot;local-test&quot;</span><span class="o">);</span>
                 <span class="o">}</span>
             <span class="o">});</span>
     <span class="o">}</span>
@@ -469,7 +469,7 @@ curl http://localhost:8080/json
 
     <span class="c1">// create a custom http client for this test</span>
     <span class="n">HttpClient</span> <span class="n">httpClient</span> <span class="o">=</span> <span class="n">httpClientBuilder</span>
-      <span class="o">.</span><span class="na">requestIntercept</span><span class="o">(</span><span class="n">request</span> <span class="o">-&gt;</span> <span class="n">request</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;eroad-callerid&quot;</span><span class="o">,</span> <span class="s">&quot;special-test&quot;</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">requestIntercept</span><span class="o">(</span><span class="n">request</span> <span class="o">-&gt;</span> <span class="n">request</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;my-callerid&quot;</span><span class="o">,</span> <span class="s">&quot;special-test&quot;</span><span class="o">))</span>
       <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 
     <span class="c1">// perform test using httpClient</span>
