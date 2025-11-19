@@ -27,6 +27,24 @@
     <li><a href="#main">Nima main()</a></li>
   </ul>
 </li>
+<li><a href="#controllers">Controllers</a>
+    <ul>
+      <li><a href="#controller">@Controller</a></li>
+      <li><a href="#path">@Path</a></li>
+      <li><a href="#path-parameters">Path parameters</a></li>
+      <li><a href="#matrix-parameters">Matrix parameters</a></li>
+      <li><a href="#query-parameters">@QueryParam</a></li>
+      <li><a href="#bean-param">@BeanParam</a></li>
+      <li><a href="#post">Request Body</a></li>
+      <li><a href="#form">@Form</a></li>
+      <li><a href="#form-param">@FormParam</a></li>
+      <li><a href="#form-beans">Form beans</a></li>
+      <li><a href="#produces">@Produces</a></li>
+      <li><a href="#header">@Header</a></li>
+      <li><a href="#cookie">@Cookie</a></li>
+      <li><a href="#default">@Default</a></li>
+    </ul>
+</li>
 <li><a href="#testing">Testing Controllers</a>
     <ul>
       <li><a href="#testing">Injecting:</a></li>
@@ -269,6 +287,118 @@ curl http://localhost:8080/json
     <li><code>HelloControllerTestAPI</code> - a test client inteface to test the controller</li>
     <li><code>HelloControllerTestAPIHttpClient</code> - the test client implementation</li>
   </ul>
+
+
+
+<h2 id="controllers">Controllers</h2><hr/>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">ContactController</span> <span class="o">{</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+  <span class="n">Contact</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Post</span>
+  <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">Contact</span> <span class="n">contact</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Delete</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+  <span class="kt">void</span> <span class="nf">deleteById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h3 id="controller">@Controller</h3>
+<p>
+  Create controllers <code>@Controller</code>.
+  You can provide a path segment that is prepended
+  to any path segments defined by on methods using <code>@Get</code>,
+  <code>@Post</code>, <code>@Put</code> etc. There are three ways to prepend a path.
+</p>
+
+<h4>1. Directly put the path in the controller annotation.</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span><span class="o">(</span><span class="s">&quot;/customers&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">CustomerController</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<h4>2. Use <code>@Path</code> and <code>@Controller</code></h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/customers&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">CustomerController</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h4>3. Use <code>@Path</code> on an Interface and <code>@Controller</code> on an implementing class</h4>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/customers&quot;</span><span class="o">)</span>
+<span class="kd">interface</span> <span class="nc">CustomerController</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="kd">class</span> <span class="nc">CustomerControllerImpl</span> <span class="kd">implements</span> <span class="n">CustomerController</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+ Web Methods on a controller are annotated with HTTP annotations like <code>@Get</code>,
+  <code>@Post</code>, <code>@Put</code>, <code>@Delete</code>.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">ContactController</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">ContactService</span> <span class="n">contactService</span><span class="o">;</span>
+
+  <span class="nd">@Inject</span>
+  <span class="n">ContactController</span><span class="o">(</span><span class="n">ContactService</span> <span class="n">contactService</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">contactService</span> <span class="o">=</span> <span class="n">contactService</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/{id}&quot;</span><span class="o">)</span>
+  <span class="n">Contact</span> <span class="nf">getById</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/find/{type}&quot;</span><span class="o">)</span>
+  <span class="nx">List</span><span class="o">&lt;</span><span class="nx">Contact</span><span class="o">&gt;</span> <span class="nf">findByType</span><span class="o">(</span><span class="nx">String</span> <span class="nx">type</span><span class="o">,</span> <span class="nd">@QueryParam</span> <span class="nx">String</span> <span class="nx">lastName</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Post</span>
+  <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">Contact</span> <span class="n">contact</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The controllers can have dependencies injected. The ContactController above can easily
+  have the ContactService dependency injected by <a href="/inject">avaje-inject</a>.
+</p>
+
+<h3 id="controller-singleton">Controllers are singleton scoped by default</h3>
+<p>
+  By default controllers are singleton scoped. If the controllers have a dependency
+  on Javalin context, Helidon ServerRequest or ServerResponse then they automatically
+  become <a href="#request-scoped">request scoped</a>.
+</p>
+
+
 
   <h2 id="testing">Testing Controllers</h2>
   <p>
