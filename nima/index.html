@@ -1570,7 +1570,8 @@ GET /products/chair/commercial;style=classical
     including Helidon SE webserver.
   </p>
   <p>
-    Have a look at <a href="/graalvm">Why GraalVM native image</a>
+    Have a look at <a href="/graalvm">Why GraalVM native image</a> and
+    <a href="/graalvm/comparison">Comparing GraalVM with JVM</a>.
   </p>
 
   <h3 id="native-maven-plugin">native-maven-plugin</h3>
@@ -1675,9 +1676,12 @@ GET /products/chair/commercial;style=classical
 
 
   <details id="graal-maven-combined">
-    <summary>example: native-maven-plugin and jib-maven-plugin</summary>
+    <summary>example: combined native maven profile</summary>
     <p>
       A complete maven profile that includes both plugins is as follows:
+    </p>
+    <p>
+      With <code>mvn package -Pnative</code>, the native executable and docker image will be built.
     </p>
     <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;profile&gt;</span>
   <span class="nt">&lt;id&gt;</span>native<span class="nt">&lt;/id&gt;</span>
