@@ -173,7 +173,7 @@
   <span class="o">}</span>
 
   <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/json&quot;</span><span class="o">)</span>
-  <span class="n">HelloBean</span> <span class="nf">one</span><span class="o">()</span> <span class="o">{</span>
+  <span class="n">HelloBean</span> <span class="nf">helloJson</span><span class="o">()</span> <span class="o">{</span>
     <span class="k">return</span> <span class="k">new</span> <span class="n">HelloBean</span><span class="o">(</span><span class="mi">97</span><span class="o">,</span> <span class="s">&quot;Hello JSON&quot;</span><span class="o">);</span>
   <span class="o">}</span>
 
@@ -251,6 +251,214 @@ curl http://localhost:8080/json
     <li><code>HelloControllerTestAPI</code> - a test client inteface to test the controller</li>
     <li><code>HelloControllerTestAPIHttpClient</code> - the test client implementation</li>
   </ul>
+
+  <h2 id="testing">Testing Controllers</h2>
+  <p>
+    <code>avaje-nima-test</code> provides support for testing controllers which includes:
+  </p>
+  <ul>
+    <li>Generating test clients for each controller</li>
+    <li>Detecting Http Clients used in a test and starting Helidon webserver on a random port for each test</li>
+    <li>Injecting Http Clients and Webserver into tests</li>
+  </ul>
+
+  <h3>Test Injection</h3>
+  <p>
+    <code>avaje-nima-test</code> can inject dependencies into a test including
+    Http Clients and the Helidon Webserver.
+  </p>
+  <ul>
+    <li><code>io.avaje.http.client.HttpClient</code></li>
+    <li><code>io.avaje.http.client.HttpClient.Builder</code></li>
+    <li>A type annotated with <code>io.avaje.http.api.@Client</code> or <code>io.avaje.http.api.@Path</code></li>
+  </ul>
+  <p>
+    When a test includes any of the above Http Client types to be injected,
+    <code>avaje-nima-test</code> will automatically start a Helidon webserver
+    on a random port for the test to use, and inject the Http Client(s) configured
+    into the test (with the correct port to connect to the started webserver).
+  </p>
+
+  <h4 id="inject-webserver"><code>@Inject WebServer</code></h4>
+  <p>
+    We typically don't need to inject the <code>WebServer</code> unless we want to
+    check the port or stop/start the server manually.
+  </p>
+
+  <details>
+    <summary><code>@Inject WebServer</code></summary>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.inject.test.InjectTest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.webserver.WebServer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.inject.Inject</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+<span class="kn">import static</span> <span class="nn">org.assertj.core.api.Assertions.assertThat</span><span class="o">;</span>
+
+<span class="nd">@InjectTest</span>
+<span class="kd">class</span> <span class="nc">MyControllerTest</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span> <span class="nx">WebServer</span> <span class="nx">webServer</span><span class="o">;</span>
+  <span class="nd">@Inject</span> <span class="nx">HttpClient</span> <span class="nx">httpClient</span><span class="o">;</span>
+
+  <span class="nd">@Test</span>
+  <span class="kt">void</span> <span class="nf">testSomething</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="c1">// webserver started on random port</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">webServer</span><span class="o">.</span><span class="na">port</span><span class="o">()).</span><span class="na">isNotEqualTo</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+
+    <span class="c1">// perform test using httpClient</span>
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">httpClient</span><span class="o">.</span><span class="na">request</span><span class="o">().</span><span class="na">GET</span><span class="o">().</span><span class="na">asString</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  </details>
+
+  <h4 id="inject-httpclient"><code>@Inject HttpClient</code></h4>
+  <p>
+    We can inject the <code>HttpClient</code> to perform requests against the started webserver.
+  </p>
+  <details>
+    <summary><code>@Inject HttpClient</code></summary>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.inject.test.InjectTest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.webserver.WebServer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.inject.Inject</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+<span class="kn">import static</span> <span class="nn">org.assertj.core.api.Assertions.assertThat</span><span class="o">;</span>
+
+<span class="nd">@InjectTest</span>
+<span class="kd">class</span> <span class="nc">MyControllerTest</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span> <span class="nx">HttpClient</span> <span class="nx">httpClient</span><span class="o">;</span>
+
+  <span class="nd">@Test</span>
+  <span class="kt">void</span> <span class="nf">testSomething</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="c1">// perform test using httpClient</span>
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">httpClient</span><span class="o">.</span><span class="na">request</span><span class="o">().</span><span class="na">GET</span><span class="o">().</span><span class="na">asString</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  </details>
+
+  <h4 id="inject-httpclient-builder"><code>@Inject HttpClient.Builder</code></h4>
+  <p>
+    We can inject the <code>HttpClient.Builder</code> to perform requests against the started webserver.
+    With the Builder we can customise the HttpClient as needed including things like setting the
+    interceptors (that might automatically set http headers etc).
+  </p>
+
+  <details>
+    <p>
+      For example lets say that we have a filter that requires a "Caller-Id" header to be set on each request,
+      and we have a test configuration that sets a default Caller-Id for tests like:
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@TestScope</span>
+<span class="nd">@Factory</span>
+<span class="kd">class</span> <span class="nc">TestConfiguration</span> <span class="o">{</span>
+
+    <span class="cm">/** Test clients by default will use this interceptor. */</span>
+    <span class="nd">@Bean</span>
+    <span class="n">HttpClient</span><span class="o">.</span><span class="na">Builder</span> <span class="nf">httpClientBuilder</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">HttpClient</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">requestIntercept</span><span class="o">(</span><span class="k">new</span> <span class="n">RequestIntercept</span><span class="o">()</span> <span class="o">{</span>
+                <span class="nd">@Override</span>
+                <span class="kd">public</span> <span class="kt">void</span> <span class="nf">beforeRequest</span><span class="o">(</span><span class="n">HttpClientRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">request</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;eroad-callerid&quot;</span><span class="o">,</span> <span class="s">&quot;local-test&quot;</span><span class="o">);</span>
+                <span class="o">}</span>
+            <span class="o">});</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+    <p>
+      We can inject the HttpClient.Builder so that we can change the interceptor for a specific test.
+    </p>
+    <summary><code>@Inject HttpClient</code></summary>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.inject.test.InjectTest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.webserver.WebServer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.inject.Inject</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+<span class="kn">import static</span> <span class="nn">org.assertj.core.api.Assertions.assertThat</span><span class="o">;</span>
+
+<span class="nd">@InjectTest</span>
+<span class="kd">class</span> <span class="nc">MyControllerTest</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span> <span class="nx">HttpClient</span><span class="o">.</span><span class="na">Builder</span> <span class="nx">httpClientBuilder</span><span class="o">;</span>
+
+  <span class="nd">@Test</span>
+  <span class="kt">void</span> <span class="nf">testSomething</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="c1">// create a custom http client for this test</span>
+    <span class="n">HttpClient</span> <span class="n">httpClient</span> <span class="o">=</span> <span class="n">httpClientBuilder</span>
+      <span class="o">.</span><span class="na">requestIntercept</span><span class="o">(</span><span class="n">request</span> <span class="o">-&gt;</span> <span class="n">request</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;eroad-callerid&quot;</span><span class="o">,</span> <span class="s">&quot;special-test&quot;</span><span class="o">))</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+    <span class="c1">// perform test using httpClient</span>
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">httpClient</span><span class="o">.</span><span class="na">request</span><span class="o">().</span><span class="na">GET</span><span class="o">().</span><span class="na">asString</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  </details>
+
+  <h4 id="inject-generated-client"><code>@Inject generated client</code></h4>
+  <p>
+    Given we have a <code>@Controller</code> called <code>HelloController</code> then there will
+    automatically be a generated test client called <code>HelloControllerTestAPI</code> and we
+    can inject that into our test. This allows us to use a type safe client to perform requests.
+  </p>
+  <details>
+    <summary><code>@Inject generated client</code></summary>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.inject.test.InjectTest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.helidon.webserver.WebServer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.inject.Inject</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+<span class="kn">import static</span> <span class="nn">org.assertj.core.api.Assertions.assertThat</span><span class="o">;</span>
+
+<span class="nd">@InjectTest</span>
+<span class="kd">class</span> <span class="nc">MyControllerTest</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span> <span class="nx">HelloControllerTestAPI</span> <span class="nx">myClient</span><span class="o">;</span>
+
+  <span class="nd">@Test</span>
+  <span class="kt">void</span> <span class="nf">testUsingGeneratedClient</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="c1">// perform test using generated client API</span>
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">myClient</span><span class="o">.</span><span class="na">hello</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hello world&quot;</span><span class="o">);</span>
+
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">HelloBean</span><span class="o">&gt;</span> <span class="n">response</span> <span class="o">=</span> <span class="n">myClient</span><span class="o">.</span><span class="na">helloJson</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">response</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+
+    <span class="n">HelloBean</span> <span class="n">body</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="na">body</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">body</span><span class="o">.</span><span class="na">id</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">97</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">body</span><span class="o">.</span><span class="na">name</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;Hello JSON&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  </details>
+
 
   <h2 id="firstControllerTest">Testing Controllers</h2>
   <p>
