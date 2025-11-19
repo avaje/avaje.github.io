@@ -27,7 +27,13 @@
     <li><a href="#main">Nima main()</a></li>
   </ul>
 </li>
-<li><a href="#firstControllerTest">Controller test</a>
+<li><a href="#testing">Testing Controllers</a>
+    <ul>
+      <li><a href="#inject-webserver"><code>@Inject WebServer</code></a></li>
+      <li><a href="#inject-httpclient"><code>@Inject HttpClient</code></a></li>
+      <li><a href="#inject-httpclient-builder"><code>@Inject HttpClient.Builder</code></a></li>
+      <li><a href="#inject-generated-client"><code>@Inject generated client</code></a></li>
+    </ul>
 </li>
 <li><a href="#errorHandlers">Error handlers</a>
 </li>
@@ -258,8 +264,8 @@ curl http://localhost:8080/json
   </p>
   <ul>
     <li>Generating test clients for each controller</li>
-    <li>Detecting Http Clients used in a test and starting Helidon webserver on a random port for each test</li>
     <li>Injecting Http Clients and Webserver into tests</li>
+    <li>Starting webserver on a random port for any test with an injected Http Client</li>
   </ul>
 
   <h3>Test Injection</h3>
@@ -279,14 +285,14 @@ curl http://localhost:8080/json
     into the test (with the correct port to connect to the started webserver).
   </p>
 
-  <h4 id="inject-webserver"><code>@Inject WebServer</code></h4>
+  <h3 id="inject-webserver"><code>@Inject WebServer</code></h3>
   <p>
     We typically don't need to inject the <code>WebServer</code> unless we want to
     check the port or stop/start the server manually.
   </p>
 
   <details>
-    <summary><code>@Inject WebServer</code></summary>
+    <summary><code>example: @Inject WebServer</code></summary>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
@@ -318,12 +324,12 @@ curl http://localhost:8080/json
 </div>
   </details>
 
-  <h4 id="inject-httpclient"><code>@Inject HttpClient</code></h4>
+  <h3 id="inject-httpclient"><code>@Inject HttpClient</code></h3>
   <p>
     We can inject the <code>HttpClient</code> to perform requests against the started webserver.
   </p>
   <details>
-    <summary><code>@Inject HttpClient</code></summary>
+    <summary><code>example: @Inject HttpClient</code></summary>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
@@ -351,7 +357,7 @@ curl http://localhost:8080/json
 </div>
   </details>
 
-  <h4 id="inject-httpclient-builder"><code>@Inject HttpClient.Builder</code></h4>
+  <h3 id="inject-httpclient-builder"><code>@Inject HttpClient.Builder</code></h3>
   <p>
     We can inject the <code>HttpClient.Builder</code> to perform requests against the started webserver.
     With the Builder we can customise the HttpClient as needed including things like setting the
@@ -359,6 +365,7 @@ curl http://localhost:8080/json
   </p>
 
   <details>
+    <summary><code>example: @Inject HttpClient</code></summary>
     <p>
       For example lets say that we have a filter that requires a "Caller-Id" header to be set on each request,
       and we have a test configuration that sets a default Caller-Id for tests like:
@@ -384,7 +391,6 @@ curl http://localhost:8080/json
     <p>
       We can inject the HttpClient.Builder so that we can change the interceptor for a specific test.
     </p>
-    <summary><code>@Inject HttpClient</code></summary>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
@@ -417,14 +423,14 @@ curl http://localhost:8080/json
 </div>
   </details>
 
-  <h4 id="inject-generated-client"><code>@Inject generated client</code></h4>
+  <h3 id="inject-generated-client"><code>@Inject generated client</code></h3>
   <p>
     Given we have a <code>@Controller</code> called <code>HelloController</code> then there will
     automatically be a generated test client called <code>HelloControllerTestAPI</code> and we
     can inject that into our test. This allows us to use a type safe client to perform requests.
   </p>
   <details>
-    <summary><code>@Inject generated client</code></summary>
+    <summary><code>example: @Inject generated client</code></summary>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">org.example.web</span><span class="o">;</span>
 
 <span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
