@@ -63,12 +63,12 @@
       <li><a href="#header">@Header</a></li>
       <li><a href="#cookie">@Cookie</a></li>
       <li><a href="#default">@Default</a></li>
+      <li><a href="#req-res">ServerRequest</a></li>
+      <li><a href="#req-res">ServerResponse</a></li>
     </ul>
 </li>
 <li><a href="#req-res">Request Response</a>
     <ul>
-      <li><a href="#req-res-method">Method parameters</a></li>
-      <li><a href="#request-scope">Injected</a></li>
     </ul>
 </li>
 <li><a href="#graalvm">GraalVM</a>
@@ -1355,21 +1355,6 @@ GET /products/chair/commercial;style=classical
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>
-  The generated code for the above controller method is:
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">ApiBuilder</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
-  <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">);</span>
-  <span class="n">SaveForm</span> <span class="n">form</span> <span class="o">=</span>  <span class="k">new</span> <span class="n">SaveForm</span><span class="o">(</span>
-    <span class="n">asLong</span><span class="o">(</span><span class="n">checkNull</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">),</span> <span class="s">&quot;id&quot;</span><span class="o">)),</span>     <span class="c1">// non-nullable type</span>
-    <span class="n">checkNull</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">),</span> <span class="s">&quot;name&quot;</span><span class="o">),</span>         <span class="c1">// non-nullable type</span>
-    <span class="n">toLocalDate</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;someDate&quot;</span><span class="o">))</span>
-  <span class="o">);</span>
-
-  <span class="n">controller</span><span class="o">.</span><span class="na">saveIt</span><span class="o">(</span><span class="n">form</span><span class="o">);</span>
-<span class="o">});</span>
-</pre></div>
-</div>
 
 <p>
   If the form bean has Kotlin non-nullable types (id and name above) then the
@@ -1404,23 +1389,6 @@ GET /products/chair/commercial;style=classical
   <span class="nd">@Cookie</span>
   <span class="kd">public</span> <span class="n">String</span> <span class="n">myState</span><span class="o">;</span>
 <span class="o">}</span>
-</pre></div>
-</div>
-<p>
-  The generated code populates <em></em> from query params, headers and cookies. The generated code is:
-</p>
-<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">ApiBuilder</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&quot;/contacts/register&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
-  <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">);</span>
-  <span class="n">MyForm</span> <span class="n">myForm</span> <span class="o">=</span>  <span class="k">new</span> <span class="n">MyForm</span><span class="o">();</span>
-  <span class="n">myForm</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">);</span>
-  <span class="n">myForm</span><span class="o">.</span><span class="na">email</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;email&quot;</span><span class="o">);</span>
-  <span class="n">myForm</span><span class="o">.</span><span class="na">url</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">formParam</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">);</span>
-  <span class="n">myForm</span><span class="o">.</span><span class="na">overrideFlag</span> <span class="o">=</span> <span class="n">toBoolean</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">queryParam</span><span class="o">(</span><span class="s">&quot;overrideFlag&quot;</span><span class="o">));</span>     <span class="c1">// queryParam !!</span>
-  <span class="n">myForm</span><span class="o">.</span><span class="na">ifModifiedSince</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">header</span><span class="o">(</span><span class="s">&quot;If-Modified-Since&quot;</span><span class="o">);</span>            <span class="c1">// header !!</span>
-  <span class="n">myForm</span><span class="o">.</span><span class="na">myState</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">cookie</span><span class="o">(</span><span class="s">&quot;myState&quot;</span><span class="o">);</span>                              <span class="c1">// cookie !!</span>
-
-  <span class="n">controller</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">myForm</span><span class="o">);</span>
-<span class="o">});</span>
 </pre></div>
 </div>
 <h2 id="produces">@Produces</h2><hr/>
