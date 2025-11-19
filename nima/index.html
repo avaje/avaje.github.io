@@ -43,6 +43,9 @@
     </ul>
 </li>
 <li><a href="#filters">Filters</a>
+    <ul>
+      <li><a href="#filter-example">Example</a></li>
+    </ul>
 </li>
 <li><a href="#graalvm">GraalVM</a>
 </li>
@@ -685,8 +688,21 @@ curl http://localhost:8080/json
     that takes a <code>FilterChain</code>, <code>RoutingRequest</code> and
     optionally a <code>RoutingResponse</code>.
   </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span>
+<span class="kd">final</span> <span class="kd">class</span> <span class="nc">MyFilter</span> <span class="o">{</span>
+
+  <span class="nd">@Filter</span>
+  <span class="kt">void</span> <span class="nf">filter</span><span class="o">(</span><span class="n">FilterChain</span> <span class="n">chain</span><span class="o">,</span> <span class="n">RoutingRequest</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">...</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+</div>
+
+  <h3 id="filter-example">Example filter</h3>
   <p>
-    Example filter that reads a "Caller-Id" request header and rejects the
+    The following is an example filter that reads a "Caller-Id" request header and rejects the
     request if one isn't provided.
   </p>
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.avaje.http.api.Controller</span><span class="o">;</span>
