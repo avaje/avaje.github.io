@@ -45,10 +45,10 @@
       <li><a href="#default">@Default</a></li>
     </ul>
 </li>
-<li><a href="#req-res">ServerRequest ServerResponse</a>
+<li><a href="#req-res">Request Response</a>
     <ul>
       <li><a href="#req-res-method">Method parameters</a></li>
-      <li>- <a href="#request-scope">Injected</a></li>
+      <li><a href="#request-scope">Injected</a></li>
     </ul>
 </li>
 <li><a href="#testing">Testing Controllers</a>
@@ -1593,18 +1593,13 @@ GET /products/chair/commercial;style=classical
     including Helidon SE webserver.
   </p>
   <p>
-    The maven profile below builds a native executable and then builds a docker image
-    for that native executable using a UBI micro base image with glibc.
+    Have a look at <a href="/graalvm">Why GraalVM native image</a> 
   </p>
-  <ul>
-    <li><code>native-maven-plugin</code>: builds the native executable</li>
-    <li><code>jib-maven-plugin</code>: builds a docker image including the native executable</li>
-  </ul>
 
-  <h4 id="native-maven-plugin">native-maven-plugin</h4>
+  <h3 id="native-maven-plugin">native-maven-plugin</h3>
   <p>
-    The <code>native-maven-plugin</code> is used to build the native executable.
-    It is added to the maven <code>build / plugins</code>.
+    Add the <code>native-maven-plugin</code> to the maven <code>build / plugins</code>
+    to build the native executable.
   </p>
   <p>
     The configuration below uses G1 garbage collector with max pause of 50ms
@@ -1645,7 +1640,7 @@ GET /products/chair/commercial;style=classical
 </div>
 
 
-  <h4 id="jib-maven-plugin">jib-maven-plugin</h4>
+  <h3 id="jib-maven-plugin">jib-maven-plugin</h3>
   <p>
     We can use the <code>jib-maven-plugin</code> to build a docker image
     that includes the native executable built by the <code>native-maven-plugin</code>.
@@ -1793,7 +1788,7 @@ GET /products/chair/commercial;style=classical
 
   </details>
 
-  <h4 id="graal-platform-profile">Platform specific maven profile</h4>
+  <h3 id="graal-platform-profile">Platform specific maven profile</h3>
   <p>
     MacOS does not support G1 garbage collector in native images, so often we need to
     create a platform specific profile for MacOS builds that omits the G1 related build args.
