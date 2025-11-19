@@ -29,16 +29,17 @@
 </li>
 <li><a href="#testing">Testing Controllers</a>
     <ul>
-      <li><a href="#inject-webserver">@Inject WebServer</a></li>
-      <li><a href="#inject-httpclient">@Inject HttpClient</a></li>
-      <li><a href="#inject-httpclient-builder">@Inject HttpClient.Builder</a></li>
-      <li><a href="#inject-generated-client">@Inject generated client</a></li>
+      <li>Injecting:</li>
+      <li>- <a href="#inject-webserver">WebServer</a></li>
+      <li>- <a href="#inject-httpclient">HttpClient</a></li>
+      <li>- <a href="#inject-httpclient-builder">HttpClient.Builder</a></li>
+      <li>- <a href="#inject-generated-client">Generated client</a></li>
     </ul>
 </li>
 <li><a href="#error-handlers">Error handlers</a>
     <ul>
       <li><a href="#error-example">Example</a></li>
-      <li><a href="#error-test">Testing Error Handler</a></li>
+      <li><a href="#error-testing">Testing Error Handler</a></li>
     </ul>
 </li>
 <li><a href="#filters">Filters</a>
@@ -722,7 +723,7 @@ curl http://localhost:8080/json
 
   <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">HeaderName</span> <span class="n">CALLER_ID</span> <span class="o">=</span> <span class="n">HeaderNames</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="s">&quot;Caller-Id&quot;</span><span class="o">);</span>
 
-  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Set</span><span class="o">&lt;!</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">BYPASS</span> <span class="o">=</span> <span class="n">Set</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;/ping&quot;</span><span class="o">);</span>
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">BYPASS</span> <span class="o">=</span> <span class="n">Set</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;/ping&quot;</span><span class="o">);</span>
 
   <span class="nd">@Filter</span>
   <span class="kt">void</span> <span class="nf">filter</span><span class="o">(</span><span class="n">FilterChain</span> <span class="n">chain</span><span class="o">,</span> <span class="n">RoutingRequest</span> <span class="n">req</span><span class="o">)</span> <span class="o">{</span>
@@ -740,7 +741,7 @@ curl http://localhost:8080/json
     <span class="c1">// capture metrics</span>
   <span class="o">}</span>
 
-  <span class="kd">private</span> <span class="n">Optional</span><span class="o">&lt;!</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">callerId</span><span class="o">(</span><span class="n">RoutingRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">callerId</span><span class="o">(</span><span class="n">RoutingRequest</span> <span class="n">request</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">first</span><span class="o">(</span><span class="n">CALLER_ID</span><span class="o">);</span>
   <span class="o">}</span>
 
