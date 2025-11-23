@@ -1370,6 +1370,16 @@ GET /products/chair/commercial;style=classical
 <p>
   Annotate methods with <code>@Filter</code> for HTTP filter web routes. Filter web routes behave similarly to void <code>@Get</code> methods (They can use header/query/cookie parameters with type conversion)
 </p>
+<h4>Jex</h4>
+<p>
+  Jex filters must have a <code>FilterChain</code> parameter, and optionally can add <code>Context</code>.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Filter</span>
+<span class="kt">void</span> <span class="nf">filter</span><span class="o">(</span><span class="n">FilterChain</span> <span class="n">chain</span><span class="o">,</span> <span class="n">Context</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+ <span class="c1">//... filter logic</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 <h4>Helidon</h4>
 <p>
   Helidon filters must have a <code>FilterChain</code> parameter, and optionally can add <code>RoutingRequest</code> and <code>RoutingResponse</code>.
@@ -1423,7 +1433,7 @@ GET /products/chair/commercial;style=classical
 </pre></div>
 </div>
 
-<h4>Javalin</h4>
+<h4>Jex/Javalin</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@ExceptionHandler</span>
 <span class="nd">@Produces</span><span class="o">(</span><span class="nx">statusCode</span> <span class="o">=</span> <span class="mi">501</span><span class="o">)</span>
 <span class="n">Person</span> <span class="nf">exceptionCtx</span><span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">,</span> <span class="n">Context</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
@@ -2175,9 +2185,9 @@ GET /products/chair/commercial;style=classical
 </pre></div>
 </div>
 
-<h4>Step 4: Jex AccessManager</h4>
+<h4>Step 4: Example AccessManager</h4>
 <p>
-  Ensure that Jex is setup with an AccessManager to implement the role check.
+  In the following example we use the roles for access management to implement the role check.
 </p>
 
 <h5>Example</h5>
