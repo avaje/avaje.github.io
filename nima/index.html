@@ -202,6 +202,40 @@
 <span class="nt">&lt;/properties&gt;</span>
 </pre></div>
 </div>
+  <details>
+    <summary><code>Alternative: maven-compiler-plugin</code></summary>
+    <p>
+      Alternatively we can explicitly configure the <code>maven-compiler-plugin</code>
+      to specify the annotation processor paths:
+    </p>
+    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;build&gt;</span>
+  <span class="nt">&lt;plugins&gt;</span>
+
+    <span class="nt">&lt;plugin&gt;</span>
+      <span class="nt">&lt;groupId&gt;</span>org.apache.maven.plugins<span class="nt">&lt;/groupId&gt;</span>
+      <span class="nt">&lt;artifactId&gt;</span>maven-compiler-plugin<span class="nt">&lt;/artifactId&gt;</span>
+      <span class="nt">&lt;version&gt;</span>3.14.1<span class="nt">&lt;/version&gt;</span>
+      <span class="nt">&lt;configuration&gt;</span>
+        <span class="nt">&lt;annotationProcessorPaths&gt;</span>
+          <span class="nt">&lt;path&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>avaje-nima-generator<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>&#36;{avaje-nima.version}<span class="nt">&lt;/version&gt;</span>
+          <span class="nt">&lt;/path&gt;</span>
+          <span class="nt">&lt;path&gt;</span>
+            <span class="nt">&lt;groupId&gt;</span>io.ebean<span class="nt">&lt;/groupId&gt;</span>
+            <span class="nt">&lt;artifactId&gt;</span>querybean-generator<span class="nt">&lt;/artifactId&gt;</span>
+            <span class="nt">&lt;version&gt;</span>&#36;{ebean.version}<span class="nt">&lt;/version&gt;</span>
+          <span class="nt">&lt;/path&gt;</span>
+        <span class="nt">&lt;/annotationProcessorPaths&gt;</span>
+      <span class="nt">&lt;/configuration&gt;</span>
+    <span class="nt">&lt;/plugin&gt;</span>
+
+  <span class="nt">&lt;/plugins&gt;</span>
+<span class="nt">&lt;/build&gt;</span>
+</pre></div>
+</div>
+  </details>
 
   <h2 id="first-controller">Controller</h2>
   <p>
