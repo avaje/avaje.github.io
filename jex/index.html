@@ -55,6 +55,7 @@
     <ul>
       <li><a href="#jetty">Jetty</a></li>
       <li><a href="#robaho">Robaho</a></li>
+      <li><a href="#flupke">Flupke (HTTP/3)</a></li>
     </ul>
 </li>
 </ul>
@@ -110,7 +111,7 @@
     <li>Json (de)serialization SPI</li>
     <li>Automatic Compression</li>
     <li>Context abstraction over HttpExchange to easily retrieve and send request/response data.</li>
-    <li>Multi-Server with any implementation of jdk.httpserver (Jetty, Robaho, built-in, etc)</li>
+    <li>Multi-Server with any implementation of jdk.httpserver (Jetty, Robaho, Flupke, built-in, etc)</li>
     <li>SSL/mTLS plugins</li>
     <li>File Uploads</li>
   </ul>
@@ -991,6 +992,71 @@
   <span class="nt">&lt;artifactId&gt;</span>httpserver<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{robaho.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+    <h3 id="flupke">Flupke (HTTP/3, WebTransport)</h3>
+    <p><a href="https://github.com/ptrd/flupke">Flupke</a> is the first and (at the time of writing) <i>only</i> HTTP/3 implementation written in pure java.</p>
+    <a href="https://github.com/avaje/avaje-jex/releases"><img
+            src="https://img.shields.io/maven-central/v/io.avaje/avaje-jex-http3-flupke.svg?label=Maven%20Central"></a>
+    <br></br>
+    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex-http3-flupke<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{jex.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">ssl</span> <span class="o">=</span> <span class="c1">//HTTP/3 requires https</span>
+    <span class="n">SslPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="n">s</span><span class="o">.</span><span class="na">keystoreFromClasspath</span><span class="o">(</span><span class="s">&quot;/keystore.p12&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">));</span>
+
+<span class="k">var</span> <span class="n">jex</span> <span class="o">=</span>
+    <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">ssl</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">FlupkeJexPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">())</span>
+        <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;hello (http3)&quot;</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</pre></div>
+</div>
+    <h4>WebTransport Example</h4>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">ssl</span> <span class="o">=</span> <span class="c1">//HTTP/3 requires https</span>
+    <span class="n">SslPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="n">s</span><span class="o">.</span><span class="na">keystoreFromClasspath</span><span class="o">(</span><span class="s">&quot;/keystore.p12&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">));</span>
+
+<span class="k">var</span> <span class="n">webTransport</span> <span class="o">=</span>
+    <span class="n">FlupkeJexPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">webTransport</span><span class="o">(</span>
+            <span class="s">&quot;/webtransport&quot;</span><span class="o">,</span>
+            <span class="n">session</span> <span class="o">-&gt;</span> <span class="o">{</span>
+              <span class="n">session</span><span class="o">.</span><span class="na">onBiDirectionalStream</span><span class="o">(</span>
+                  <span class="n">stream</span> <span class="o">-&gt;</span> <span class="o">{</span>
+                    <span class="k">try</span> <span class="o">(</span><span class="n">stream</span><span class="o">)</span> <span class="o">{</span>
+                      <span class="c1">// Echo back the data</span>
+                      <span class="n">stream</span><span class="o">.</span><span class="na">requestStream</span><span class="o">().</span><span class="na">transferTo</span><span class="o">(</span><span class="n">stream</span><span class="o">.</span><span class="na">responseStream</span><span class="o">());</span>
+                    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                      <span class="n">System</span><span class="o">.</span><span class="na field">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+                          <span class="s">&quot;IO error while processing request: &quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                    <span class="o">}</span>
+                  <span class="o">});</span>
+
+              <span class="n">session</span><span class="o">.</span><span class="na">onUniDirectionalStream</span><span class="o">(</span>
+                  <span class="n">stream</span> <span class="o">-&gt;</span> <span class="o">{</span>
+                    <span class="k">try</span> <span class="o">(</span><span class="n">stream</span><span class="o">)</span> <span class="o">{</span>
+                      <span class="n">ByteArrayOutputStream</span> <span class="n">baos</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ByteArrayOutputStream</span><span class="o">();</span>
+                      <span class="n">stream</span><span class="o">.</span><span class="na">requestStream</span><span class="o">().</span><span class="na">transferTo</span><span class="o">(</span><span class="n">baos</span><span class="o">);</span>
+                      <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+                          <span class="s">&quot;Received unidirectional stream: &quot;</span>
+                              <span class="o">+</span> <span class="n">baos</span><span class="o">.</span><span class="na">toString</span><span class="o">(</span><span class="n">StandardCharsets</span><span class="o">.</span><span class="na">UTF_8</span><span class="o">));</span>
+                    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                      <span class="n">fail</span><span class="o">(</span><span class="s">&quot;Failed to read unidirectional stream: &quot;</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+                    <span class="o">}</span>
+                  <span class="o">});</span>
+            <span class="o">});</span>
+<span class="k">var</span> <span class="n">jex</span> <span class="o">=</span>
+    <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">ssl</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">webTransport</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;hello (http3)&quot;</span><span class="o">))</span>
+        <span class="o">.</span><span class="na">start</span><span class="o">();</span>
 </pre></div>
 </div>
     <p><br><br><br><br><br><br></p>
