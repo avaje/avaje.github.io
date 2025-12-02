@@ -623,40 +623,17 @@
  <span class="kd">public</span> <span class="kd">static</span> <span class="n">ModuleElement</span> <span class="nf">getProjectModuleElement</span><span class="o">()</span> <span class="o">{</span>
    <span class="k">return</span> <span class="n">CTX</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">module</span><span class="o">;</span>
  <span class="o">}</span>
-
- <span class="cm">/**</span>
-<span class="cm">  * Gets a {@link BufferedReader} for the project&#39;s {@code module-info.java} source file.</span>
-<span class="cm">  *</span>
-<span class="cm">  * &lt;p&gt;Calling {@link ModuleElement}&#39;s {@code getDirectives()} method has a chance of making</span>
-<span class="cm">  * compilation fail in certain situations. Therefore, manually parsing {@code module-info.java}</span>
-<span class="cm">  * seems to be the safest way to get module information.</span>
-<span class="cm">  *</span>
-<span class="cm">  * @return</span>
-<span class="cm">  * @throws IOException if unable to read the module-info</span>
-<span class="cm">  */</span>
- <span class="kd">public</span> <span class="kd">static</span> <span class="n">BufferedReader</span> <span class="nf">getModuleInfoReader</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
-   <span class="k">var</span> <span class="n">inputStream</span> <span class="o">=</span>
-       <span class="n">filer</span><span class="o">()</span>
-           <span class="o">.</span><span class="na">getResource</span><span class="o">(</span><span class="n">StandardLocation</span><span class="o">.</span><span class="na">SOURCE_PATH</span><span class="o">,</span> <span class="s">&quot;&quot;</span><span class="o">,</span> <span class="s">&quot;module-info.java&quot;</span><span class="o">)</span>
-           <span class="o">.</span><span class="na">toUri</span><span class="o">()</span>
-           <span class="o">.</span><span class="na">toURL</span><span class="o">()</span>
-           <span class="o">.</span><span class="na">openStream</span><span class="o">();</span>
-   <span class="k">return</span> <span class="k">new</span> <span class="n">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="n">InputStreamReader</span><span class="o">(</span><span class="n">inputStream</span><span class="o">));</span>
- <span class="o">}</span>
      <span class="o">}</span>
 </pre></div>
 </div>
   </details>
 
-  <h2 id="modules">@GenerateModuleInfoReader</h2><hr/>
+  <h3 id="modules">ModuleInfoReader</h3><hr/>
   <p>
-    There is currently a bug in javac where in certain situations calling <em>ModuleElement#getDirectives</em> on
-    the application's root module crashes compilation. Using <em>@GenerateModuleInfoReader</em> in combination with
     <em>APContext</em> generates classes that allow you to read a
     module's directives by parsing the <em>module-info.java</em> source file.
   </p>
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@GenerateAPContext</span>
-<span class="nd">@GenerateModuleInfoReader</span>
 <span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">MyProcessor</span> <span class="kd">extends</span> <span class="n">AbstractProcessor</span> <span class="o">{</span>
 
   <span class="nd">@Override</span>
@@ -673,14 +650,14 @@
     <span class="o">}</span>
 
     <span class="n">APContext</span><span class="o">.</span><span class="na">setProjectModuleElement</span><span class="o">(</span><span class="n">tes</span><span class="o">,</span> <span class="n">renv</span><span class="o">);</span>
-
-    <span class="k">try</span> <span class="o">(</span><span class="k">var</span> <span class="n">reader</span> <span class="o">=</span> <span class="n">APContext</span><span class="o">.</span><span class="na">getModuleInfoReader</span><span class="o">())</span> <span class="o">{</span>
-
-      <span class="k">var</span> <span class="n">moduleInfo</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModuleInfoReader</span><span class="o">(</span><span class="n">APContext</span><span class="o">.</span><span class="na">getProjectModuleElement</span><span class="o">(),</span> <span class="n">reader</span><span class="o">);</span>
-      <span class="kt">boolean</span> <span class="n">contains</span> <span class="o">=</span> <span class="n">moduleInfo</span><span class="o">.</span><span class="na">containsOnModulePath</span><span class="o">(</span><span class="s">&quot;some.module&quot;</span><span class="o">);</span>
-      <span class="k">var</span> <span class="n">provides</span> <span class="o">=</span> <span class="n">moduleInfo</span><span class="o">.</span><span class="na">provides</span><span class="o">();</span>
-      <span class="k">var</span> <span class="n">requires</span> <span class="o">=</span> <span class="n">moduleInfo</span><span class="o">.</span><span class="na">requires</span><span class="o">();</span>
-      <span class="c1">//and so on...</span>
+    <span class="k">var</span> <span class="n">moduleInfo</span> <span class="o">=</span> <span class="n">APContext</span><span class="o">.</span><span class="na">moduleInfoReader</span><span class="o">().</span><span class="na">orElseThrow</span><span class="o">();</span>
+    <span class="c1">//searches for a non static requires on the module path</span>
+    <span class="kt">boolean</span> <span class="n">contains</span> <span class="o">=</span> <span class="n">moduleInfo</span><span class="o">.</span><span class="na">containsOnModulePath</span><span class="o">(</span><span class="s">&quot;some.module&quot;</span><span class="o">);</span>
+    <span class="c1">//checks that the module provides the given service with the given implementation and logs errors if not</span>
+    <span class="n">moduleInfo</span><span class="o">.</span><span class="na">validateServices</span><span class="o">(</span><span class="s">&quot;io.avaje.inject.spi.InjectExtension&quot;</span><span class="o">,</span> <span class="n">List</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">&quot;io.avaje.inject.aop.AopExtension&quot;</span><span class="o">));</span>
+    <span class="k">var</span> <span class="n">provides</span> <span class="o">=</span> <span class="n">moduleInfo</span><span class="o">.</span><span class="na">provides</span><span class="o">();</span>
+    <span class="k">var</span> <span class="n">requires</span> <span class="o">=</span> <span class="n">moduleInfo</span><span class="o">.</span><span class="na">requires</span><span class="o">();</span>
+    <span class="c1">//and so on...</span>
     <span class="o">}</span>
   <span class="o">}</span>
 <span class="o">}</span>
