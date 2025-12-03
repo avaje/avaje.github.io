@@ -87,10 +87,10 @@
     <code>application.yaml</code> etc.
   </p>
 
-  <table>
+  <table class="table">
     <tbody>
     <tr>
-      <td>avaje-config</td>
+      <th>avaje-config</th>
       <td>
         <p>
           avaje-config is a configuration library that supports GraalVM native image.
@@ -100,16 +100,7 @@
       </td>
     </tr>
     <tr>
-      <td>avaje-simple-logger</td>
-      <td>
-        <p>
-          avaje-simple-logger is a simple structured JSON logger that is well suited
-          to GraalVM native image applications.
-        </p>
-      </td>
-    </tr>
-    <tr>
-      <td>avaje-http</td>
+      <th>avaje-http</th>
       <td>
         <p>
           avaje-http generates adapter code for <code>@Controller</code> and also HTTP clients.
@@ -119,7 +110,7 @@
       </td>
     </tr>
     <tr>
-      <td>avaje-jsonb</td>
+      <th>avaje-jsonb</th>
       <td>
         <p>
           avaje-jsonb is a JSON binding library that uses code generation to create
@@ -129,11 +120,13 @@
       </td>
     </tr>
     <tr>
-      <td>avaje-simple-logger</td>
+      <th>avaje-simple-logger</th>
       <td>
         <p>
           avaje-simple-logger is a simple structured JSON logger that is well suited
-          to GraalVM native image applications.
+          to GraalVM native image applications. No reflection, lightweight, uses
+          avaje-jsonb for optimised json serialisation and uses build time initialisation
+          with GraalVM native image.
         </p>
       </td>
     </tr>
