@@ -55,8 +55,11 @@
     <ul>
       <li><a href="#jetty">Jetty</a></li>
       <li><a href="#robaho">Robaho</a></li>
+      <li><a href="#grizzly">Grizzly</a></li>
       <li><a href="#flupke">Flupke (HTTP/3)</a></li>
     </ul>
+</li>
+<li><a href="#websocket">WebSockets</a>
 </li>
 </ul>
 <p>&nbsp;</p>
@@ -995,6 +998,25 @@
 </pre></div>
 </div>
 
+      <h3 id="grizzly">Grizzly</h3>
+
+    <p><a href="https://github.com/eclipse-ee4j/glassfish-grizzly">Grizzly</a> is the webserver that powers jakarta EE's opensource Glassfish.</p>
+    <a href="https://mvnrepository.com/artifact/io.avaje/avaje-jex-grizzly-spi"><img
+        src="https://img.shields.io/maven-central/v/io.avaje/avaje-jex-grizzly-spi.svg?label=Maven%20Central"></a>
+    <br></br>
+    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{jex.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex-grizzly-spi<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{plugin.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
     <h3 id="flupke">Flupke (HTTP/3, WebTransport)</h3>
     <p><a href="https://github.com/ptrd/flupke">Flupke</a> is the first and (at the time of writing) <i>only</i> HTTP/3 implementation written in pure java.</p>
     <a href="https://github.com/avaje/avaje-jex/releases"><img
@@ -1002,8 +1024,13 @@
     <br></br>
     <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
   <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
-  <span class="nt">&lt;artifactId&gt;</span>avaje-jex-http3-flupke<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex<span class="nt">&lt;/artifactId&gt;</span>
   <span class="nt">&lt;version&gt;</span>&#36;{jex.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+<span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex-http3-flupke<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{plugin.version}<span class="nt">&lt;/version&gt;</span>
 <span class="nt">&lt;/dependency&gt;</span>
 </pre></div>
 </div>
@@ -1013,7 +1040,6 @@
 <span class="k">var</span> <span class="n">jex</span> <span class="o">=</span>
     <span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
         <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">ssl</span><span class="o">)</span>
-        <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">FlupkeJexPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">())</span>
         <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;hello (http3)&quot;</span><span class="o">))</span>
         <span class="o">.</span><span class="na">start</span><span class="o">();</span>
 </pre></div>
@@ -1059,6 +1085,165 @@
         <span class="o">.</span><span class="na">start</span><span class="o">();</span>
 </pre></div>
 </div>
+
+  <h2 id="websocket">WebSockets</h2>
+  <hr/>
+  
+  <p>
+    Jex provides WebSocket support through a separate module that enables real-time bidirectional communication between clients and servers.
+  </p>
+
+  <div class="alert alert-warning" role="alert">
+    <strong>Note on Server Compatibility:</strong> The default JDK server does not currently support WebSocket. Use alternative providers like Robaho or Grizzly.
+  </div>
+
+  <h3>Add WebSocket Dependency</h3>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+upId&gt;io.avaje<span class="nt">&lt;/groupId&gt;</span>
+ifactId&gt;avaje-jex-websocket<span class="nt">&lt;/artifactId&gt;</span>
+sion&gt;&#36;{avaje.jex.version}<span class="nt">&lt;/version&gt;</span>
+ndency&gt;
+</pre></div>
+</div>
+
+  <h3>Basic WebSocket Handler</h3>
+  <p>
+    Create a WebSocket endpoint using the <code>WebSocketPlugin</code>:
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">var</span> <span class="n">wsPlugin</span> <span class="o">=</span> <span class="n">WebSocketPlugin</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">ws</span><span class="o">(</span><span class="s">&quot;/chat&quot;</span><span class="o">,</span> <span class="n">ws</span> <span class="o">-&gt;</span> <span class="n">ws</span>
+        <span class="o">.</span><span class="na">onOpen</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Client connected&quot;</span><span class="o">);</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">&quot;Welcome to the chat!&quot;</span><span class="o">);</span>
+        <span class="o">})</span>
+        <span class="o">.</span><span class="na">onMessage</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="n">String</span> <span class="n">message</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">message</span><span class="o">();</span>
+            <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Received: &quot;</span> <span class="o">+</span> <span class="n">message</span><span class="o">);</span>
+            <span class="n">ctx</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">&quot;Echo: &quot;</span> <span class="o">+</span> <span class="n">message</span><span class="o">);</span>
+        <span class="o">})</span>
+        <span class="o">.</span><span class="na">onClose</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Client disconnected: &quot;</span> <span class="o">+</span> <span class="n">ctx</span><span class="o">.</span><span class="na">reason</span><span class="o">());</span>
+        <span class="o">})</span>
+        <span class="o">.</span><span class="na">onError</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na field">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;WebSocket error: &quot;</span> <span class="o">+</span> <span class="n">ctx</span><span class="o">.</span><span class="na">error</span><span class="o">());</span>
+        <span class="o">})</span>
+    <span class="o">);</span>
+
+<span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">wsPlugin</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</pre></div>
+</div>
+
+  <h3>WebSocket Event Handlers</h3>
+  <p>
+    The <code>WebSocketListener</code> provides handlers for different WebSocket events:
+  </p>
+
+  <table class="table table-striped">
+    <thead class="heading">
+      <tr>
+        <th>Handler</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>onOpen(WsOpen)</code></td>
+        <td>Called when a new WebSocket connection is established</td>
+      </tr>
+      <tr>
+        <td><code>onMessage(WsMessage)</code></td>
+        <td>Called when a text message is received from the client</td>
+      </tr>
+      <tr>
+        <td><code>onBinaryMessage(WsBinaryMessage)</code></td>
+        <td>Called when a binary message is received</td>
+      </tr>
+      <tr>
+        <td><code>onPong(WsPong)</code></td>
+        <td>Called when a pong control frame is received</td>
+      </tr>
+      <tr>
+        <td><code>onClose(WsClose)</code></td>
+        <td>Called when the connection is closed</td>
+      </tr>
+      <tr>
+        <td><code>onError(WsError)</code></td>
+        <td>Called when an error occurs</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Sending Messages</h3>
+  <p>
+    The <code>WsContext</code> provides several methods for sending data to clients:
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Send text message</span>
+<span class="n">ctx</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="s">&quot;Hello, client!&quot;</span><span class="o">);</span>
+
+<span class="c1">// Send JSON object (automatically serialized)</span>
+<span class="n">ctx</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="n">ChatMessage</span><span class="o">(</span><span class="s">&quot;user&quot;</span><span class="o">,</span> <span class="s">&quot;Hello&quot;</span><span class="o">));</span>
+
+<span class="c1">// Send binary data</span>
+<span class="n">ctx</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="k">new</span> <span class="kt">byte</span><span class="o">[]{</span><span class="mh">0x01</span><span class="o">,</span> <span class="mh">0x02</span><span class="o">,</span> <span class="mh">0x03</span><span class="o">});</span>
+
+<span class="c1">// Send ping frame</span>
+<span class="n">ctx</span><span class="o">.</span><span class="na">sendPing</span><span class="o">();</span>
+<span class="n">ctx</span><span class="o">.</span><span class="na">sendPing</span><span class="o">(</span><span class="k">new</span> <span class="kt">byte</span><span class="o">[]{</span><span class="mh">0x00</span><span class="o">});</span>
+</pre></div>
+</div>
+
+  <h3>Receiving Messages</h3>
+  <p>
+    Text and binary messages can be accessed and deserialized:
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Text message</span>
+<span class="o">.</span><span class="na">onMessage</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">text</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">message</span><span class="o">();</span>
+    
+    <span class="c1">// Deserialize JSON to object</span>
+    <span class="n">ChatMessage</span> <span class="n">msg</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">messageAsClass</span><span class="o">(</span><span class="n">ChatMessage</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    
+    <span class="c1">// Access underlying frame</span>
+    <span class="n">WebSocketFrame</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">wsFrame</span><span class="o">();</span>
+    <span class="kt">boolean</span> <span class="n">isFinal</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">isFin</span><span class="o">();</span>
+<span class="o">})</span>
+
+<span class="c1">// Binary message</span>
+<span class="o">.</span><span class="na">onBinaryMessage</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="kt">byte</span><span class="o">[]</span> <span class="n">data</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">data</span><span class="o">();</span>
+    <span class="c1">// Process binary data</span>
+<span class="o">})</span>
+</pre></div>
+</div>
+
+  <h3>Closing Connections</h3>
+  <p>
+    Close WebSocket connections with optional status codes and reasons:
+  </p>
+
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Normal closure</span>
+<span class="n">ctx</span><span class="o">.</span><span class="na">closeSession</span><span class="o">();</span>
+
+<span class="c1">// Close with specific code</span>
+<span class="n">ctx</span><span class="o">.</span><span class="na">closeSession</span><span class="o">(</span><span class="n">CloseCode</span><span class="o">.</span><span class="na">GOING_AWAY</span><span class="o">);</span>
+
+<span class="c1">// Close with code and reason</span>
+<span class="n">ctx</span><span class="o">.</span><span class="na">closeSession</span><span class="o">(</span><span class="n">CloseCode</span><span class="o">.</span><span class="na">PROTOCOL_ERROR</span><span class="o">,</span> <span class="s">&quot;Invalid message format&quot;</span><span class="o">);</span>
+
+<span class="c1">// In close handler, check who initiated</span>
+<span class="o">.</span><span class="na">onClose</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">CloseCode</span> <span class="n">code</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">closeCode</span><span class="o">();</span>
+    <span class="n">String</span> <span class="n">reason</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">reason</span><span class="o">();</span>
+    <span class="kt">boolean</span> <span class="n">remote</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">initiatedByRemote</span><span class="o">();</span>
+<span class="o">})</span>
+</pre></div>
+</div>
+
     <p><br><br><br><br><br><br></p>
 
   </article>
