@@ -464,7 +464,7 @@ curl http://localhost:8080/json
   <details>
     <summary><code>example: @Inject HttpClient</code></summary>
     <p>
-      For example lets say that we have a filter that requires a "Caller-Id" header to be set on each request,
+      For example let's say that we have a filter that requires a "Caller-Id" header to be set on each request,
       and we have a test configuration that sets a default Caller-Id for tests like:
     </p>
     <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@TestScope</span>
@@ -867,7 +867,7 @@ curl http://localhost:8080/json
 
 <h3 id="controller">@Controller</h3>
 <p>
-  Create controllers <code>@Controller</code>.
+  Annotate controllers with <code>@Controller</code>.
   You can provide a path segment that is prepended
   to any path segments defined by on methods using <code>@Get</code>,
   <code>@Post</code>, <code>@Put</code> etc. There are three ways to prepend a path.
@@ -1017,7 +1017,7 @@ GET /customer/active/{customerType}
 
 <h3>Module/Package Wide Root Paths</h3>
 <p>
-  When a <code>@Path</code> annotation is placed on a module-info or package-info file, that path wil be prepended to all controllers contained within the packages and sub-packages.
+  When a <code>@Path</code> annotation is placed on a module-info or package-info file, that path will be prepended to all controllers contained within the packages and sub-packages.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/module&quot;</span><span class="o">)</span>
 <span class="n">module</span> <span class="n">example</span><span class="o">.</span><span class="na">module</span> <span class="o">{</span>

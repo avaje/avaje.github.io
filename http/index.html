@@ -267,7 +267,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-helidon-generator&quot;</span><span class="o">)</span>
 <span class="nd">@Singleton</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">implements</span> <span class="n">HttpFeature</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">implements</span> <span class="n">HttpFeature</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">WidgetController</span> <span class="n">controller</span><span class="o">;</span>
 
@@ -284,15 +284,23 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
   <span class="kd">private</span> <span class="kt">void</span> <span class="nf">_getById</span><span class="o">(</span><span class="n">ServerRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">res</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
     <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">OK_200</span><span class="o">);</span>
     <span class="k">var</span> <span class="n">pathParams</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">path</span><span class="o">().</span><span class="na">pathParameters</span><span class="o">();</span>
-    <span class="k">var</span> <span class="n">id</span> <span class="o">=</span> <span class="n">asInt</span><span class="o">(</span><span class="n">pathParams</span><span class="o">.</span><span class="na">first</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">).</span><span class="na">get</span><span class="o">());</span>
+    <span class="k">var</span> <span class="n">id</span> <span class="o">=</span> <span class="n">asInt</span><span class="o">(</span><span class="n">pathParams</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)</span> <span class="o">?</span> <span class="n">pathParams</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)</span> <span class="o">:</span> <span class="kc">null</span><span class="o">);</span>
     <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
-    <span class="n">res</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">NO_CONTENT_204</span><span class="o">).</span><span class="na">send</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="o">}</span>
   <span class="o">}</span>
 
   <span class="kd">private</span> <span class="kt">void</span> <span class="nf">_getAll</span><span class="o">(</span><span class="n">ServerRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">res</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
     <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">OK_200</span><span class="o">);</span>
     <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getAll</span><span class="o">();</span>
-    <span class="n">res</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">NO_CONTENT_204</span><span class="o">).</span><span class="na">send</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">send</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
+    <span class="o">}</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -304,7 +312,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-javalin-generator&quot;</span><span class="o">)</span>
 <span class="nd">@Singleton</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">implements</span> <span class="n">Plugin</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">extends</span> <span class="n">AvajeJavalinPlugin</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">WidgetController</span> <span class="n">controller</span><span class="o">;</span>
 
@@ -313,7 +321,11 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
   <span class="o">}</span>
 
   <span class="nd">@Override</span>
-  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">apply</span><span class="o">(</span><span class="n">Javalin</span> <span class="n">app</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onStart</span><span class="o">(</span><span class="n">JavalinState</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">routes</span><span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">routes</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">routes</span><span class="o">(</span><span class="n">RoutesConfig</span> <span class="n">app</span><span class="o">)</span> <span class="o">{</span>
 
     <span class="n">app</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/widgets/{id}&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
@@ -327,6 +339,67 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
       <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getAll</span><span class="o">();</span>
       <span class="n">ctx</span><span class="o">.</span><span class="na">json</span><span class="o">(</span><span class="n">result</span><span class="o">);</span>
     <span class="o">});</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</details>
+
+<details>
+  <summary>Vert.x</summary>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-vertx-generator&quot;</span><span class="o">)</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">implements</span> <span class="n">VertxRouteSet</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">WidgetController</span> <span class="n">controller</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">WidgetController&#36;Route</span><span class="o">(</span><span class="n">WidgetController</span> <span class="n">controller</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">controller</span> <span class="o">=</span> <span class="n">controller</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">Router</span> <span class="n">router</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">var</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">router</span><span class="o">;</span>
+
+    <span class="o">{</span>
+      <span class="k">var</span> <span class="n">route</span> <span class="o">=</span> <span class="n">routes</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/widgets/:id&quot;</span><span class="o">);</span>
+      <span class="n">route</span><span class="o">.</span><span class="na">handler</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">setStatusCode</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+        <span class="k">var</span> <span class="n">id</span> <span class="o">=</span> <span class="n">asInt</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">pathParam</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">));</span>
+        <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+          <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">ended</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">return</span><span class="o">;</span>
+          <span class="o">}</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">putHeader</span><span class="o">(</span><span class="s">&quot;content-type&quot;</span><span class="o">,</span> <span class="s">&quot;application/json&quot;</span><span class="o">);</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">end</span><span class="o">(</span><span class="n">Json</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">fail</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+      <span class="o">}</span>
+      <span class="o">});</span>
+
+    <span class="o">}</span>
+
+    <span class="o">{</span>
+      <span class="k">var</span> <span class="n">route</span> <span class="o">=</span> <span class="n">routes</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/widgets&quot;</span><span class="o">);</span>
+      <span class="n">route</span><span class="o">.</span><span class="na">handler</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">setStatusCode</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+        <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getAll</span><span class="o">();</span>
+          <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">ended</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">return</span><span class="o">;</span>
+          <span class="o">}</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">putHeader</span><span class="o">(</span><span class="s">&quot;content-type&quot;</span><span class="o">,</span> <span class="s">&quot;application/json&quot;</span><span class="o">);</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">end</span><span class="o">(</span><span class="n">Json</span><span class="o">.</span><span class="na">encode</span><span class="o">(</span><span class="n">result</span><span class="o">));</span>
+      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">fail</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+      <span class="o">}</span>
+      <span class="o">});</span>
+
+    <span class="o">}</span>
+
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -366,7 +439,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-helidon-generator&quot;</span><span class="o">)</span>
 <span class="nd">@Singleton</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">implements</span> <span class="n">HttpFeature</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">implements</span> <span class="n">HttpFeature</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">WidgetController</span> <span class="n">controller</span><span class="o">;</span>
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonType</span><span class="o">&lt;</span><span class="n">WidgetController</span><span class="o">.</span><span class="na">Widget</span><span class="o">&gt;</span> <span class="n">widgetController&#36;WidgetJsonType</span><span class="o">;</span>
@@ -375,7 +448,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
   <span class="kd">public</span> <span class="nf">WidgetController&#36;Route</span><span class="o">(</span><span class="n">WidgetController</span> <span class="n">controller</span><span class="o">,</span> <span class="n">Jsonb</span> <span class="n">jsonb</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">this</span><span class="o">.</span><span class="na">controller</span> <span class="o">=</span> <span class="n">controller</span><span class="o">;</span>
     <span class="k">this</span><span class="o">.</span><span class="na">widgetController&#36;WidgetJsonType</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">WidgetController</span><span class="o">.</span><span class="na field">Widget</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">listWidgetController&#36;WidgetJsonType</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">WidgetController</span><span class="o">.</span><span class="na field">Widget</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">list</span><span class="o">();</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">listWidgetController&#36;WidgetJsonType</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">Types</span><span class="o">.</span><span class="na">newParameterizedType</span><span class="o">(</span><span class="n">List</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">WidgetController</span><span class="o">.</span><span class="na field">Widget</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
   <span class="o">}</span>
 
   <span class="nd">@Override</span>
@@ -387,18 +460,26 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
   <span class="kd">private</span> <span class="kt">void</span> <span class="nf">_getById</span><span class="o">(</span><span class="n">ServerRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">res</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
     <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">OK_200</span><span class="o">);</span>
     <span class="k">var</span> <span class="n">pathParams</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">path</span><span class="o">().</span><span class="na">pathParameters</span><span class="o">();</span>
-    <span class="k">var</span> <span class="n">id</span> <span class="o">=</span> <span class="n">asInt</span><span class="o">(</span><span class="n">pathParams</span><span class="o">.</span><span class="na">first</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">).</span><span class="na">get</span><span class="o">());</span>
+    <span class="k">var</span> <span class="n">id</span> <span class="o">=</span> <span class="n">asInt</span><span class="o">(</span><span class="n">pathParams</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)</span> <span class="o">?</span> <span class="n">pathParams</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">)</span> <span class="o">:</span> <span class="kc">null</span><span class="o">);</span>
     <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
-    <span class="n">res</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">contentType</span><span class="o">(</span><span class="n">MediaTypes</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">);</span>
-    <span class="c1">//jsonb has a special accommodation for helidon to improve performance</span>
-    <span class="n">widgetController&#36;WidgetJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">JsonOutput</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">res</span><span class="o">));</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">NO_CONTENT_204</span><span class="o">).</span><span class="na">send</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">contentType</span><span class="o">(</span><span class="n">MediaTypes</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">);</span>
+      <span class="c1">//jsonb has a special accommodation for helidon to improve performance</span>
+      <span class="n">widgetController&#36;WidgetJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">JsonOutput</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">res</span><span class="o">));</span>
+    <span class="o">}</span>
   <span class="o">}</span>
 
   <span class="kd">private</span> <span class="kt">void</span> <span class="nf">_getAll</span><span class="o">(</span><span class="n">ServerRequest</span> <span class="n">req</span><span class="o">,</span> <span class="n">ServerResponse</span> <span class="n">res</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
     <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">OK_200</span><span class="o">);</span>
     <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getAll</span><span class="o">();</span>
-    <span class="n">res</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">contentType</span><span class="o">(</span><span class="n">MediaTypes</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">);</span>
-    <span class="n">listWidgetController&#36;WidgetJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">JsonOutput</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">res</span><span class="o">));</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="n">NO_CONTENT_204</span><span class="o">).</span><span class="na">send</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="n">res</span><span class="o">.</span><span class="na">headers</span><span class="o">().</span><span class="na">contentType</span><span class="o">(</span><span class="n">MediaTypes</span><span class="o">.</span><span class="na">APPLICATION_JSON</span><span class="o">);</span>
+      <span class="n">listWidgetController&#36;WidgetJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">JsonOutput</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">res</span><span class="o">));</span>
+    <span class="o">}</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -410,33 +491,102 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-javalin-generator&quot;</span><span class="o">)</span>
 <span class="nd">@Singleton</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">implements</span> <span class="n">Plugin</span> <span class="o">{</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">extends</span> <span class="n">AvajeJavalinPlugin</span> <span class="o">{</span>
 
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">WidgetController</span> <span class="n">controller</span><span class="o">;</span>
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonType</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;&gt;</span> <span class="n">listWidgetJsonType</span><span class="o">;</span>
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonType</span><span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;</span> <span class="n">widgetJsonType</span><span class="o">;</span>
 
-  <span class="kd">public</span> <span class="nf">WidgetController&#36;Route</span><span class="o">(</span><span class="n">WidgetController</span> <span class="n">controller</span><span class="o">,</span> <span class="n">Jsonb</span> <span class="n">jsonB</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="nf">WidgetController&#36;Route</span><span class="o">(</span><span class="n">WidgetController</span> <span class="n">controller</span><span class="o">,</span> <span class="n">Jsonb</span> <span class="n">jsonb</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">this</span><span class="o">.</span><span class="na">controller</span> <span class="o">=</span> <span class="n">controller</span><span class="o">;</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">listWidgetJsonType</span> <span class="o">=</span> <span class="n">jsonB</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">Widget</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">list</span><span class="o">();</span>
-    <span class="k">this</span><span class="o">.</span><span class="na">widgetJsonType</span> <span class="o">=</span> <span class="n">jsonB</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">Widget</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">listWidgetJsonType</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">Types</span><span class="o">.</span><span class="na">newParameterizedType</span><span class="o">(</span><span class="n">List</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">Widget</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">widgetJsonType</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">Widget</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
   <span class="o">}</span>
 
   <span class="nd">@Override</span>
-  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">apply</span><span class="o">(</span><span class="n">Javalin</span> <span class="n">app</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onStart</span><span class="o">(</span><span class="n">JavalinState</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">routes</span><span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">routes</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">routes</span><span class="o">(</span><span class="n">RoutesConfig</span> <span class="n">app</span><span class="o">)</span> <span class="o">{</span>
 
     <span class="n">app</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/widgets/{id}&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
       <span class="k">var</span> <span class="n">id</span> <span class="o">=</span> <span class="n">asInt</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">pathParam</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">));</span>
       <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
-      <span class="n">widgetJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">ctx</span><span class="o">.</span><span class="na">contentType</span><span class="o">(</span><span class="s">&quot;application/json&quot;</span><span class="o">).</span><span class="na">outputStream</span><span class="o">());</span>
+      <span class="n">widgetJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">ctx</span><span class="o">.</span><span class="na">contentType</span><span class="o">(</span><span class="s">&quot;application/json&quot;</span><span class="o">).</span><span class="na">res</span><span class="o">().</span><span class="na">getOutputStream</span><span class="o">());</span>
     <span class="o">});</span>
 
     <span class="n">app</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/widgets&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
       <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
       <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getAll</span><span class="o">();</span>
-      <span class="n">listWidgetJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">ctx</span><span class="o">.</span><span class="na">contentType</span><span class="o">(</span><span class="s">&quot;application/json&quot;</span><span class="o">).</span><span class="na">outputStream</span><span class="o">());</span>
+      <span class="n">listWidgetJsonType</span><span class="o">.</span><span class="na">toJson</span><span class="o">(</span><span class="n">result</span><span class="o">,</span> <span class="n">ctx</span><span class="o">.</span><span class="na">contentType</span><span class="o">(</span><span class="s">&quot;application/json&quot;</span><span class="o">).</span><span class="na">res</span><span class="o">().</span><span class="na">getOutputStream</span><span class="o">());</span>
     <span class="o">});</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</details>
+
+<details>
+  <summary>Vert.x (Avaje-Jsonb on classpath)</summary>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Generated</span><span class="o">(</span><span class="s">&quot;avaje-vertx-generator&quot;</span><span class="o">)</span>
+<span class="nd">@Singleton</span>
+<span class="kd">public</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">WidgetController&#36;Route</span> <span class="kd">implements</span> <span class="n">VertxRouteSet</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">WidgetController</span> <span class="n">controller</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonType</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;&gt;</span> <span class="n">listWidgetJsonType</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonType</span><span class="o">&lt;</span><span class="n">Widget</span><span class="o">&gt;</span> <span class="n">widgetJsonType</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="nf">WidgetController&#36;Route</span><span class="o">(</span><span class="n">WidgetController</span> <span class="n">controller</span><span class="o">,</span> <span class="n">Jsonb</span> <span class="n">jsonb</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">controller</span> <span class="o">=</span> <span class="n">controller</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">listWidgetJsonType</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">Types</span><span class="o">.</span><span class="na">newParameterizedType</span><span class="o">(</span><span class="n">List</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">Widget</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">widgetJsonType</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">type</span><span class="o">(</span><span class="n">Widget</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">Router</span> <span class="n">router</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="k">var</span> <span class="n">routes</span> <span class="o">=</span> <span class="n">router</span><span class="o">;</span>
+
+    <span class="o">{</span>
+      <span class="k">var</span> <span class="n">route</span> <span class="o">=</span> <span class="n">routes</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/widgets/:id&quot;</span><span class="o">);</span>
+      <span class="n">route</span><span class="o">.</span><span class="na">handler</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">setStatusCode</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+        <span class="k">var</span> <span class="n">id</span> <span class="o">=</span> <span class="n">asInt</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">pathParam</span><span class="o">(</span><span class="s">&quot;id&quot;</span><span class="o">));</span>
+        <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getById</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+          <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">ended</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">return</span><span class="o">;</span>
+          <span class="o">}</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">putHeader</span><span class="o">(</span><span class="s">&quot;content-type&quot;</span><span class="o">,</span> <span class="s">&quot;application/json&quot;</span><span class="o">);</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">end</span><span class="o">(</span><span class="n">Buffer</span><span class="o">.</span><span class="na">buffer</span><span class="o">(</span><span class="n">widgetJsonType</span><span class="o">.</span><span class="na">toJsonBytes</span><span class="o">(</span><span class="n">result</span><span class="o">)));</span>
+      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">fail</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+      <span class="o">}</span>
+      <span class="o">});</span>
+
+    <span class="o">}</span>
+
+    <span class="o">{</span>
+      <span class="k">var</span> <span class="n">route</span> <span class="o">=</span> <span class="n">routes</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/widgets&quot;</span><span class="o">);</span>
+      <span class="n">route</span><span class="o">.</span><span class="na">handler</span><span class="o">(</span><span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">setStatusCode</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+        <span class="k">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">controller</span><span class="o">.</span><span class="na">getAll</span><span class="o">();</span>
+          <span class="k">if</span> <span class="o">(</span><span class="n">result</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">ended</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">return</span><span class="o">;</span>
+          <span class="o">}</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">putHeader</span><span class="o">(</span><span class="s">&quot;content-type&quot;</span><span class="o">,</span> <span class="s">&quot;application/json&quot;</span><span class="o">);</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">response</span><span class="o">().</span><span class="na">end</span><span class="o">(</span><span class="n">Buffer</span><span class="o">.</span><span class="na">buffer</span><span class="o">(</span><span class="n">listWidgetJsonType</span><span class="o">.</span><span class="na">toJsonBytes</span><span class="o">(</span><span class="n">result</span><span class="o">)));</span>
+      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">fail</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+      <span class="o">}</span>
+      <span class="o">});</span>
+
+    <span class="o">}</span>
+
   <span class="o">}</span>
 <span class="o">}</span>
 </pre></div>
@@ -456,7 +606,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 
 <h4>Usage with Javalin</h4>
 
-<p>The annotation processor will generate controller classes implementing the <code>AvajeJavalinPlugin</code> interface (concrete subclass of Javalin <code>Plugin<Void></code>), which means we can register them using:
+<p>The annotation processor will generate controller classes extending <code>AvajeJavalinPlugin</code>, which means we can register them using:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">AvajeJavalinPlugin</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="o">...;</span> <span class="c1">// retrieve using a DI framework.</span>
 
@@ -474,7 +624,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 </pre></div>
 </div>
 
-<h4>Usage with Helidon SE (4.x)</h2><hr/>
+<h4>Usage with Helidon SE (4.x)</h4>
 <p>
 The annotation processor will generate controller classes implementing the Helidon <code>HttpFeature</code> interface, which we can register with the Helidon <code>HttpRouting</code>.
 </p>
@@ -488,6 +638,28 @@ The annotation processor will generate controller classes implementing the Helid
          <span class="o">.</span><span class="na">addRouting</span><span class="o">(</span><span class="n">builder</span><span class="o">)</span>
          <span class="o">.</span><span class="na">build</span><span class="o">()</span>
          <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<h4>Usage with Vert.x</h4>
+<p>
+Add the Vert.x runtime API dependency:
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-http-api-vertx<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje-http.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<p>
+The annotation processor will generate controller classes implementing <code>VertxRouteSet</code>, which can be registered with <code>io.vertx.ext.web.Router</code>.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="n">List</span><span class="o">&lt;</span><span class="n">VertxRouteSet</span><span class="o">&gt;</span> <span class="n">routes</span> <span class="o">=</span> <span class="o">...</span> <span class="c1">//retrieve using a DI framework</span>
+<span class="n">Router</span> <span class="n">router</span> <span class="o">=</span> <span class="o">...;</span>
+
+<span class="n">routes</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">route</span> <span class="o">-&gt;</span> <span class="n">route</span><span class="o">.</span><span class="na">register</span><span class="o">(</span><span class="n">router</span><span class="o">));</span>
 </pre></div>
 </div>
 

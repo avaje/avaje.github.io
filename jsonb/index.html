@@ -202,7 +202,7 @@
   <span class="c1">// object fields will automatically have adapters generated, no @Json required</span>
   <span class="c1">// (though you can add @Json anyway to modify the generated adapter how you wish)</span>
   <span class="kd">private</span> <span class="n">OtherClass</span> <span class="n">other</span><span class="o">;</span>
-  <span class="c1">//getters/setters ommited for brevity</span>
+  <span class="c1">//getters/setters omitted for brevity</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -409,7 +409,7 @@
   <span class="kd">private</span> <span class="n">String</span> <span class="n">street</span><span class="o">;</span>
   <span class="kd">private</span> <span class="n">City</span> <span class="n">city</span><span class="o">;</span>
   <span class="kd">private</span> <span class="n">Suburb</span> <span class="n">suburb</span><span class="o">;</span>
-  <span class="c1">//getters/setters ommited for brevity</span>
+  <span class="c1">//getters/setters omitted for brevity</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -639,7 +639,7 @@
   <h2 id="creator">@Json.Creator</h2><hr/>
   <p>
     With <code>@Json.Creator</code>, we can override deserialization using a constructor or static factory method.
-    Contructor/Method parameters can be annotated with <code>@Alias</code> to rename a deserialization field.
+    Constructor/Method parameters can be annotated with <code>@Alias</code> to rename a deserialization field.
   </p>
 
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
@@ -714,7 +714,7 @@
   <span class="nd">@Json.Ignore</span><span class="o">(</span><span class="nx">deserialize</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
   <span class="kd">private</span> <span class="n">String</span> <span class="n">mySecret3</span><span class="o">;</span>
 
-  <span class="c1">//ommited getters/setters</span>
+  <span class="c1">//omitted getters/setters</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -1237,7 +1237,7 @@
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">JsonAdapter</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">stringJsonAdapter</span><span class="o">;</span>
   <span class="kd">private</span> <span class="kd">final</span> <span class="n">PropertyNames</span> <span class="n">names</span><span class="o">;</span>
 
-  <span class="c1">//a public construtor accepting Jsonb is required</span>
+  <span class="c1">//a public constructor accepting Jsonb is required</span>
   <span class="kd">public</span> <span class="nf">CustomClassJsonAdapter</span><span class="o">(</span><span class="n">Jsonb</span> <span class="n">jsonb</span><span class="o">)</span> <span class="o">{</span>
     <span class="c1">//type adapters can be fetched using adapter</span>
     <span class="k">this</span><span class="o">.</span><span class="na">stringJsonAdapter</span> <span class="o">=</span> <span class="n">jsonb</span><span class="o">.</span><span class="na">adapter</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
