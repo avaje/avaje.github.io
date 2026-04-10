@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu|Andika&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.4/css/all.css"
+    integrity="sha384-EUDN3j9sKZiOEQw/t802+00Fzk16xfH6dAEEzoUWWWDrTFWO8qF1KdmiRQM6ir9m"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+  <link rel="help" href="https://raw.githubusercontent.com/avaje/avaje-nima/main/.github/copilot-instructions.md" title="AI coding instructions for avaje-nima projects"/>
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="#overview">Overview</a>
+</li>
+<li><a href="/nima/archetypes">Archetypes</a>
+  <ul>
+    <li><a href="/nima/archetypes#minimal-rest">minimal-rest</a></li>
+  </ul>
+</li>
+<li><a href="#start">Getting started</a>
+  <ul>
+    <li><a href="#dependencies">Dependencies</a></li>
+    <li><a href="#annotation-processor">Annotation processor</a></li>
+    <li><a href="#first-controller">Controller</a></li>
+    <li><a href="#main">Nima main()</a></li>
+  </ul>
+</li>
+<li><a href="#testing">Testing Controllers</a>
+    <ul>
+      <li><a href="#testing">Injecting:</a></li>
+      <li>- <a href="#inject-generated-client">Generated client</a></li>
+      <li>- <a href="#inject-httpclient">HttpClient</a></li>
+      <li>- <a href="#inject-httpclient-builder">HttpClient.Builder</a></li>
+      <li>- <a href="#inject-webserver">WebServer</a></li>
+    </ul>
+</li>
+<li><a href="#error-handlers">Error handlers</a>
+    <ul>
+      <li><a href="#error-example">Example</a></li>
+      <li><a href="#error-testing">Testing Error Handler</a></li>
+    </ul>
+</li>
+<li><a href="#filters">Filters</a>
+    <ul>
+      <li><a href="#filter-example">Example</a></li>
+    </ul>
+</li>
+<li><a href="#controllers">Controllers</a>
+    <ul>
+      <li><a href="#controller">@Controller</a></li>
+      <li><a href="#path">@Path</a></li>
+      <li><a href="#path-parameters">Path parameters</a></li>
+      <li><a href="#matrix-parameters">Matrix parameters</a></li>
+      <li><a href="#query-parameters">@QueryParam</a></li>
+      <li><a href="#bean-param">@BeanParam</a></li>
+      <li><a href="#post">Request Body</a></li>
+      <li><a href="#form">@Form</a></li>
+      <li><a href="#form-param">@FormParam</a></li>
+      <li><a href="#form-beans">Form beans</a></li>
+      <li><a href="#produces">@Produces</a></li>
+      <li><a href="#header">@Header</a></li>
+      <li><a href="#cookie">@Cookie</a></li>
+      <li><a href="#default">@Default</a></li>
+      <li><a href="#req-res">ServerRequest</a></li>
+      <li><a href="#req-res">ServerResponse</a></li>
+    </ul>
+</li>
+<li><a href="#req-res">Request Response</a>
+    <ul>
+    </ul>
+</li>
+<li><a href="#graalvm">GraalVM</a>
+  <ul>
+    <li><a href="#native-maven-plugin">native-maven-plugin</a></li>
+    <li><a href="#jib-maven-plugin">jib-maven-plugin</a></li>
+    <li><a href="#graal-maven-combined">combined maven profile</a></li>
+    <li><a href="#graal-platform-profile">Platform specific</a></li>
+  </ul>
+</li>
+
+
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><a href="/nima/">nima</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">archetypes</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-nima" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+  <h1 id="overview">
+    <span class="logo">Avaje</span>&thinsp;Nima Archetypes
+  </h1>
+
+  <p>
+    Maven archetypes let you bootstrap a new avaje-nima project with a single command,
+    giving you a working REST service with dependency injection, JSON, and tests already
+    in place.
+  </p>
+
+  <table style="width: 100%;">
+    <tr>
+      <th>Archetype</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td><a href="#minimal-rest">minimal-rest</a></td>
+      <td>A minimal REST API with one controller, a JSON response record, and integration tests</td>
+    </tr>
+  </table>
+
+  <p>&nbsp;</p>
+
+  <h2 id="minimal-rest">minimal-rest</h2>
+
+  <p>
+    <a href="https://github.com/avaje/avaje-nima/releases">
+      <img src="https://img.shields.io/maven-central/v/io.avaje/avaje-nima-archetype-minimal-rest.svg?label=Maven%20Central">
+    </a>
+  </p>
+
+  <p>
+    The <code>avaje-nima-archetype-minimal-rest</code> archetype generates a minimal project with:
+  </p>
+  <ul>
+    <li>A <code>Main</code> entry point using the <code>Nima</code> class</li>
+    <li>A <code>HelloController</code> with two REST endpoints</li>
+    <li>A <code>GreetingResponse</code> JSON record</li>
+    <li>An <code>@InjectTest</code> integration test</li>
+    <li>Build profiles for GraalVM native image and fat JAR</li>
+  </ul>
+
+  <h3 id="generate">Generate a new project</h3>
+
+  <p>
+    Run the following command, replacing <code>com.example</code> and <code>my-app</code>
+    with your desired <code>groupId</code> and <code>artifactId</code>:
+  </p>
+
+  <div class="syntax sh"><div class="highlight"><pre><span></span>mvn archetype:generate <span class="se">\</span>
+  -DarchetypeGroupId<span class="o">=</span>io.avaje <span class="se">\</span>
+  -DarchetypeArtifactId<span class="o">=</span>avaje-nima-archetype-minimal-rest <span class="se">\</span>
+  -DarchetypeVersion<span class="o">=</span><span class="si">&#36;{</span><span class="nv">avaje</span><span class="p">.nima.version</span><span class="si">}</span> <span class="se">\</span>
+  -DgroupId<span class="o">=</span>com.example <span class="se">\</span>
+  -DartifactId<span class="o">=</span>my-app <span class="se">\</span>
+  -Dpackage<span class="o">=</span>com.example <span class="se">\</span>
+  -DinteractiveMode<span class="o">=</span><span class="nb">false</span>
+  
+</pre></div>
+</div>
+
+  <p>
+    Omit <code>-DinteractiveMode=false</code> to be prompted for each property interactively.
+  </p>
+
+  <h3 id="project-structure">Generated project structure</h3>
+
+  <details>
+    <summary>Project structure (click to expand)</summary>
+  <pre>
+my-app/
+├── pom.xml
+├── README.md
+└── src/
+    ├── main/
+    │   ├── java/com/example/
+    │   │   ├── Main.java
+    │   │   ├── web/
+    │   │   │   └── HelloController.java
+    │   │   └── model/
+    │   │       └── GreetingResponse.java
+    │   └── resources/
+    │       ├── application.properties
+    │       └── avaje-logger.properties
+    └── test/
+        ├── java/com/example/
+        │   └── HelloControllerTest.java
+        └── resources/
+            └── avaje-logger-test.properties
+  </pre>
+  </details>
+
+  <h3 id="main-class">Main.java</h3>
+
+  <details>
+    <summary><code>Main.java</code></summary>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">com.example</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.nima.Nima</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">var</span> <span class="n">webServer</span> <span class="o">=</span> <span class="n">Nima</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">port</span><span class="o">(</span><span class="mi">8080</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+    <span class="n">webServer</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+  
+</pre></div>
+</div>
+  </details>
+
+  <h3 id="controller">HelloController.java</h3>
+
+  <details>
+    <summary><code>HelloController.java</code></summary>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">com.example.web</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Controller</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Get</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Path</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.http.api.Produces</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.example.model.GreetingResponse</span><span class="o">;</span>
+
+<span class="nd">@Controller</span>
+<span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/hi&quot;</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">HelloController</span> <span class="o">{</span>
+
+  <span class="nd">@Produces</span><span class="o">(</span><span class="s">&quot;text/plain&quot;</span><span class="o">)</span>
+  <span class="nd">@Get</span>
+  <span class="n">String</span> <span class="nf">hi</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="s">&quot;hi&quot;</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Get</span><span class="o">(</span><span class="s">&quot;/data&quot;</span><span class="o">)</span>
+  <span class="n">GreetingResponse</span> <span class="nf">data</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">GreetingResponse</span><span class="o">(</span><span class="s">&quot;hello from avaje-nima&quot;</span><span class="o">,</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+  
+</pre></div>
+</div>
+  </details>
+
+  <h3 id="model">GreetingResponse.java</h3>
+
+  <details>
+    <summary><code>GreetingResponse.java</code></summary>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">com.example.model</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.jsonb.Json</span><span class="o">;</span>
+
+<span class="nd">@Json</span>
+<span class="kd">public</span> <span class="n">record</span> <span class="nf">GreetingResponse</span><span class="o">(</span><span class="n">String</span> <span class="n">message</span><span class="o">,</span> <span class="kt">long</span> <span class="n">timestamp</span><span class="o">)</span> <span class="o">{</span>
+<span class="o">}</span>
+  
+</pre></div>
+</div>
+  </details>
+
+  <h3 id="test">HelloControllerTest.java</h3>
+
+  <p>
+    The test uses <code>@InjectTest</code>, which automatically starts the web server on a
+    random port and injects an <code>HttpClient</code> configured to connect to it.
+  </p>
+
+  <details>
+    <summary><code>HelloControllerTest.java</code></summary>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">com.example</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">io.avaje.http.client.HttpClient</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.inject.test.InjectTest</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.inject.Inject</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.junit.jupiter.api.Test</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.net.http.HttpResponse</span><span class="o">;</span>
+<span class="kn">import static</span> <span class="nn">org.assertj.core.api.Assertions.assertThat</span><span class="o">;</span>
+
+<span class="nd">@InjectTest</span>
+<span class="kd">class</span> <span class="nc">HelloControllerTest</span> <span class="o">{</span>
+
+  <span class="nd">@Inject</span>
+  <span class="kd">static</span> <span class="n">HttpClient</span> <span class="n">client</span><span class="o">;</span>
+
+  <span class="nd">@Test</span>
+  <span class="kt">void</span> <span class="nf">hi_returnsPlainText</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">HttpResponse</span><span class="o">&amp;</span><span class="n">lt</span><span class="o">;</span><span class="n">String</span><span class="o">&amp;</span><span class="n">gt</span><span class="o">;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hi&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">GET</span><span class="o">().</span><span class="na">asString</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="s">&quot;hi&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="nd">@Test</span>
+  <span class="kt">void</span> <span class="nf">data_returnsJson</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">HttpResponse</span><span class="o">&amp;</span><span class="n">lt</span><span class="o">;</span><span class="n">String</span><span class="o">&amp;</span><span class="n">gt</span><span class="o">;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hi/data&quot;</span><span class="o">)</span>
+      <span class="o">.</span><span class="na">GET</span><span class="o">().</span><span class="na">asString</span><span class="o">();</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;message&quot;</span><span class="o">);</span>
+    <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">body</span><span class="o">()).</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;timestamp&quot;</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+  
+</pre></div>
+</div>
+  </details>
+
+  <h3 id="run">Run the application</h3>
+
+  <div class="syntax sh"><div class="highlight"><pre><span></span><span class="nb">cd</span> my-app
+mvn compile exec:java -Dexec.mainClass<span class="o">=</span>com.example.Main
+  
+</pre></div>
+</div>
+
+  <p>Smoke-test with curl:</p>
+
+  <div class="syntax sh"><div class="highlight"><pre><span></span>curl http://localhost:8080/hi
+<span class="c1"># hi</span>
+
+curl http://localhost:8080/hi/data
+<span class="c1"># {&quot;message&quot;:&quot;hello from avaje-nima&quot;,&quot;timestamp&quot;:1234567890123}</span>
+  
+</pre></div>
+</div>
+
+  <h3 id="build-profiles">Build profiles</h3>
+
+  <p>The generated <code>pom.xml</code> includes two build profiles:</p>
+
+  <h4 id="fat-jar">fat-jar &mdash; self-contained JAR</h4>
+
+  <p>Build and run a shaded JAR containing all dependencies:</p>
+
+  <div class="syntax sh"><div class="highlight"><pre><span></span>mvn package -Pfat-jar
+java -jar target/my-app.jar
+  
+</pre></div>
+</div>
+
+  <h4 id="native">native &mdash; GraalVM native image</h4>
+
+  <p>
+    Build a native executable using GraalVM and Jib:
+  </p>
+
+  <div class="syntax sh"><div class="highlight"><pre><span></span>mvn package -Pnative
+  
+</pre></div>
+</div>
+
+  <p>
+    See the <a target="_blank" href="https://github.com/avaje/avaje-nima/blob/main/docs/jib-native-docker.md">Jib native image guide</a>
+    for Docker build instructions.
+  </p>
+
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+  integrity="sha384-5AkRS45j4ukf+JbWAfHL8P4onPA9p0KwwP7pUdjSQA3ss9edbJUJc/XcYAiheSSz"
+  crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>
