@@ -150,12 +150,12 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 </p>
 <p>
  The generated source code is very simple and readable, so developers can navigate to it and add breakpoints and debug as if they wrote it all
-  manually ourselves.
+  manually themselves.
 </p>
 <p>
   What is <b>lost</b> in doing this is automatic
   <a target="_blank" href="https://en.wikipedia.org/wiki/Content_negotiation">Content negotiation</a>.
-  For example, endpoints that serve response content as <i>either</i> JSON or XML content based on request headers need to handle manually.
+  For example, endpoints that serve response content as <i>either</i> JSON or XML content based on request headers need to be handled manually.
 </p>
 
 <h4>Summary</h4>
@@ -189,7 +189,7 @@ for Jex, Javalin and Helidon SE APIs via Annotation Processing.
 </div>
 
 <p>
-2. Add the generator module for your desired microframework as a annotation processor.
+2. Add the generator module for your desired microframework as an annotation processor.
 </p>
 <div class="syntax xml"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Annotation processors --&gt;</span>
 <span class="nt">&lt;dependency&gt;</span>
@@ -787,7 +787,7 @@ The annotation processor will generate controller classes implementing <code>Ver
 
 <h3 id="controller">@Controller</h3>
 <p>
-  Create controllers <code>@Controller</code>.
+  Annotate controllers with <code>@Controller</code>.
   You can provide a path segment that is prepended
   to any path segments defined by on methods using <code>@Get</code>,
   <code>@Post</code>, <code>@Put</code> etc. There are three ways to prepend a path.
@@ -937,7 +937,7 @@ GET /customer/active/{customerType}
 
 <h3>Module/Package Wide Root Paths</h3>
 <p>
-  When a <code>@Path</code> annotation is placed on a module-info or package-info file, that path wil be prepended to all controllers contained within the packages and sub-packages.
+  When a <code>@Path</code> annotation is placed on a module-info or package-info file, that path will be prepended to all controllers contained within the packages and sub-packages.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Path</span><span class="o">(</span><span class="s">&quot;/module&quot;</span><span class="o">)</span>
 <span class="n">module</span> <span class="n">example</span><span class="o">.</span><span class="na">module</span> <span class="o">{</span>
@@ -1233,7 +1233,7 @@ GET /products/chair/commercial;style=classical
 
 <h4>Generated for Javalin</h4>
 <p>
-  The code generated code for Javalin for save() above is:
+  The generated code for Javalin for save() above is:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">ApiBuilder</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&quot;/customers&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">);</span>
@@ -1416,7 +1416,7 @@ GET /products/chair/commercial;style=classical
 </pre></div>
 </div>
 <p>
-  The generated code populates <em></em> from query params, headers and cookies. The generated code is:
+  The generated code populates <em>MyForm</em> from query params, headers and cookies. The generated code is:
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">ApiBuilder</span><span class="o">.</span><span class="na">post</span><span class="o">(</span><span class="s">&quot;/contacts/register&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="o">{</span>
   <span class="n">ctx</span><span class="o">.</span><span class="na">status</span><span class="o">(</span><span class="mi">201</span><span class="o">);</span>
@@ -1679,7 +1679,7 @@ GET /products/chair/commercial;style=classical
 <h3 id="helidon-request">Helidon request/response</h3>
 <p>
   Helidon has <code>ServerRequest</code> and <code>ServerResponse</code> and these can
-  be passed as a method argument of injected as a dependency of the controller.
+  be passed as a method argument or injected as a dependency of the controller.
 </p>
 <h4>ServerRequest/ServerResponse as method argument</h4>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Get</span>
@@ -1971,7 +1971,7 @@ GET /products/chair/commercial;style=classical
   types are considered optional/nullable.
 </p>
 <p>
-  <code>InvalidTypeArgumentException</code> is throw for non-path parameter conversions that
+  <code>InvalidTypeArgumentException</code> is thrown for non-path parameter conversions that
   fail such as conversions in form beans, query parameters, headers and cookies.
 </p>
 <p>
@@ -1998,7 +1998,7 @@ GET /products/chair/commercial;style=classical
 
 <h2 id="bean-validation">Bean validation</h2><hr/>
 <p>
-  Bean validation is done through through the validator interface. It can validate a request body and/or Form Bean/BeanParam
+  Bean validation is done through the validator interface. It can validate a request body and/or Form Bean/BeanParam.
 </p>
 <p>
   Example: <a target="_blank" href="https://github.com/dinject/examples/blob/master/javalin-maven-java-basic/src/main/java/org/example/myapp/web/HelloController.java#L30">HelloController</a>
@@ -2394,7 +2394,7 @@ GET /products/chair/commercial;style=classical
 </p>
 <p>
   The annotation processor that generates the web route adapters
-  also generates a OpenAPI (swagger) definition of all the endpoints
+  also generates an OpenAPI (swagger) definition of all the endpoints
   that the controllers define.
 </p>
 <p>
@@ -2427,7 +2427,7 @@ GET /products/chair/commercial;style=classical
 </pre></div>
 </div>
 
-<p>In Addition, the generator can read the request/response class javadoc to generate openAPI component description.</p>
+<p>In addition, the generator can read the request/response class javadoc to generate openAPI component description.</p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">class</span> <span class="nc">ResponseModel</span> <span class="o">{</span>
   <span class="cm">/** field one */</span>
   <span class="n">String</span> <span class="n">field1</span><span class="o">;</span>
@@ -2437,20 +2437,20 @@ GET /products/chair/commercial;style=classical
 </pre></div>
 </div>
 
-<h4>@Consumes</h3>
+<h4>@Consumes</h4>
 <p>
   Adding the <code>@Consumes</code> annotation to a controller method let's you control what media type should be generated for the request body in the openAPI definition. This is useful when you are dealing with non-standard request content types.
 </p>
 
-<h4>@Deprecated</h3>
+<h4>@Deprecated</h4>
 <p>
-  Adding Javas's <code>@Deprecated</code> annotation to a controller method marks it as deprecated in the openAPI definition.
+  Adding Java's <code>@Deprecated</code> annotation to a controller method marks it as deprecated in the openAPI definition.
 </p>
 
 <h3 id=response>@OpenApiResponse</h3>
 
 <p>
-  This annotation lets you specify alternate endpoint response status codes/descriptions/types. This is useful for defining error scenarios, and when using the underlying Javalin/Helidon contructs in void methods.
+  This annotation lets you specify alternate endpoint response status codes/descriptions/types. This is useful for defining error scenarios, and when using the underlying Javalin/Helidon constructs in void methods.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;/post&quot;</span><span class="o">)</span>
