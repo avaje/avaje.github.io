@@ -24,13 +24,9 @@
 <ul>
   <li><a href="#overview">Overview</a>
 </li>
-<li><a href="/nima/archetypes">Archetypes</a>
-  <ul>
-    <li><a href="/nima/archetypes#minimal-rest">minimal-rest</a></li>
-  </ul>
-</li>
 <li><a href="#start">Getting started</a>
   <ul>
+    <li><a href="#archetypes">Archetypes</a></li>
     <li><a href="#dependencies">Dependencies</a></li>
     <li><a href="#annotation-processor">Annotation processor</a></li>
     <li><a href="#first-controller">Controller</a></li>
@@ -295,7 +291,7 @@ my-app/
 
   <span class="nd">@Test</span>
   <span class="kt">void</span> <span class="nf">hi_returnsPlainText</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">HttpResponse</span><span class="o">&amp;</span><span class="n">lt</span><span class="o">;</span><span class="n">String</span><span class="o">&amp;</span><span class="n">gt</span><span class="o">;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
       <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hi&quot;</span><span class="o">)</span>
       <span class="o">.</span><span class="na">GET</span><span class="o">().</span><span class="na">asString</span><span class="o">();</span>
     <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
@@ -304,7 +300,7 @@ my-app/
 
   <span class="nd">@Test</span>
   <span class="kt">void</span> <span class="nf">data_returnsJson</span><span class="o">()</span> <span class="o">{</span>
-    <span class="n">HttpResponse</span><span class="o">&amp;</span><span class="n">lt</span><span class="o">;</span><span class="n">String</span><span class="o">&amp;</span><span class="n">gt</span><span class="o">;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
+    <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">request</span><span class="o">()</span>
       <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;hi/data&quot;</span><span class="o">)</span>
       <span class="o">.</span><span class="na">GET</span><span class="o">().</span><span class="na">asString</span><span class="o">();</span>
     <span class="n">assertThat</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">statusCode</span><span class="o">()).</span><span class="na">isEqualTo</span><span class="o">(</span><span class="mi">200</span><span class="o">);</span>
