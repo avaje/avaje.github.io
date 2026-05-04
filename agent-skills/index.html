@@ -140,7 +140,7 @@
 </p>
 
 <h3 id="clone-symlink">Option A - Clone and symlink (recommended)</h3>
-git clone https://github.com/avaje/skills.git ~/.agents/avaje-skills
+<div class="syntax sh"><div class="highlight"><pre><span></span>git clone https://github.com/avaje/skills.git ~/.agents/avaje-skills
 
 mkdir -p ~/.agents/skills
 ln -sf ~/.agents/avaje-skills/avaje-nima ~/.agents/skills/avaje-nima
@@ -148,10 +148,14 @@ ln -sf ~/.agents/avaje-skills/avaje-inject ~/.agents/skills/avaje-inject
 ln -sf ~/.agents/avaje-skills/avaje-config ~/.agents/skills/avaje-config
 ln -sf ~/.agents/avaje-skills/avaje-jsonb ~/.agents/skills/avaje-jsonb
 ln -sf ~/.agents/avaje-skills/avaje-simple-logger ~/.agents/skills/avaje-simple-logger
+</pre></div>
+</div>
 <p>
   Updating is then just:
 </p>
-cd ~/.agents/avaje-skills && git pull
+<div class="syntax sh"><div class="highlight"><pre><span></span><span class="nb">cd</span> ~/.agents/avaje-skills <span class="o">&amp;&amp;</span> git pull
+</pre></div>
+</div>
 
 <h3 id="copy-install">Option B - Copy into the skills directory</h3>
 git clone https://github.com/avaje/skills.git /tmp/avaje-skills
