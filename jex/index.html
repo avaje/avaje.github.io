@@ -164,6 +164,15 @@
       <li><a href="#ssl-mtls">Mutual TLS (mTLS)</a></li>
     </ul>
 </li>
+<li><a href="#cors">CORS Plugin</a>
+    <ul>
+      <li><a href="#cors-basic">Basic Usage</a></li>
+      <li><a href="#cors-rules">Multiple Rules</a></li>
+      <li><a href="#cors-origins">Origin Configuration</a></li>
+      <li><a href="#cors-options">Rule Options</a></li>
+      <li><a href="#cors-preflight">Preflight Handling</a></li>
+    </ul>
+</li>
 <li><a href="#alternate">Alternate Implementations</a>
     <ul>
       <li><a href="#jetty">Jetty</a></li>
@@ -1064,6 +1073,154 @@
 <span class="o">});</span>
 </pre></div>
 </div>
+
+    <h2 id="cors">CORS Plugin</h2><hr/>
+    <p>
+      The <code>avaje-jex-cors</code> plugin adds Cross-Origin Resource Sharing (CORS) support to your Jex server.
+      It handles both preflight <code>OPTIONS</code> requests and the CORS headers on regular requests, and supports
+      multiple rules each targeting different path patterns.
+    </p>
+    <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-jex-cors<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.jex.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+    <h3 id="cors-basic">Basic Usage</h3>
+    <p>
+      Build a <code>CorsPlugin</code> using its fluent builder, then register it with <code>.plugin()</code>:
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">CorsPlugin</span> <span class="n">cors</span> <span class="o">=</span> <span class="n">CorsPlugin</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">createRule</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;/api/*&quot;</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">allowHost</span><span class="o">(</span><span class="s">&quot;https://example.com&quot;</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">maxAge</span><span class="o">(</span><span class="mi">3600</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">buildRule</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="n">Jex</span><span class="o">.</span><span class="na">create</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">cors</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="s">&quot;/api/hello&quot;</span><span class="o">,</span> <span class="n">ctx</span> <span class="o">-&gt;</span> <span class="n">ctx</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">&quot;hello&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">port</span><span class="o">(</span><span class="mi">8080</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</pre></div>
+</div>
+    <p>
+      Each call to <code>createRule()</code> produces a <code>RuleBuilder</code>. Call <code>buildRule()</code> to
+      append the finished rule and return to the parent builder, then call <code>build()</code> once all rules are defined.
+    </p>
+
+    <h3 id="cors-rules">Multiple Rules</h3>
+    <p>
+      You can add as many rules as needed, each matching a different path pattern:
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">CorsPlugin</span> <span class="n">cors</span> <span class="o">=</span> <span class="n">CorsPlugin</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">createRule</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;/api/*&quot;</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">allowHost</span><span class="o">(</span><span class="s">&quot;https://app.example.com&quot;</span><span class="o">,</span> <span class="s">&quot;https://admin.example.com&quot;</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">allowCredentials</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">maxAge</span><span class="o">(</span><span class="mi">3600</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">buildRule</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">createRule</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">path</span><span class="o">(</span><span class="s">&quot;/public/*&quot;</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">anyHost</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">buildRule</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</pre></div>
+</div>
+
+    <h3 id="cors-origins">Origin Configuration</h3>
+    <p>
+      Each rule must specify exactly one origin strategy:
+    </p>
+    <table class="table table-striped" style="width: 100%;">
+      <thead class="heading">
+        <tr>
+          <th style="width: 35%;">Method</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tr>
+        <td><code>anyHost()</code></td>
+        <td>Responds with <code>Access-Control-Allow-Origin: *</code>. Cannot be used with <code>allowCredentials(true)</code>.</td>
+      </tr>
+      <tr>
+        <td><code>allowHost(String... hosts)</code></td>
+        <td>Allow one or more explicit origins. Scheme is optional — defaults to <code>https</code> if omitted. Supports a single subdomain wildcard at the start of the host, e.g. <code>https://*.example.com</code>.</td>
+      </tr>
+      <tr>
+        <td><code>reflectClientOrigin(true)</code></td>
+        <td>Echo the request's <code>Origin</code> header back as the allowed origin. Useful when origins are dynamic or credentials are required. Cannot be combined with <code>allowHost()</code>.</td>
+      </tr>
+    </table>
+
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// Allow all origins (no credentials)</span>
+<span class="n">CorsPlugin</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">createRule</span><span class="o">().</span><span class="na">anyHost</span><span class="o">().</span><span class="na">buildRule</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="c1">// Allow specific origins (scheme can be omitted, defaults to https)</span>
+<span class="n">CorsPlugin</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">createRule</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">allowHost</span><span class="o">(</span><span class="s">&quot;example.com&quot;</span><span class="o">,</span> <span class="s">&quot;https://other.com&quot;</span><span class="o">,</span> <span class="s">&quot;https://*.subdomain.io&quot;</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">buildRule</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="c1">// Reflect client origin (required when using credentials with dynamic origins)</span>
+<span class="n">CorsPlugin</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">createRule</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">reflectClientOrigin</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">allowCredentials</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">buildRule</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</pre></div>
+</div>
+
+    <h3 id="cors-options">Rule Options</h3>
+    <table class="table table-striped" style="width: 100%;">
+      <thead class="heading">
+        <tr>
+          <th style="width: 35%;">Method</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tr>
+        <td><code>path(String pattern)</code></td>
+        <td>Path pattern this rule applies to. Supports exact paths, prefix wildcards (<code>/api/*</code>), and <code>*</code> to match everything. Default: <code>*</code>.</td>
+      </tr>
+      <tr>
+        <td><code>allowCredentials(boolean)</code></td>
+        <td>Sets <code>Access-Control-Allow-Credentials: true</code>. Cannot be combined with <code>anyHost()</code>.</td>
+      </tr>
+      <tr>
+        <td><code>maxAge(int seconds)</code></td>
+        <td>Sets <code>Access-Control-Max-Age</code> on preflight responses. Pass <code>-1</code> (default) to omit the header.</td>
+      </tr>
+      <tr>
+        <td><code>exposeHeader(String header)</code></td>
+        <td>Adds a header name to <code>Access-Control-Expose-Headers</code>, making it accessible in the browser. Call multiple times to expose multiple headers.</td>
+      </tr>
+      <tr>
+        <td><code>defaultScheme(String scheme)</code></td>
+        <td>Scheme prepended to hosts passed to <code>allowHost()</code> that do not already include one. Default: <code>https</code>.</td>
+      </tr>
+    </table>
+
+    <h3 id="cors-preflight">Preflight Handling</h3>
+    <p>
+      The plugin automatically handles <code>OPTIONS</code> preflight requests. It registers an <code>OPTIONS</code>
+      route for each rule's path pattern and reflects back the requested method and headers:
+    </p>
+    <ul>
+      <li><code>Access-Control-Request-Method</code> → <code>Access-Control-Allow-Methods</code></li>
+      <li><code>Access-Control-Request-Headers</code> → <code>Access-Control-Allow-Headers</code></li>
+      <li><code>Access-Control-Max-Age</code> is included when <code>maxAge</code> is ≥ 0</li>
+    </ul>
+    <p>
+      A request with a disallowed or missing origin receives a <code>400</code> response with no CORS headers.
+    </p>
 
     <h2 id="alternate">Alternate HttpServer Implementations</h2><hr/>
 
