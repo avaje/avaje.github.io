@@ -158,7 +158,7 @@ ln -sf ~/.agents/avaje-skills/avaje-simple-logger ~/.agents/skills/avaje-simple-
 </div>
 
 <h3 id="copy-install">Option B - Copy into the skills directory</h3>
-git clone https://github.com/avaje/skills.git /tmp/avaje-skills
+<div class="syntax sh"><div class="highlight"><pre><span></span>git clone https://github.com/avaje/skills.git /tmp/avaje-skills
 mkdir -p ~/.agents/skills
 cp -r /tmp/avaje-skills/avaje-nima ~/.agents/skills/avaje-nima
 cp -r /tmp/avaje-skills/avaje-inject ~/.agents/skills/avaje-inject
@@ -166,16 +166,20 @@ cp -r /tmp/avaje-skills/avaje-config ~/.agents/skills/avaje-config
 cp -r /tmp/avaje-skills/avaje-jsonb ~/.agents/skills/avaje-jsonb
 cp -r /tmp/avaje-skills/avaje-simple-logger ~/.agents/skills/avaje-simple-logger
 rm -rf /tmp/avaje-skills
+</pre></div>
+</div>
 
 <h3 id="project-level">Option C - Project-level installation</h3>
 <p>
   If you want skills checked into a specific project, copy them into a local <code>.agents/skills</code> directory.
 </p>
-git clone https://github.com/avaje/skills.git /tmp/avaje-skills
+<div class="syntax sh"><div class="highlight"><pre><span></span>git clone https://github.com/avaje/skills.git /tmp/avaje-skills
 mkdir -p .agents/skills
 cp -r /tmp/avaje-skills/avaje-nima .agents/skills/avaje-nima
 rm -rf /tmp/avaje-skills
 git add .agents/skills/avaje-nima
+</pre></div>
+</div>
 
 <h2 id="verification">Verification</h2>
 <p>
