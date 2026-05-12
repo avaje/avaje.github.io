@@ -20,11 +20,11 @@
     "@context": "https://schema.org",
     "@type": "SoftwareLibrary",
     "name": "Avaje Simple Logger",
-    "description": "Lightweight SLF4J implementation suitable for use with avaje-nima and GraalVM native images",
+    "description": "Lightweight SLF4J implementation with JSON/plain output, MDC support, fluent key/value logging, and OpenTelemetry trace correlation",
     "url": "https://avaje.io/simple-logger/",
-    "repositoryUrl": "https://github.com/avaje/simple-logger",
-    "issuesUrl": "https://github.com/avaje/simple-logger/issues",
-    "releasesUrl": "https://github.com/avaje/simple-logger/releases",
+    "repositoryUrl": "https://github.com/avaje/avaje-simple-logger",
+    "issuesUrl": "https://github.com/avaje/avaje-simple-logger/issues",
+    "releasesUrl": "https://github.com/avaje/avaje-simple-logger/releases",
     "discordUrl": "https://discord.gg/Qcqf9R27BR",
     "applicationCategory": "Logging",
     "programLanguage": "Java",
@@ -60,8 +60,20 @@
         "status": "stable"
       },
       {
-        "name": "Console and file output",
-        "description": "Route logs to console and/or files",
+        "name": "Structured context",
+        "description": "Include MDC and SLF4J fluent key/value fields in JSON and plain output",
+        "sinceVersion": "2.0",
+        "status": "stable"
+      },
+      {
+        "name": "OpenTelemetry trace correlation",
+        "description": "Emit trace_id and span_id from the active OpenTelemetry span",
+        "sinceVersion": "2.0",
+        "status": "stable"
+      },
+      {
+        "name": "JSON and plain output",
+        "description": "Write structured JSON by default or plain text for local and test use",
         "sinceVersion": "1.0",
         "status": "stable"
       }
@@ -78,6 +90,18 @@
         "description": "Set DEBUG, INFO, WARN, ERROR levels",
         "guideUrl": "https://avaje.io/simple-logger/",
         "difficulty": "beginner"
+      },
+      {
+        "title": "Add structured context to logs",
+        "description": "Include MDC and SLF4J fluent key/value fields in log output",
+        "guideUrl": "https://avaje.io/simple-logger/#mdc",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Correlate logs with traces",
+        "description": "Emit trace_id and span_id from the active OpenTelemetry span",
+        "guideUrl": "https://avaje.io/simple-logger/#otel",
+        "difficulty": "intermediate"
       }
     ]
   }
@@ -89,7 +113,7 @@
   <aside id="sidenav">
     <nav class="side scroll">
 <ul>
-  <li><a href="#what">Overview</a>
+  <li><a href="#overview">Overview</a>
 </li>
 <li><a href="#dependency">Dependency</a>
 </li>
@@ -102,6 +126,14 @@
 <li><a href="#configure">Configure</a>
 </li>
 <li><a href="#json">Structured JSON</a>
+</li>
+<li><a href="#mdc">MDC</a>
+</li>
+<li><a href="#fluent">Fluent key/value</a>
+</li>
+<li><a href="#otel">OpenTelemetry</a>
+</li>
+<li><a href="#plain">Plain format</a>
 </li>
 <li><a href="#dynamic-level">Dynamic log levels</a>
 </li>
@@ -146,11 +178,12 @@
   </table>
 
   <p><br><br>
-    This is a SLF4J logger that logs to <b>System out</b> JSON structured log messages.
-    It can also log plan text messages typically for development use when running tests.
+    This is a lightweight SLF4J logger that writes JSON structured log messages to <b>System.out</b> by default.
+    It can also write plain text messages for local development and test output.
   </p>
   <p>
-    It is designed to be used by applications that will be run in <b>K8s</b> or <b>Lambda</b>.
+    It supports MDC, SLF4J 2 fluent <code>addKeyValue()</code> entries, and OpenTelemetry trace correlation in both JSON and plain formats.
+    It is designed to be used by applications that will run in <b>K8s</b> or <b>Lambda</b>.
   </p>
 
   <hr>
@@ -183,14 +216,14 @@
 
   <h2 id="test-properties">avaje-logger-test.properties</h2>
   <p>
-    For testing, we might desire to log in a plain format rather than JSON format. We also might want to define some test specific log levels.
+    For testing, we might prefer plain format rather than JSON format. We also might want to define some test specific log levels.
   </p>
   <p>
     Add a <code>src/test/resources/avaje-logger-test.properties</code> to configure the logger
-    when running tests.
+    when running tests. Plain format still includes trace fields, MDC entries, and fluent key/value entries before the message.
   </p>
 
-  <div class="syntax properties"><div class="highlight"><pre><span></span><span class="c">## for testing we desire plain format than json format</span>
+  <div class="syntax properties"><div class="highlight"><pre><span></span><span class="c">## for testing we prefer plain format rather than json format</span>
 <span class="na">logger.format</span><span class="o">=</span><span class="s">plain</span>
 
 <span class="c">## default log level to use when running tests</span>
@@ -251,43 +284,57 @@
 <span class="c">## specify an explicit timestamp format to use, defaults to ISO_OFFSET_DATE_TIME</span>
 <span class="c">## valid values: ISO_OFFSET_DATE_TIME, ISO_ZONED_DATE_TIME, ISO_LOCAL_DATE_TIME, ISO_DATE_TIME, ISO_INSTANT</span>
 <span class="na">logger.timestampPattern</span><span class="o">=</span><span class="s">ISO_OFFSET_DATE_TIME</span>
+
+<span class="c">## JSON field naming convention: underscore (default), camel, or legacy</span>
+<span class="na">logger.naming</span><span class="o">=</span><span class="s">underscore</span>
+
+<span class="c">## optionally override specific built-in JSON field names</span>
+<span class="c">#logger.propertyNames=logger_name=loggerName,trace_id=traceId,span_id=spanId</span>
 </pre></div>
 </div>
 
 
   <h2 id="json">Structured JSON</h2>
   <p>
-    By default, the log format is JSON. Example:
+    By default, the log format is JSON. Built-in fields such as <code>logger_name</code>, <code>message</code>,
+    <code>thread</code>, and optional trace fields are emitted as structured JSON fields.
   </p>
   <div class="syntax json"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;component&quot;</span><span class="p">:</span><span class="s2">&quot;my-application&quot;</span><span class="p">,</span>
   <span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="s2">&quot;dev&quot;</span><span class="p">,</span>
   <span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="s2">&quot;2025-07-14T13:44:44.230959+12:00&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="s2">&quot;TRACE&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;logger&quot;</span><span class="p">:</span><span class="s2">&quot;io.avaje.config&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;logger_name&quot;</span><span class="p">:</span><span class="s2">&quot;io.avaje.config&quot;</span><span class="p">,</span>
   <span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;load from [resource:application-test.properties]&quot;</span><span class="p">,</span>
   <span class="nt">&quot;thread&quot;</span><span class="p">:</span><span class="s2">&quot;main&quot;</span>
 <span class="p">}</span>
 </pre></div>
 </div>
+  <p>
+    JSON output also includes MDC entries, SLF4J 2 fluent key/value entries, and OpenTelemetry trace fields when present.
+  </p>
 
-  <h4>JSON property names</h4>
+  <h4>JSON field names</h4>
   <p>
-    We can customize the property names via setting <code>logger.propertyNames</code> in <em>avaje-logger.properties</em> like:
+    We can control the built-in JSON field names via <code>logger.naming</code> and
+    <code>logger.propertyNames</code> in <em>avaje-logger.properties</em>.
   </p>
+  <div class="syntax properties"><div class="highlight"><pre><span></span><span class="c">## underscore (default) =&gt; logger_name, trace_id, span_id</span>
+<span class="na">logger.naming</span><span class="o">=</span><span class="s">underscore</span>
+
+<span class="c">## camel =&gt; loggerName, traceId, spanId</span>
+<span class="c">#logger.naming=camel</span>
+
+<span class="c">## legacy =&gt; logger, trace_id, span_id</span>
+<span class="c">#logger.naming=legacy</span>
+
+<span class="c">## delimited by comma and equals</span>
+<span class="c">#logger.propertyNames=logger_name=loggerName,env=environment,timestamp=@timestamp,trace_id=traceId,span_id=spanId</span>
+</pre></div>
+</div>
   <p>
-    Example: set a custom name for the logger property to loggerName, env to environment and timestamp to @timestamp.
+    MDC keys and fluent <code>addKeyValue()</code> entries keep the exact names supplied by the application.
   </p>
-  ```properties
-  ## delimited by comma and equals
-  logger.propertyNames=logger=loggerName,env=environment,timestamp=@timestamp
-  ```
-  <p>
-    Example: set a single property name:
-  </p>
-  ```properties
-  logger.propertyNames=logger=loggerName
-  ```
 
   <h4>component</h4>
   <p>
@@ -321,8 +368,8 @@
     An env key value is added automatically if:
   </p>
   <ul>
-    <li>There is a logger.env variable set in avaje-logger.properties</li>
-    <li>There is an ENV variable set</li>
+    <li>There is a logger.environment property set in avaje-logger.properties</li>
+    <li>There is an ENVIRONMENT environment variable set</li>
   </ul>
 
   <p>
@@ -336,12 +383,118 @@
 </pre></div>
 </div>
 
+  <h2 id="mdc">MDC</h2>
+  <p>
+    Use MDC for request-scoped or job-scoped context that should appear on multiple log lines, such as
+    <code>requestId</code>, <code>tenant</code>, or <code>userId</code>.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">try</span> <span class="o">(</span><span class="k">var</span> <span class="n">requestId</span> <span class="o">=</span> <span class="n">MDC</span><span class="o">.</span><span class="na">putCloseable</span><span class="o">(</span><span class="s">&quot;requestId&quot;</span><span class="o">,</span> <span class="s">&quot;req-42&quot;</span><span class="o">);</span>
+     <span class="k">var</span> <span class="n">tenant</span> <span class="o">=</span> <span class="n">MDC</span><span class="o">.</span><span class="na">putCloseable</span><span class="o">(</span><span class="s">&quot;tenant&quot;</span><span class="o">,</span> <span class="s">&quot;blue&quot;</span><span class="o">))</span> <span class="o">{</span>
+  <span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Loaded order {}&quot;</span><span class="o">,</span> <span class="n">orderId</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+  <p>Example JSON output:</p>
+  <div class="syntax json"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;logger_name&quot;</span><span class="p">:</span><span class="s2">&quot;com.example.OrderService&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;Loaded order 42&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;requestId&quot;</span><span class="p">:</span><span class="s2">&quot;req-42&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;tenant&quot;</span><span class="p">:</span><span class="s2">&quot;blue&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+  <p>Example plain output:</p>
+  <div class="syntax text"><div class="highlight"><pre><span></span>2026-05-13T10:00:00+12:00 INFO com.example.OrderService - requestId=req-42 tenant=blue Loaded order 42
+</pre></div>
+</div>
+
+  <h2 id="fluent">SLF4J 2 fluent key/value</h2>
+  <p>
+    Use the fluent API for values that belong to a single log event rather than the full request scope.
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">log</span><span class="o">.</span><span class="na">atInfo</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">addKeyValue</span><span class="o">(</span><span class="s">&quot;orderId&quot;</span><span class="o">,</span> <span class="mi">42</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">addKeyValue</span><span class="o">(</span><span class="s">&quot;processed&quot;</span><span class="o">,</span> <span class="kc">true</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">&quot;Order processed&quot;</span><span class="o">);</span>
+</pre></div>
+</div>
+  <p>Example JSON output:</p>
+  <div class="syntax json"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;logger_name&quot;</span><span class="p">:</span><span class="s2">&quot;com.example.OrderService&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;Order processed&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;orderId&quot;</span><span class="p">:</span><span class="mi">42</span><span class="p">,</span>
+  <span class="nt">&quot;processed&quot;</span><span class="p">:</span><span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+  <p>
+    The same fields are included in plain output as <code>key=value</code> entries before the message.
+  </p>
+
+  <h2 id="otel">OpenTelemetry</h2>
+  <p>
+    avaje-simple-logger emits <code>trace_id</code> and <code>span_id</code> from the active OpenTelemetry span.
+    No extra logger property is required, but an active span must be present when the log statement runs.
+  </p>
+  <p>
+    If your tracing setup does not already provide the OpenTelemetry API on the classpath, add it explicitly and align
+    the version with your tracing distribution.
+  </p>
+  <div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.opentelemetry<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>opentelemetry-api<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span><span class="c">&lt;!-- align with your OpenTelemetry version --&gt;</span><span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+  <p>
+    With an active span, ordinary log statements automatically include trace fields:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Handling order {}&quot;</span><span class="o">,</span> <span class="n">orderId</span><span class="o">);</span>
+</pre></div>
+</div>
+  <div class="syntax json"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;logger_name&quot;</span><span class="p">:</span><span class="s2">&quot;com.example.OrderService&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="s2">&quot;Handling order 42&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;trace_id&quot;</span><span class="p">:</span><span class="s2">&quot;0af7651916cd43dd8448eb211c80319c&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;span_id&quot;</span><span class="p">:</span><span class="s2">&quot;b7ad6b7169203331&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+  <p>
+    If your OpenTelemetry agent also injects <code>trace_id</code> and <code>span_id</code> into MDC,
+    avaje-simple-logger filters those MDC keys so the trace fields are emitted once.
+  </p>
+
+  <h2 id="plain">Plain format</h2>
+  <p>
+    For <code>logger.format=plain</code>, contextual data is written before the message in a predictable order:
+  </p>
+  <ol>
+    <li><code>trace_id</code> and <code>span_id</code> from the active span</li>
+    <li>Remaining MDC entries</li>
+    <li>SLF4J fluent <code>addKeyValue()</code> entries</li>
+    <li>The rendered message</li>
+  </ol>
+  <div class="syntax text"><div class="highlight"><pre><span></span>2026-05-13T10:00:00+12:00 INFO com.example.OrderService - trace_id=0af7651916cd43dd8448eb211c80319c span_id=b7ad6b7169203331 requestId=req-42 orderId=42 processed=true Order processed
+</pre></div>
+</div>
+  <p>
+    Use plain format for local development and test output when console readability is more important than JSON ingestion.
+  </p>
+
   <h2 id="dynamic-level">Dynamic log levels</h2>
   <p>
     avaje-simple-logger automatically registers with avaje-config such that any configuration changes that start with log.level. are logging level configuration changes, and these are applied.
   </p>
   <p>
     avaje-config supports plugins like AWS AppConfig, where configuration changes can be dynamically made to the application. For example, log.level. changes can be dynamically made this way.
+  </p>
+  <p>
+    Dynamic configuration applies to <code>log.level.*</code>. MDC entries, fluent key/value fields, and OpenTelemetry trace context still come from application code and tracing instrumentation.
   </p>
 
 
