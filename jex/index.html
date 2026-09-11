@@ -891,6 +891,23 @@
         <span class="o">.</span><span class="na">plugin</span><span class="o">(</span><span class="n">directoryCP</span><span class="o">);</span> <span class="c1">// will serve files from the /public classpath directory</span>
 </pre></div>
 </div>
+    <p>
+      Served resources can be sent with a <code>Content-Disposition</code> header, either fixed for every file
+      or computed per request:
+    </p>
+    <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">StaticContent</span><span class="o">.</span><span class="na">ofFile</span><span class="o">(</span><span class="s">&quot;downloads&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">directoryIndex</span><span class="o">(</span><span class="s">&quot;index.html&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">contentDisposition</span><span class="o">(</span><span class="n">ContentDisposition</span><span class="o">.</span><span class="na field">Type</span><span class="o">.</span><span class="na">ATTACHMENT</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="n">StaticContent</span><span class="o">.</span><span class="na">ofFile</span><span class="o">(</span><span class="s">&quot;downloads&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">directoryIndex</span><span class="o">(</span><span class="s">&quot;index.html&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">contentDisposition</span><span class="o">((</span><span class="n">ctx</span><span class="o">,</span> <span class="n">filename</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">filename</span><span class="o">.</span><span class="na">endsWith</span><span class="o">(</span><span class="s">&quot;.pdf&quot;</span><span class="o">)</span>
+        <span class="o">?</span> <span class="n">ContentDisposition</span><span class="o">.</span><span class="na">inline</span><span class="o">(</span><span class="n">filename</span><span class="o">)</span>
+        <span class="o">:</span> <span class="n">ContentDisposition</span><span class="o">.</span><span class="na">attachment</span><span class="o">(</span><span class="n">filename</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</pre></div>
+</div>
     <details>
       <summary>Available Configuration: (click to expand) </summary>
       <table style="width:75%;" class="table table-striped">
@@ -923,6 +940,14 @@
         <tr>
           <td><strong><code>putResponseHeader("key", value)</code></strong></td>
           <td>Adds a new response header to the configuration.</td>
+        </tr>
+        <tr>
+          <td><strong><code>contentDisposition(ContentDisposition.Type.ATTACHMENT)</code></strong></td>
+          <td>Sets the Content Disposition type sent with every served resource, using the served file's name as the filename.</td>
+        </tr>
+        <tr>
+          <td><strong><code>contentDisposition((ctx, filename) -> ...)</code></strong></td>
+          <td>Sets a function used to build the Content Disposition header per served resource. The function receives the request context and served filename, and may return null to send no header.</td>
         </tr>
         <tr>
           <td><strong><code>resourceLoader(clazz)</code></strong></td>

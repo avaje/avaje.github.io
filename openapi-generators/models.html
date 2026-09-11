@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu|Andika&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.4/css/all.css"
+    integrity="sha384-EUDN3j9sKZiOEQw/t802+00Fzk16xfH6dAEEzoUWWWDrTFWO8qF1KdmiRQM6ir9m"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="#overview">Overview</a>
+</li>
+<li><a href="#start">Getting started</a>
+    <ul>
+      <li><a href="#plugin-setup">Plugin setup</a></li>
+      <li><a href="#interface-path">Interface path (@Path)</a></li>
+      <li><a href="#java-versions">Java versions</a></li>
+      <li><a href="#scope">Current scope</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/contract-first">Contract-first client &amp; server</a>
+    <ul>
+      <li><a href="/openapi-generators/contract-first#shared-interface">The shared interface</a></li>
+      <li><a href="/openapi-generators/contract-first#client">Generating an HTTP client</a></li>
+      <li><a href="/openapi-generators/contract-first#server">Implementing the server</a></li>
+      <li><a href="/openapi-generators/contract-first#nullable">@Nullable and avaje-http 3.10+</a></li>
+      <li><a href="/openapi-generators/contract-first#api-only">API-only generation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/models">DTO Models</a>
+    <ul>
+      <li><a href="/openapi-generators/models#records">Record DTOs</a></li>
+      <li><a href="/openapi-generators/models#builders">Record builders</a></li>
+      <li><a href="/openapi-generators/models#read-write-only">readOnly / writeOnly</a></li>
+      <li><a href="/openapi-generators/models#composition">Composition &amp; inline schemas</a></li>
+      <li><a href="/openapi-generators/models#api-only">API-only generation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/parameters">Parameters</a>
+    <ul>
+      <li><a href="/openapi-generators/parameters#explicit-names">Explicit parameter names</a></li>
+      <li><a href="/openapi-generators/parameters#defaults">Parameter defaults</a></li>
+      <li><a href="/openapi-generators/parameters#nullable">Nullable parameters</a></li>
+      <li><a href="/openapi-generators/parameters#overloads">Overloads</a></li>
+      <li><a href="/openapi-generators/parameters#response-headers">Response header docs</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/type-mapping">Type Mapping</a>
+    <ul>
+      <li><a href="/openapi-generators/type-mapping#primitive-mapping">Primitive mapping</a></li>
+      <li><a href="/openapi-generators/type-mapping#date-time">Date and time types</a></li>
+      <li><a href="/openapi-generators/type-mapping#type-mappings">Global type mappings</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/validation">Validation</a>
+    <ul>
+      <li><a href="/openapi-generators/validation#style">Validation style</a></li>
+      <li><a href="/openapi-generators/validation#constraints">Supported constraints</a></li>
+      <li><a href="/openapi-generators/validation#nested">Nested validation</a></li>
+      <li><a href="/openapi-generators/validation#disabling">Disabling validation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/configuration">Configuration Reference</a>
+</li>
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><a href="/openapi-generators">openapi-generators</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">models</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-openapi-generators" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+
+<h1 id="overview">DTO Models</h1>
+
+<p>
+  By default the plugin generates Java record DTOs (plus enums) for every component schema,
+  alongside the API interfaces.
+</p>
+
+<h2 id="records">Record DTOs</h2>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
+<span class="kd">public</span> <span class="n">record</span> <span class="nf">Pet</span><span class="o">(</span>
+  <span class="nd">@NotNull</span> <span class="nd">@Min</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="nx">Long</span> <span class="nx">id</span><span class="o">,</span>
+  <span class="nd">@NotNull</span> <span class="nd">@Size</span><span class="o">(</span><span class="nx">min</span> <span class="o">=</span> <span class="mi">1</span><span class="o">,</span> <span class="nx">max</span> <span class="o">=</span> <span class="mi">100</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">name</span><span class="o">,</span>
+  <span class="n">Instant</span> <span class="n">createdAt</span>
+<span class="o">)</span> <span class="o">{}</span>
+</pre></div>
+</div>
+<p>
+  <code>@Json</code> (Avaje Jsonb) is emitted when <code>generateJsonAnnotations</code> is
+  <code>true</code> (the default). Validation annotations are emitted when
+  <code>generateValidationAnnotations</code> is <code>true</code> (the default); see
+  <a href="/openapi-generators/validation">Validation</a>.
+</p>
+
+<h2 id="builders">Record builders</h2>
+<p>Enable builder generation:</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;generateRecordBuilders&gt;</span>true<span class="nt">&lt;/generateRecordBuilders&gt;</span>
+</pre></div>
+</div>
+
+<p>
+  Each generated record then gains static <code>builder()</code> factory methods backed by
+  <a href="https://github.com/avaje/avaje-record-builder">Avaje Record Builder</a>:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@RecordBuilder</span>
+<span class="nd">@Json</span>
+<span class="kd">public</span> <span class="nx">record</span> <span class="nf">Pet</span><span class="o">(</span><span class="nd">@NotNull</span> <span class="nx">Long</span> <span class="nx">id</span><span class="o">,</span> <span class="nd">@NotNull</span> <span class="nx">String</span> <span class="nx">name</span><span class="o">,</span> <span class="nx">Instant</span> <span class="nx">createdAt</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">PetBuilder</span> <span class="nf">builder</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">PetBuilder</span><span class="o">.</span><span class="na">builder</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">PetBuilder</span> <span class="nf">builder</span><span class="o">(</span><span class="n">Pet</span> <span class="n">from</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">PetBuilder</span><span class="o">.</span><span class="na">builder</span><span class="o">(</span><span class="n">from</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  Add Avaje Record Builder to the consuming project as a <code>provided</code> dependency and to
+  the annotation processor paths:
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-record-builder<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.record.builder.version}<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;scope&gt;</span>provided<span class="nt">&lt;/scope&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;path&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-record-builder<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.record.builder.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/path&gt;</span>
+</pre></div>
+</div>
+
+<h2 id="read-write-only">readOnly and writeOnly fields</h2>
+<p>
+  Schema properties marked <code>readOnly: true</code> or <code>writeOnly: true</code> get a JSON
+  annotation so the serialisation library enforces the constraint (only when
+  <code>generateJsonAnnotations</code> is <code>true</code>):
+</p>
+
+<table style="width:100%;">
+  <tr>
+    <th>OpenAPI</th>
+    <th>Avaje Jsonb (<code>jsonStyle: AVAJE</code>, default)</th>
+    <th>Jackson (<code>jsonStyle: JACKSON</code>)</th>
+  </tr>
+  <tr>
+    <td><code>readOnly: true</code></td>
+    <td><code>@Json.Ignore(deserialize = true)</code></td>
+    <td><code>@JsonProperty(access = READ_ONLY)</code></td>
+  </tr>
+  <tr>
+    <td><code>writeOnly: true</code></td>
+    <td><code>@Json.Ignore(serialize = true)</code></td>
+    <td><code>@JsonProperty(access = WRITE_ONLY)</code></td>
+  </tr>
+</table>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
+<span class="kd">public</span> <span class="n">record</span> <span class="nf">UserProfile</span><span class="o">(</span>
+  <span class="nd">@Json.Ignore</span><span class="o">(</span><span class="nx">deserialize</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span> <span class="nx">Long</span> <span class="nx">id</span><span class="o">,</span>        <span class="c1">// readOnly — responses only</span>
+  <span class="nd">@NotNull</span> <span class="nx">String</span> <span class="nx">username</span><span class="o">,</span>
+  <span class="nd">@Json.Ignore</span><span class="o">(</span><span class="nx">serialize</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">password</span><span class="o">,</span>  <span class="c1">// writeOnly — requests only</span>
+  <span class="nd">@Nullable</span> <span class="nx">String</span> <span class="nx">email</span>
+<span class="o">)</span> <span class="o">{}</span>
+</pre></div>
+</div>
+
+<p>Set <code>jsonStyle</code> to <code>JACKSON</code> to target Jackson <code>@JsonProperty</code> instead.</p>
+
+<h2 id="composition">Composition and inline schemas</h2>
+<ul>
+  <li><code>allOf</code> members are flattened/merged into a single record.</li>
+  <li>Inline object/array/map schemas are extracted into named nested records.</li>
+</ul>
+<p>
+  <code>oneOf</code>/<code>anyOf</code>/discriminator polymorphism is not yet supported and
+  produces a diagnostic.
+</p>
+
+<h2 id="api-only">API-only generation (reuse existing models)</h2>
+<p>
+  Set <code>generateModels=false</code> to generate <strong>only</strong> the API interfaces. The
+  generated interfaces still reference <code>modelPackage</code> types, which must be provided by
+  an existing (hand-written) module on the classpath:
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;configuration&gt;</span>
+  <span class="nt">&lt;inputSpec&gt;</span>&#36;{project.basedir}/src/main/openapi/openapi.yaml<span class="nt">&lt;/inputSpec&gt;</span>
+  <span class="nt">&lt;apiPackage&gt;</span>org.example.api<span class="nt">&lt;/apiPackage&gt;</span>
+  <span class="nt">&lt;modelPackage&gt;</span>org.example.model<span class="nt">&lt;/modelPackage&gt;</span>
+  <span class="nt">&lt;generateModels&gt;</span>false<span class="nt">&lt;/generateModels&gt;</span>
+<span class="nt">&lt;/configuration&gt;</span>
+</pre></div>
+</div>
+
+<p>
+  This suits adopting contract-first on an existing API where the model records are already
+  hand-maintained (with their own Javadoc, field types and conventions) and remain the single
+  source of truth — the OpenAPI spec then defines only the operations, and the DTO schemas exist
+  purely so the generated interface signatures resolve to those existing types.
+</p>
+
+<h3 id="exact-match">Matching hand-written records exactly</h3>
+<p>
+  When the generated models must be byte-for-byte identical to existing hand-written records, the
+  relevant knobs are:
+</p>
+<ul>
+  <li><code>generateValidationAnnotations=false</code> — drop <code>@NotNull</code>/<code>@Valid</code> if the hand-written records do not use them.</li>
+  <li><code>dateTimeType</code> / per-property <code>x-java-type</code> / <code>format</code> overrides — match the exact <code>java.time</code> types. See <a href="/openapi-generators/type-mapping">Type Mapping</a>.</li>
+  <li><code>required: true</code> on scalar properties yields Java primitives (<code>long</code>, <code>int</code>, <code>boolean</code>), matching hand-written records that use primitives for mandatory fields. See <a href="/openapi-generators/type-mapping#primitive-mapping">Primitive mapping</a>.</li>
+</ul>
+
+<p><br><br><br><br></p>
+
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+  integrity="sha384-5AkRS45j4ukf+JbWAfHL8P4onPA9p0KwwP7pUdjSQA3ss9edbJUJc/XcYAiheSSz"
+  crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>

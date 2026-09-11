@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu|Andika&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.4/css/all.css"
+    integrity="sha384-EUDN3j9sKZiOEQw/t802+00Fzk16xfH6dAEEzoUWWWDrTFWO8qF1KdmiRQM6ir9m"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="#overview">Overview</a>
+</li>
+<li><a href="#start">Getting started</a>
+    <ul>
+      <li><a href="#plugin-setup">Plugin setup</a></li>
+      <li><a href="#interface-path">Interface path (@Path)</a></li>
+      <li><a href="#java-versions">Java versions</a></li>
+      <li><a href="#scope">Current scope</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/contract-first">Contract-first client &amp; server</a>
+    <ul>
+      <li><a href="/openapi-generators/contract-first#shared-interface">The shared interface</a></li>
+      <li><a href="/openapi-generators/contract-first#client">Generating an HTTP client</a></li>
+      <li><a href="/openapi-generators/contract-first#server">Implementing the server</a></li>
+      <li><a href="/openapi-generators/contract-first#nullable">@Nullable and avaje-http 3.10+</a></li>
+      <li><a href="/openapi-generators/contract-first#api-only">API-only generation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/models">DTO Models</a>
+    <ul>
+      <li><a href="/openapi-generators/models#records">Record DTOs</a></li>
+      <li><a href="/openapi-generators/models#builders">Record builders</a></li>
+      <li><a href="/openapi-generators/models#read-write-only">readOnly / writeOnly</a></li>
+      <li><a href="/openapi-generators/models#composition">Composition &amp; inline schemas</a></li>
+      <li><a href="/openapi-generators/models#api-only">API-only generation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/parameters">Parameters</a>
+    <ul>
+      <li><a href="/openapi-generators/parameters#explicit-names">Explicit parameter names</a></li>
+      <li><a href="/openapi-generators/parameters#defaults">Parameter defaults</a></li>
+      <li><a href="/openapi-generators/parameters#nullable">Nullable parameters</a></li>
+      <li><a href="/openapi-generators/parameters#overloads">Overloads</a></li>
+      <li><a href="/openapi-generators/parameters#response-headers">Response header docs</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/type-mapping">Type Mapping</a>
+    <ul>
+      <li><a href="/openapi-generators/type-mapping#primitive-mapping">Primitive mapping</a></li>
+      <li><a href="/openapi-generators/type-mapping#date-time">Date and time types</a></li>
+      <li><a href="/openapi-generators/type-mapping#type-mappings">Global type mappings</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/validation">Validation</a>
+    <ul>
+      <li><a href="/openapi-generators/validation#style">Validation style</a></li>
+      <li><a href="/openapi-generators/validation#constraints">Supported constraints</a></li>
+      <li><a href="/openapi-generators/validation#nested">Nested validation</a></li>
+      <li><a href="/openapi-generators/validation#disabling">Disabling validation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/configuration">Configuration Reference</a>
+</li>
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><a href="/openapi-generators">openapi-generators</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">parameters</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-openapi-generators" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+
+<h1 id="overview">Parameters</h1>
+
+<p>
+  Path, query, header, and cookie parameters map to method parameters on the generated interface
+  with the matching <code>io.avaje.http.api</code> location annotation. Path parameters carry no
+  annotation; query/header/cookie carry <code>@QueryParam</code> / <code>@Header</code> /
+  <code>@Cookie</code>.
+</p>
+
+<h2 id="explicit-names">Explicit parameter names</h2>
+<p>Location annotations are always generated with an explicit wire-name value:</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nx">List</span><span class="o">&lt;</span><span class="nx">Pet</span><span class="o">&gt;</span> <span class="nf">listPets</span><span class="o">(</span><span class="nd">@QueryParam</span><span class="o">(</span><span class="s">&quot;status&quot;</span><span class="o">)</span> <span class="nx">PetStatus</span> <span class="nx">status</span><span class="o">);</span>
+
+<span class="nx">Pet</span> <span class="nf">getPet</span><span class="o">(</span><span class="nx">Long</span> <span class="nx">id</span><span class="o">,</span> <span class="nd">@Header</span><span class="o">(</span><span class="s">&quot;X-Request-Id&quot;</span><span class="o">)</span> <span class="nx">String</span> <span class="nx">xRequestId</span><span class="o">);</span>
+</pre></div>
+</div>
+
+<p>
+  The explicit name keeps the generated interface robust as a contract-first artifact. avaje-http
+  can fall back to the Java parameter name when the annotation value is blank, but that fallback
+  only works when parameter names are present in the bytecode — which is <strong>not</strong> the
+  case for an interface consumed from a precompiled jar via <code>@Client.Import</code> unless
+  that jar was compiled with <code>-parameters</code>. Emitting the name explicitly removes that
+  requirement, so consumers need no special compiler configuration. See
+  <a href="/openapi-generators/contract-first">Contract-first client &amp; server</a>.
+</p>
+
+<h2 id="defaults">Parameter defaults</h2>
+<p>
+  When a parameter schema declares a <code>default</code>, the generator emits an
+  <code>@Default</code> annotation alongside the location annotation and uses the
+  <strong>primitive</strong> form of the type (a default guarantees a value):
+</p>
+<div class="syntax text"><div class="highlight"><pre><span></span>parameters:
+  - name: useMaster
+    in: query
+    schema:
+      type: boolean
+      default: false
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nx">Pet</span> <span class="nf">getPet</span><span class="o">(</span><span class="nx">Long</span> <span class="nx">id</span><span class="o">,</span> <span class="nd">@QueryParam</span><span class="o">(</span><span class="s">&quot;useMaster&quot;</span><span class="o">)</span> <span class="nd">@Default</span><span class="o">(</span><span class="s">&quot;false&quot;</span><span class="o">)</span> <span class="kt">boolean</span> <span class="nx">useMaster</span><span class="o">);</span>
+</pre></div>
+</div>
+<p>
+  Wrapper types <code>Boolean</code>, <code>Integer</code>, <code>Long</code>, <code>Double</code>
+  and <code>Float</code> are unboxed to their primitive form when a default is present. Other types
+  keep their declared type and simply gain the <code>@Default("...")</code> annotation.
+</p>
+
+<h2 id="nullable">Nullable parameters</h2>
+<p>
+  Optional parameters (<code>required: false</code>, without a <code>default</code>) are annotated
+  <code>@Nullable</code>. The default annotation is JSpecify:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">org.jspecify.annotations.Nullable</span><span class="o">;</span>
+
+<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Pet</span><span class="o">&gt;</span> <span class="nf">listPets</span><span class="o">(</span><span class="nd">@Nullable</span> <span class="nd">@QueryParam</span><span class="o">(</span><span class="s">&quot;status&quot;</span><span class="o">)</span> <span class="nx">PetStatus</span> <span class="nx">status</span><span class="o">);</span>
+</pre></div>
+</div>
+
+<p>
+  JSpecify is already a transitive dependency of <code>avaje-http-client</code>. If you only depend
+  on <code>avaje-http-api</code>, add <code>org.jspecify:jspecify</code> to the consuming project.
+  Point <code>nullableAnnotation</code> at a different annotation (e.g.
+  <code>jakarta.annotation.Nullable</code>), or set it to <code>NONE</code> to disable
+  <code>@Nullable</code> generation entirely:
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;nullableAnnotation&gt;</span>NONE<span class="nt">&lt;/nullableAnnotation&gt;</span>
+</pre></div>
+</div>
+<p>
+  The <code>NONE</code> sentinel (case-insensitive) is used rather than an empty element because
+  Maven collapses an empty configuration element to <code>null</code> and applies the parameter
+  default, so a blank value cannot disable generation.
+</p>
+<p>
+  JSpecify <code>@Nullable</code> is a <code>TYPE_USE</code> annotation. For server controllers
+  this interacts with how avaje-http matches an <code>@Override</code> back to the interface
+  method — requires avaje-http 3.10+, or set <code>nullableAnnotation=NONE</code> to disable it.
+  See <a href="/openapi-generators/contract-first#nullable">@Nullable and avaje-http 3.10+</a>.
+</p>
+
+<h2 id="overloads">Overloads</h2>
+<p>
+  Set <code>generateOverloads=true</code> to emit convenience <code>default</code> method overloads
+  that omit a trailing run of <strong>omittable</strong> parameters and delegate to the full
+  method. The overloads carry no HTTP annotation, so the server and client generators ignore them
+  — they exist purely for caller ergonomics and are inherited by both the controller and the
+  generated client.
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;generateOverloads&gt;</span>true<span class="nt">&lt;/generateOverloads&gt;</span>
+<span class="nt">&lt;overloadPolicy&gt;</span>NULLABLE_ONLY<span class="nt">&lt;/overloadPolicy&gt;</span>
+<span class="c">&lt;!-- EXPLICIT | NULLABLE_ONLY (default) | ALL_OPTIONAL --&gt;</span>
+</pre></div>
+</div>
+
+<p>
+  Only a contiguous run of omittable parameters at the <strong>end</strong> of the signature can be
+  dropped. Path parameters and request bodies are never omittable. The <code>overloadPolicy</code>
+  decides which parameters are omittable by default:
+</p>
+<table style="width:100%;">
+  <tr>
+    <th>Policy</th>
+    <th>Omittable parameters</th>
+    <th>Value passed when omitted</th>
+  </tr>
+  <tr>
+    <td><code>EXPLICIT</code></td>
+    <td>only those marked <code>x-overload: true</code></td>
+    <td>default, or <code>null</code></td>
+  </tr>
+  <tr>
+    <td><code>NULLABLE_ONLY</code></td>
+    <td>optional parameters <strong>without</strong> a default (default)</td>
+    <td><code>null</code></td>
+  </tr>
+  <tr>
+    <td><code>ALL_OPTIONAL</code></td>
+    <td>every optional parameter (including defaulted ones)</td>
+    <td>its <code>default</code> literal</td>
+  </tr>
+</table>
+
+<p>
+  A per-parameter <code>x-overload</code> vendor extension overrides the policy for that parameter
+  (<code>true</code> forces omittable, <code>false</code> forces required).
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nx">FleetDetail</span> <span class="nf">findFleet</span><span class="o">(</span><span class="nx">UUID</span> <span class="nx">fleetGid</span><span class="o">,</span> <span class="nd">@QueryParam</span><span class="o">(</span><span class="s">&quot;useMaster&quot;</span><span class="o">)</span> <span class="nd">@Default</span><span class="o">(</span><span class="s">&quot;false&quot;</span><span class="o">)</span> <span class="kt">boolean</span> <span class="nx">useMaster</span><span class="o">,</span>
+    <span class="nd">@QueryParam</span><span class="o">(</span><span class="s">&quot;withMachines&quot;</span><span class="o">)</span> <span class="nd">@Default</span><span class="o">(</span><span class="s">&quot;false&quot;</span><span class="o">)</span> <span class="kt">boolean</span> <span class="nx">withMachines</span><span class="o">,</span>
+    <span class="nd">@QueryParam</span><span class="o">(</span><span class="s">&quot;withDrivers&quot;</span><span class="o">)</span> <span class="nd">@Default</span><span class="o">(</span><span class="s">&quot;false&quot;</span><span class="o">)</span> <span class="kt">boolean</span> <span class="nx">withDrivers</span><span class="o">);</span>
+
+<span class="k">default</span> <span class="n">FleetDetail</span> <span class="nf">findFleet</span><span class="o">(</span><span class="n">UUID</span> <span class="n">fleetGid</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">useMaster</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">withMachines</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">findFleet</span><span class="o">(</span><span class="n">fleetGid</span><span class="o">,</span> <span class="n">useMaster</span><span class="o">,</span> <span class="n">withMachines</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="k">default</span> <span class="n">FleetDetail</span> <span class="nf">findFleet</span><span class="o">(</span><span class="n">UUID</span> <span class="n">fleetGid</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">useMaster</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">findFleet</span><span class="o">(</span><span class="n">fleetGid</span><span class="o">,</span> <span class="n">useMaster</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<h2 id="response-headers">Response header documentation</h2>
+<p>
+  avaje-http has no response-header annotation, so OpenAPI response headers are surfaced as an
+  <code>@apiNote</code> Javadoc tag on the generated method (2xx response only):
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * @apiNote Response headers: X-Rate-Limit (integer — Request limit per hour), X-Rate-Limit-Reset (string)</span>
+<span class="cm"> */</span>
+<span class="nd">@Get</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Item</span><span class="o">&gt;</span> <span class="nf">listItems</span><span class="o">();</span>
+</pre></div>
+</div>
+
+<p><br><br><br><br></p>
+
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+  integrity="sha384-5AkRS45j4ukf+JbWAfHL8P4onPA9p0KwwP7pUdjSQA3ss9edbJUJc/XcYAiheSSz"
+  crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>

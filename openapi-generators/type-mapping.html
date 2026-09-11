@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu|Andika&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.4/css/all.css"
+    integrity="sha384-EUDN3j9sKZiOEQw/t802+00Fzk16xfH6dAEEzoUWWWDrTFWO8qF1KdmiRQM6ir9m"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="#overview">Overview</a>
+</li>
+<li><a href="#start">Getting started</a>
+    <ul>
+      <li><a href="#plugin-setup">Plugin setup</a></li>
+      <li><a href="#interface-path">Interface path (@Path)</a></li>
+      <li><a href="#java-versions">Java versions</a></li>
+      <li><a href="#scope">Current scope</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/contract-first">Contract-first client &amp; server</a>
+    <ul>
+      <li><a href="/openapi-generators/contract-first#shared-interface">The shared interface</a></li>
+      <li><a href="/openapi-generators/contract-first#client">Generating an HTTP client</a></li>
+      <li><a href="/openapi-generators/contract-first#server">Implementing the server</a></li>
+      <li><a href="/openapi-generators/contract-first#nullable">@Nullable and avaje-http 3.10+</a></li>
+      <li><a href="/openapi-generators/contract-first#api-only">API-only generation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/models">DTO Models</a>
+    <ul>
+      <li><a href="/openapi-generators/models#records">Record DTOs</a></li>
+      <li><a href="/openapi-generators/models#builders">Record builders</a></li>
+      <li><a href="/openapi-generators/models#read-write-only">readOnly / writeOnly</a></li>
+      <li><a href="/openapi-generators/models#composition">Composition &amp; inline schemas</a></li>
+      <li><a href="/openapi-generators/models#api-only">API-only generation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/parameters">Parameters</a>
+    <ul>
+      <li><a href="/openapi-generators/parameters#explicit-names">Explicit parameter names</a></li>
+      <li><a href="/openapi-generators/parameters#defaults">Parameter defaults</a></li>
+      <li><a href="/openapi-generators/parameters#nullable">Nullable parameters</a></li>
+      <li><a href="/openapi-generators/parameters#overloads">Overloads</a></li>
+      <li><a href="/openapi-generators/parameters#response-headers">Response header docs</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/type-mapping">Type Mapping</a>
+    <ul>
+      <li><a href="/openapi-generators/type-mapping#primitive-mapping">Primitive mapping</a></li>
+      <li><a href="/openapi-generators/type-mapping#date-time">Date and time types</a></li>
+      <li><a href="/openapi-generators/type-mapping#type-mappings">Global type mappings</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/validation">Validation</a>
+    <ul>
+      <li><a href="/openapi-generators/validation#style">Validation style</a></li>
+      <li><a href="/openapi-generators/validation#constraints">Supported constraints</a></li>
+      <li><a href="/openapi-generators/validation#nested">Nested validation</a></li>
+      <li><a href="/openapi-generators/validation#disabling">Disabling validation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/configuration">Configuration Reference</a>
+</li>
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><a href="/openapi-generators">openapi-generators</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">type-mapping</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-openapi-generators" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+
+<h1 id="overview">Type Mapping</h1>
+
+<p>
+  How OpenAPI schema types and formats map to Java types, and how to override the mapping globally
+  or per property.
+</p>
+
+<h2 id="primitive-mapping">Primitive mapping</h2>
+<p>
+  A scalar model field that is <code>required</code> and <strong>not</strong>
+  <code>nullable: true</code> is guaranteed present and non-null, so the generator emits the Java
+  <strong>primitive</strong> form rather than the boxed wrapper:
+</p>
+<div class="syntax text"><div class="highlight"><pre><span></span>Driver:
+  required: [id, version, logbookUser]
+  properties:
+    id:          { type: integer, format: int64 }   # required -&gt; long
+    version:     { type: integer }                   # required -&gt; int
+    logbookUser: { type: boolean }                   # required -&gt; boolean
+    tag:         { type: integer }                   # optional -&gt; Integer
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="n">record</span> <span class="nf">Driver</span><span class="o">(</span>
+  <span class="kt">long</span> <span class="n">id</span><span class="o">,</span>
+  <span class="kt">int</span> <span class="n">version</span><span class="o">,</span>
+  <span class="kt">boolean</span> <span class="n">logbookUser</span><span class="o">,</span>
+  <span class="nd">@Nullable</span> <span class="nx">Integer</span> <span class="nx">tag</span>
+<span class="o">)</span> <span class="o">{}</span>
+</pre></div>
+</div>
+
+<p>
+  Only the wrapper types <code>Boolean</code>, <code>Integer</code>, <code>Long</code>,
+  <code>Double</code> and <code>Float</code> are unboxed. A field that is <code>required</code>
+  <strong>and</strong> <code>nullable: true</code> stays boxed (it can be explicitly null).
+  Parameters with a <code>default</code> are also unboxed — see
+  <a href="/openapi-generators/parameters#defaults">Parameter defaults</a>.
+</p>
+<p>
+  This makes generated DTOs match hand-written records that use primitives for mandatory fields.
+  To get a byte-exact match also consider <code>generateValidationAnnotations=false</code> (see
+  <a href="/openapi-generators/models">DTO Models</a>).
+</p>
+
+<h2 id="date-time">Date and time types</h2>
+<p>
+  OpenAPI's <code>format: date-time</code> (RFC 3339) carries a timezone offset, so it maps to
+  <code>java.time.OffsetDateTime</code> by default. Set the global <code>dateTimeType</code> to
+  change the type used for <strong>all</strong> <code>format: date-time</code> properties:
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dateTimeType&gt;</span>INSTANT<span class="nt">&lt;/dateTimeType&gt;</span>
+<span class="c">&lt;!-- INSTANT | OFFSET_DATE_TIME (default) | LOCAL_DATE_TIME | ZONED_DATE_TIME --&gt;</span>
+</pre></div>
+</div>
+
+<p><code>format: date</code> always maps to <code>java.time.LocalDate</code>.</p>
+
+<h3 id="per-property-overrides">Per-property overrides</h3>
+<p>
+  Three mechanisms override the global default for an individual property. Precedence, highest
+  first:
+</p>
+<ol>
+  <li>
+    <strong><code>x-java-type</code></strong> vendor extension — keeps the spec standard and
+    accepts any fully qualified class name:
+    <div class="syntax text"><div class="highlight"><pre><span></span>externalLastModified:
+  type: string
+  format: date-time
+  x-java-type: java.time.OffsetDateTime
+    
+</pre></div>
+</div>
+  </li>
+  <li>
+    <strong>Extended <code>format</code> values</strong> — concise shorthand for the common
+    <code>java.time</code> types:
+    <table style="width:100%;">
+      <tr>
+        <th><code>format:</code> value</th>
+        <th>Java type</th>
+      </tr>
+      <tr><td><code>instant</code></td><td><code>java.time.Instant</code></td></tr>
+      <tr><td><code>offset-date-time</code></td><td><code>java.time.OffsetDateTime</code></td></tr>
+      <tr><td><code>local-date-time</code></td><td><code>java.time.LocalDateTime</code></td></tr>
+      <tr><td><code>zoned-date-time</code></td><td><code>java.time.ZonedDateTime</code></td></tr>
+    </table>
+  </li>
+  <li><strong>Global <code>dateTimeType</code></strong> — applied to plain <code>format: date-time</code>.</li>
+</ol>
+
+<h2 id="type-mappings">Global type mappings</h2>
+<p>
+  <code>typeMappings</code> overrides the Java type generated for a schema <code>format</code> or
+  <code>type</code>, without editing each schema. Keys are a schema <code>format</code> (e.g.
+  <code>uuid</code>, <code>date-time</code>, <code>binary</code>) or a bare <code>type</code> (e.g.
+  <code>string</code>); values are fully-qualified Java type names:
+</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;typeMappings&gt;</span>
+  <span class="nt">&lt;uuid&gt;</span>com.example.MyUuid<span class="nt">&lt;/uuid&gt;</span>
+  <span class="nt">&lt;date-time&gt;</span>java.time.Instant<span class="nt">&lt;/date-time&gt;</span>
+<span class="nt">&lt;/typeMappings&gt;</span>
+</pre></div>
+</div>
+
+<p>Precedence, highest first:</p>
+<ol>
+  <li>per-property <code>x-java-type</code> vendor extension</li>
+  <li><code>typeMappings</code> entry keyed by <code>format</code></li>
+  <li><code>typeMappings</code> entry keyed by <code>type</code></li>
+  <li>the built-in default type</li>
+</ol>
+
+<p>
+  So given the mappings above, <code>{ type: string, format: uuid }</code> becomes
+  <code>com.example.MyUuid</code>, and a plain <code>{ type: string }</code> keeps
+  <code>String</code> unless a <code>string</code> key is also configured. The import is derived
+  from the fully-qualified value (<code>java.lang</code> and unqualified names are emitted without
+  an import).
+</p>
+
+<h2 id="choosing">Choosing an override mechanism</h2>
+<ul>
+  <li><strong>One property, non-standard type</strong> → <code>x-java-type</code> on that property.</li>
+  <li><strong>One property, a <code>java.time</code> type</strong> → an extended <code>format</code> value (terser).</li>
+  <li><strong>Every property of a given <code>format</code>/<code>type</code></strong> → <code>typeMappings</code> (one global entry).</li>
+  <li><strong>Every <code>date-time</code> to a single type</strong> → <code>dateTimeType</code>.</li>
+</ul>
+
+<p><br><br><br><br></p>
+
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+  integrity="sha384-5AkRS45j4ukf+JbWAfHL8P4onPA9p0KwwP7pUdjSQA3ss9edbJUJc/XcYAiheSSz"
+  crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>

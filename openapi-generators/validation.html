@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Avaje</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Source+Sans+Pro|Ubuntu|Andika&display=swap">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.4/css/all.css"
+    integrity="sha384-EUDN3j9sKZiOEQw/t802+00Fzk16xfH6dAEEzoUWWWDrTFWO8qF1KdmiRQM6ir9m"
+    crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+</head>
+<body>
+
+<div class="container">
+  <aside id="sidenav">
+    <nav class="side scroll">
+<ul>
+  <li><a href="#overview">Overview</a>
+</li>
+<li><a href="#start">Getting started</a>
+    <ul>
+      <li><a href="#plugin-setup">Plugin setup</a></li>
+      <li><a href="#interface-path">Interface path (@Path)</a></li>
+      <li><a href="#java-versions">Java versions</a></li>
+      <li><a href="#scope">Current scope</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/contract-first">Contract-first client &amp; server</a>
+    <ul>
+      <li><a href="/openapi-generators/contract-first#shared-interface">The shared interface</a></li>
+      <li><a href="/openapi-generators/contract-first#client">Generating an HTTP client</a></li>
+      <li><a href="/openapi-generators/contract-first#server">Implementing the server</a></li>
+      <li><a href="/openapi-generators/contract-first#nullable">@Nullable and avaje-http 3.10+</a></li>
+      <li><a href="/openapi-generators/contract-first#api-only">API-only generation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/models">DTO Models</a>
+    <ul>
+      <li><a href="/openapi-generators/models#records">Record DTOs</a></li>
+      <li><a href="/openapi-generators/models#builders">Record builders</a></li>
+      <li><a href="/openapi-generators/models#read-write-only">readOnly / writeOnly</a></li>
+      <li><a href="/openapi-generators/models#composition">Composition &amp; inline schemas</a></li>
+      <li><a href="/openapi-generators/models#api-only">API-only generation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/parameters">Parameters</a>
+    <ul>
+      <li><a href="/openapi-generators/parameters#explicit-names">Explicit parameter names</a></li>
+      <li><a href="/openapi-generators/parameters#defaults">Parameter defaults</a></li>
+      <li><a href="/openapi-generators/parameters#nullable">Nullable parameters</a></li>
+      <li><a href="/openapi-generators/parameters#overloads">Overloads</a></li>
+      <li><a href="/openapi-generators/parameters#response-headers">Response header docs</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/type-mapping">Type Mapping</a>
+    <ul>
+      <li><a href="/openapi-generators/type-mapping#primitive-mapping">Primitive mapping</a></li>
+      <li><a href="/openapi-generators/type-mapping#date-time">Date and time types</a></li>
+      <li><a href="/openapi-generators/type-mapping#type-mappings">Global type mappings</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/validation">Validation</a>
+    <ul>
+      <li><a href="/openapi-generators/validation#style">Validation style</a></li>
+      <li><a href="/openapi-generators/validation#constraints">Supported constraints</a></li>
+      <li><a href="/openapi-generators/validation#nested">Nested validation</a></li>
+      <li><a href="/openapi-generators/validation#disabling">Disabling validation</a></li>
+    </ul>
+</li>
+<li><a href="/openapi-generators/configuration">Configuration Reference</a>
+</li>
+</ul>
+<p>&nbsp;</p>
+    </nav>
+  </aside>
+  <article id="main-content">
+    <header>
+      <nav id="top">
+        <div class="breadcrumb"><a href="/">avaje</a><span class="sep">&nbsp;/&nbsp;</span><a href="/openapi-generators">openapi-generators</a><span class="sep">&nbsp;/&nbsp;</span><span class="last">validation</span></div>
+        <ul>
+          <li><a href="/" title="home"><i class="fas fa-home"></i></a></li>
+          <li><a href="https://discord.gg/Qcqf9R27BR" title="discord server"><i class="fab fa-discord"></i></a></li>
+          <li><a href="https://github.com/avaje/avaje-openapi-generators" title="github source"><i class="fab fa-github"></i></a></li>
+          <li><a onclick="toggleTheme();" title="switch dark light theme"><i class="fas fa-adjust"></i></a></li>
+        </ul>
+      </nav>
+    </header>
+    
+
+<h1 id="overview">Validation</h1>
+
+<p>
+  Validation annotations are emitted on generated record components and method parameters by
+  default. Disable them with <code>generateValidationAnnotations=false</code>.
+</p>
+
+<h2 id="style">Validation style</h2>
+<p>The default style is Jakarta Bean Validation:</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;validationStyle&gt;</span>JAKARTA<span class="nt">&lt;/validationStyle&gt;</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">jakarta.validation.constraints.NotNull</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">jakarta.validation.constraints.Size</span><span class="o">;</span>
+</pre></div>
+</div>
+
+<p>To use Avaje Validator constraint annotations instead:</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;validationStyle&gt;</span>AVAJE<span class="nt">&lt;/validationStyle&gt;</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io.avaje.validation.constraints.NotNull</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.avaje.validation.constraints.Size</span><span class="o">;</span>
+</pre></div>
+</div>
+
+<p>Add the Avaje Validator constraints dependency to the consuming project:</p>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>io.avaje<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>avaje-validator-constraints<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>&#36;{avaje.validator.version}<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+
+<h2 id="constraints">Supported constraints</h2>
+<p>Schema keywords map to constraint annotations on the generated record components:</p>
+<table style="width:100%;">
+  <tr>
+    <th>Schema keyword</th>
+    <th>Annotation</th>
+  </tr>
+  <tr><td><code>required</code></td><td><code>@NotNull</code></td></tr>
+  <tr><td><code>minLength</code> / <code>maxLength</code></td><td><code>@Size(min, max)</code></td></tr>
+  <tr><td><code>minItems</code> / <code>maxItems</code> (arrays)</td><td><code>@Size(min, max)</code></td></tr>
+  <tr><td><code>minimum</code> / <code>maximum</code> (whole, inclusive)</td><td><code>@Min</code> / <code>@Max</code></td></tr>
+  <tr><td><code>minimum</code> / <code>maximum</code> (decimal)</td><td><code>@DecimalMin</code> / <code>@DecimalMax</code></td></tr>
+  <tr><td><code>exclusiveMinimum</code> / <code>exclusiveMaximum</code></td><td><code>@DecimalMin</code> / <code>@DecimalMax</code> with <code>inclusive = false</code></td></tr>
+  <tr><td><code>pattern</code></td><td><code>@Pattern(regexp = ...)</code></td></tr>
+  <tr><td><code>format: email</code></td><td><code>@Email</code></td></tr>
+  <tr><td>object / array-of / map-of a generated model</td><td><code>@Valid</code></td></tr>
+</table>
+
+<p>
+  Both OpenAPI 3.0 (<code>exclusiveMinimum: true</code>) and 3.1
+  (<code>exclusiveMinimum: &lt;number&gt;</code>) exclusive-bound forms are honoured.
+  <code>multipleOf</code> has no Bean Validation equivalent and is not mapped.
+</p>
+<p>
+  <code>@NotNull</code> is <strong>not</strong> emitted for a component that is generated as a
+  primitive (a <code>required</code>, non-nullable scalar — see
+  <a href="/openapi-generators/type-mapping#primitive-mapping">Primitive mapping</a>), since a
+  primitive is intrinsically non-null. A field that is both <code>required</code> and
+  <code>nullable: true</code> is annotated <code>@Nullable</code> (not <code>@NotNull</code>).
+</p>
+
+<h2 id="nested">Nested validation</h2>
+<p>
+  Record components whose type is a generated model — directly, or as the element of a
+  <code>List</code>/<code>Map</code> — are annotated <code>@Valid</code> so Bean Validation
+  cascades into them:
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="n">record</span> <span class="nf">Order</span><span class="o">(</span>
+  <span class="nd">@NotNull</span> <span class="nd">@Valid</span> <span class="nx">Customer</span> <span class="nx">customer</span><span class="o">,</span>
+  <span class="nd">@Valid</span> <span class="nx">List</span><span class="o">&lt;</span><span class="nx">Item</span><span class="o">&gt;</span> <span class="nx">items</span><span class="o">,</span>
+  <span class="nd">@Valid</span> <span class="nx">Map</span><span class="o">&lt;</span><span class="nx">String</span><span class="o">,</span><span class="nx">Item</span><span class="o">&gt;</span> <span class="nx">attachments</span><span class="o">,</span>
+  <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">labels</span><span class="o">,</span>
+  <span class="n">OrderStatus</span> <span class="n">status</span>
+<span class="o">)</span> <span class="o">{}</span>
+</pre></div>
+</div>
+<p>
+  References to enums and scalar types are not cascaded. Jakarta places <code>@Valid</code> in the
+  root <code>jakarta.validation</code> package; the Avaje style uses
+  <code>io.avaje.validation.constraints.Valid</code>.
+</p>
+
+<h2 id="disabling">Disabling validation</h2>
+<div class="syntax xml"><div class="highlight"><pre><span></span><span class="nt">&lt;generateValidationAnnotations&gt;</span>false<span class="nt">&lt;/generateValidationAnnotations&gt;</span>
+</pre></div>
+</div>
+<p>
+  Use this when the generated DTOs must match hand-written records that do not carry validation
+  annotations, or when validation is enforced elsewhere. See
+  <a href="/openapi-generators/models">DTO Models</a>.
+</p>
+
+<p><br><br><br><br></p>
+
+
+  </article>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
+  integrity="sha384-5AkRS45j4ukf+JbWAfHL8P4onPA9p0KwwP7pUdjSQA3ss9edbJUJc/XcYAiheSSz"
+  crossorigin="anonymous"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>
