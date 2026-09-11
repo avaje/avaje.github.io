@@ -194,7 +194,7 @@
       <li><a href="#timeout">@RequestTimeout</a></li>
       <li><a href="#header">@Header</a></li>
       <li><a href="#queryParam">@QueryParam</a></li>
-      <li><a href="#bodystring">@BodyString</a></li>
+      <li><a href="#body">@Body</a></li>
       <li><a href="#beanParam">@BeanParam</a></li>
       <li><a href="#form">@Form</a></li>
       <li><a href="#formParam">@FormParam</a></li>
@@ -1371,6 +1371,11 @@
 <span class="o">}</span>
 </pre></div>
 </div>
+<p>
+  Methods can be annotated with <code>@Get</code>, <code>@Post</code>, <code>@Put</code>, <code>@Delete</code>,
+  <code>@Patch</code> or <code>@Query</code> (for the HTTP <code>QUERY</code> method), and the generated
+  implementation calls the matching <code>HttpClientRequest</code> method, such as <code>.QUERY()</code>.
+</p>
 
 <h3 id="at-client-import">@Client.Import</h3>
 <p>
@@ -1871,11 +1876,14 @@
 </pre></div>
 </div>
 
-<h3 id="bodystring">@BodyString</h3>
-  We can specify that a string parameter is a body using <code>@BodyString</code>.
+<h3 id="body">@Body</h3>
+<p>
+  We can specify that a scalar parameter, such as <code>String</code> or a collection like <code>List&lt;Long&gt;</code>,
+  is a body using <code>@Body</code>. Without it, such a parameter would otherwise be inferred as a query
+  (or form) parameter.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;/stringbody&quot;</span><span class="o">)</span>
-<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">addCats</span><span class="o">(</span><span class="nd">@BodyString</span> <span class="nx">String</span> <span class="nx">body</span><span class="o">);</span>
+<span class="nx">List</span><span class="o">&lt;</span><span class="nx">Cat</span><span class="o">&gt;</span> <span class="nf">addCats</span><span class="o">(</span><span class="nd">@Body</span> <span class="nx">String</span> <span class="nx">body</span><span class="o">);</span>
 </pre></div>
 </div>
 <p>The generated code will be:</p>

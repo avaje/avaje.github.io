@@ -1007,7 +1007,7 @@ curl http://localhost:8080/json
   Annotate controllers with <code>@Controller</code>.
   You can provide a path segment that is prepended
   to any path segments defined by on methods using <code>@Get</code>,
-  <code>@Post</code>, <code>@Put</code> etc. There are three ways to prepend a path.
+  <code>@Post</code>, <code>@Put</code>, <code>@Query</code> etc. There are three ways to prepend a path.
 </p>
 
 <h4>1. Directly put the path in the controller annotation.</h4>
@@ -1042,7 +1042,7 @@ curl http://localhost:8080/json
 
 <p>
  Web Methods on a controller are annotated with HTTP annotations like <code>@Get</code>,
-  <code>@Post</code>, <code>@Put</code>, <code>@Delete</code>.
+  <code>@Post</code>, <code>@Put</code>, <code>@Delete</code>, <code>@Patch</code>, <code>@Query</code>.
 </p>
 
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Controller</span><span class="o">(</span><span class="s">&quot;/contacts&quot;</span><span class="o">)</span>
@@ -1085,6 +1085,18 @@ curl http://localhost:8080/json
     on Helidon ServerRequest or ServerResponse then they automatically
     become <a href="#request-scoped">request scoped</a>.
   </p>
+
+<h3 id="query">@Query</h3>
+<p>
+  <code>@Query</code> marks a method that handles the HTTP <code>QUERY</code> method. This is a separate
+  thing from <code>@QueryParam</code>, which marks a query string parameter.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Query</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Customer</span><span class="o">&gt;</span> <span class="nf">search</span><span class="o">(</span><span class="n">SearchCriteria</span> <span class="n">criteria</span><span class="o">)</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 <h2 id="path">@Path</h2><hr/>
 <p>
   <code>@Path</code> is put on the controller class. The path is prepended to the paths
@@ -1422,7 +1434,7 @@ GET /products/chair/commercial;style=classical
 </div>
 <h2 id="post">Request Body</h2><hr/>
 <p>
-  Avaje auto detects that a parameter is a request body if the type is a <code>POJO</code>/<code>byte[]</code>/<code>InputStream</code> and not marked with a <code>@BeanParam</code> annotation. To mark a string parameter as a body, use the <code>@BodyString</code> annotation.
+  Avaje auto detects that a parameter is a request body if the type is a <code>POJO</code>/<code>byte[]</code>/<code>InputStream</code> and not marked with a <code>@BeanParam</code> annotation.
 </p>
 <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span>
 <span class="kt">void</span> <span class="nf">save</span><span class="o">(</span><span class="n">Customer</span> <span class="n">customer</span><span class="o">)</span> <span class="o">{</span>
@@ -1431,6 +1443,18 @@ GET /products/chair/commercial;style=classical
 </pre></div>
 </div>
 
+<h3 id="body">@Body</h3>
+<p>
+  A scalar type or a collection of a scalar type, such as <code>String</code> or <code>List&ltLong&gt</code>, is otherwise inferred as a query
+  parameter (or a form parameter on a method marked <code>@Form</code>). Put <code>@Body</code> on the parameter
+  to force it to instead be read from the request body.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;/products/filter&quot;</span><span class="o">)</span>
+<span class="nx">String</span> <span class="nf">filter</span><span class="o">(</span><span class="nd">@Body</span> <span class="nx">List</span><span class="o">&lt;</span><span class="nx">String</span><span class="o">&gt;</span> <span class="nx">codes</span><span class="o">)</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 
 <h2 id="form">@Form</h2><hr/>
 <p>
