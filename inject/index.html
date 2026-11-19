@@ -1046,6 +1046,44 @@ The inject annotation processor will determine the dependency wiring order of a 
 </pre></div>
 </div>
 
+<p>
+  When placed on a constructor or <code>@Bean</code> method, <code>@External</code> applies to all of its parameters.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Factory</span>
+<span class="kd">class</span> <span class="nc">MyFactory</span> <span class="o">{</span>
+
+  <span class="nd">@Bean</span>
+  <span class="nd">@External</span>
+  <span class="n">Pump</span> <span class="nf">pump</span><span class="o">(</span><span class="n">Heater</span> <span class="n">heater</span><span class="o">,</span> <span class="n">ExternalWidget</span> <span class="n">widget</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Pump</span><span class="o">(</span><span class="n">heater</span><span class="o">,</span> <span class="n">widget</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
+<p>
+  <code>@External</code> can also be used as a meta-annotation. An annotation that is annotated with
+  <code>@External</code> has the same effect, which is useful to combine it with conditions like <code>@RequiresBean</code>.
+</p>
+
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@External</span>
+<span class="nd">@RequiresBean</span><span class="o">(</span><span class="nx">ExternalWidget</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="nd">@Target</span><span class="o">(</span><span class="nx">ElementType</span><span class="o">.</span><span class="na">METHOD</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="nx">RequiresExternalWidget</span> <span class="o">{}</span>
+
+<span class="nd">@Factory</span>
+<span class="kd">class</span> <span class="nc">MyFactory</span> <span class="o">{</span>
+
+  <span class="nd">@Bean</span>
+  <span class="nd">@RequiresExternalWidget</span>
+  <span class="n">Pump</span> <span class="nf">pump</span><span class="o">(</span><span class="n">ExternalWidget</span> <span class="n">widget</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">Pump</span><span class="o">(</span><span class="n">widget</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+
 <h3 id="list">List</h3>
 <p>
   We can inject a <code>java.util.List&lt;T&gt;</code> of beans that implement an interface.

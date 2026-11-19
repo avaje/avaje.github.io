@@ -1540,6 +1540,47 @@ GET /products/chair/commercial;style=classical
   on every property that is a form parameter which becomes a lot of annotation noise on a large form.
 </p>
 
+<h3 id="form-prefix">@FormPrefix</h3>
+<p>
+  Use <code>@FormPrefix</code> on a field of a form bean to populate a nested bean from prefixed
+  form parameters. For example, <code>@FormPrefix("invoice") Address invoice</code> populates
+  the <code>Address</code> from the form parameters <code>invoice.street</code>, <code>invoice.city</code> and so on.
+</p>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">PersonForm</span> <span class="o">{</span>
+
+  <span class="nd">@FormParam</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+
+  <span class="nd">@FormPrefix</span><span class="o">(</span><span class="s">&quot;invoice&quot;</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">Address</span> <span class="n">invoice</span><span class="o">;</span>
+
+  <span class="nd">@FormPrefix</span><span class="o">(</span><span class="s">&quot;shipping&quot;</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">Address</span> <span class="n">shipping</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Address</span> <span class="o">{</span>
+
+  <span class="nd">@FormParam</span><span class="o">(</span><span class="s">&quot;street&quot;</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">street</span><span class="o">;</span>
+
+  <span class="nd">@FormParam</span><span class="o">(</span><span class="s">&quot;city&quot;</span><span class="o">)</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">city</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="syntax java"><div class="highlight"><pre><span></span><span class="c1">// form params: name=bill&amp;invoice.street=xxx&amp;invoice.city=yyy&amp;shipping.street=zzz</span>
+<span class="nd">@Form</span>
+<span class="nd">@Post</span><span class="o">(</span><span class="s">&quot;register&quot;</span><span class="o">)</span>
+<span class="kt">void</span> <span class="nf">register</span><span class="o">(</span><span class="n">PersonForm</span> <span class="n">form</span><span class="o">)</span> <span class="o">{</span>
+  <span class="o">...</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>
+  The nested bean must have a no-arg constructor. Prefixes compose, so a nested bean can itself
+  contain <code>@FormPrefix</code> fields.
+</p>
+
 <h3 id="kotlin-data">Kotlin data class</h3>
 <p>
   Kotlin data classes are a natural fit for form beans.
