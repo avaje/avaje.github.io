@@ -29,7 +29,7 @@
     "applicationCategory": "GraphicalUserInterface",
     "programLanguage": "Java",
     "minimumJavaVersion": "25",
-    "latestVersion": "0.29",
+    "latestVersion": "0.31",
     "useCases": [
       "Cross-platform desktop GUIs",
       "Lightweight alternative to Electron/JavaFX",
@@ -64,6 +64,42 @@
         "description": "Borderless, transparent, fixed/min/max size, fullscreen, dark appearance, custom icon",
         "sinceVersion": "0.1",
         "status": "stable"
+      },
+      {
+        "name": "Window state control",
+        "description": "minimize/restore/unmaximize/exitFullscreen/focus/hide/show the window, query isMaximized/isMinimized/isFullscreen/getSize, showOnFirstLoad(false) to start hidden",
+        "sinceVersion": "0.30",
+        "status": "stable"
+      },
+      {
+        "name": "Window events",
+        "description": "onResize, onFocusChanged, onPageLoaded and onCloseRequested listeners",
+        "sinceVersion": "0.30",
+        "status": "stable"
+      },
+      {
+        "name": "JavaScript evaluation with results",
+        "description": "evalResult() returns a CompletableFuture with the JSON result of a JavaScript expression, awaiting Promises",
+        "sinceVersion": "0.30",
+        "status": "stable"
+      },
+      {
+        "name": "Navigation hooks",
+        "description": "onNavigate to allow/block navigations, onNewWindow for target=_blank/window.open, Webview.openExternal to open URLs in the default browser",
+        "sinceVersion": "0.31",
+        "status": "stable"
+      },
+      {
+        "name": "User agent and page URL",
+        "description": "userAgent()/setUserAgent() to set the User-Agent header, getPageUrl() to read the current page URL",
+        "sinceVersion": "0.31",
+        "status": "stable"
+      },
+      {
+        "name": "Content protection",
+        "description": "contentProtection()/setContentProtection() hide window contents from screenshots, recordings and screen shares (Windows and macOS)",
+        "sinceVersion": "0.31",
+        "status": "stable"
       }
     ],
     "commonTasks": [
@@ -83,6 +119,24 @@
         "title": "Build a borderless/transparent window",
         "description": "Combine borderless(true) and transparent(true) for a custom-chrome UI",
         "guideUrl": "https://avaje.io/webview/#borderless",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Read a value from the page",
+        "description": "Use webview.evalResult(expression) and handle the JSON result with thenAccept",
+        "guideUrl": "https://avaje.io/webview/#eval-result",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Open external links in the browser",
+        "description": "Use onNavigate to allow only app URLs and Webview.openExternal for the rest",
+        "guideUrl": "https://avaje.io/webview/#navigation",
+        "difficulty": "intermediate"
+      },
+      {
+        "title": "Confirm before closing",
+        "description": "Use onCloseRequested returning false to keep the window open, then close() once confirmed",
+        "guideUrl": "https://avaje.io/webview/#window-events",
         "difficulty": "intermediate"
       }
     ]
@@ -104,15 +158,27 @@
 <li><a href="#options">Options</a>
     <ul>
       <li><a href="#window-properties">Window Properties</a></li>
+      <li><a href="#window-state">Window State</a></li>
+      <li><a href="#hide-show">Hiding and Showing</a></li>
       <li><a href="#borderless">Borderless Windows</a></li>
       <li><a href="#transparent">Transparent Windows</a></li>
       <li><a href="#child-windows">Child Windows</a></li>
       <li><a href="#window-icon">Set Window Icon</a></li>
+      <li><a href="#content-protection">Content Protection</a></li>
+      <li><a href="#user-agent">User Agent</a></li>
+    </ul>
+</li>
+<li><a href="#events">Events and Navigation</a>
+    <ul>
+      <li><a href="#window-events">Window Events</a></li>
+      <li><a href="#navigation">Navigation Hooks</a></li>
+      <li><a href="#new-window">New Window Requests</a></li>
     </ul>
 </li>
 <li><a href="#bridge">Java-JavaScript Bridge</a>
     <ul>
       <li><a href="#eval">Executing JavaScript from Java</a></li>
+      <li><a href="#eval-result">Reading values back from JavaScript</a></li>
       <li><a href="#bind">Calling Java from JavaScript</a></li>
       <li><a href="#complex-data">Complex Data Exchange</a></li>
     </ul>
@@ -122,7 +188,6 @@
 <li><a href="#console">Console output</a>
 </li>
 </ul>
-<p>&nbsp;</p>
     </nav>
   </aside>
   <article id="main-content">
@@ -191,6 +256,11 @@
     </tr>
   </table>
 
+  <p>Linux install example (Debian/Ubuntu):</p>
+  <div class="syntax sh"><div class="highlight"><pre><span></span>sudo apt-get install libgtk-4-1 libwebkitgtk-6.0-4 libjavascriptcoregtk-6.0-1
+</pre></div>
+</div>
+
   <h2 id="quick-start">Quick Start</h2><hr/>
 
   <h4>1. Add <em>avaje-webview</em> dependency.</h4>
@@ -252,17 +322,64 @@
 <span class="n">webview</span><span class="o">.</span><span class="na">setMinSize</span><span class="o">(</span><span class="mi">600</span><span class="o">,</span> <span class="mi">400</span><span class="o">);</span>
 <span class="n">webview</span><span class="o">.</span><span class="na">setMaxSize</span><span class="o">(</span><span class="mi">1920</span><span class="o">,</span> <span class="mi">1080</span><span class="o">);</span>
 
-<span class="c1">// Or lock to a fixed size</span>
+<span class="c1">// Resize, or lock to a fixed size</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">setSize</span><span class="o">(</span><span class="mi">1024</span><span class="o">,</span> <span class="mi">768</span><span class="o">);</span>
 <span class="n">webview</span><span class="o">.</span><span class="na">setFixedSize</span><span class="o">(</span><span class="mi">800</span><span class="o">,</span> <span class="mi">600</span><span class="o">);</span>
-
-<span class="c1">// Maximize or fullscreen</span>
-<span class="n">webview</span><span class="o">.</span><span class="na">maximizeWindow</span><span class="o">();</span>
-<span class="n">webview</span><span class="o">.</span><span class="na">fullscreen</span><span class="o">();</span>
 
 <span class="c1">// Dark mode</span>
 <span class="n">webview</span><span class="o">.</span><span class="na">setDarkAppearance</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
 </pre></div>
 </div>
+
+  <h3 id="window-state">Window State</h3>
+  <p>Control and query the window state at runtime. The state-changing methods return the
+    <code>Webview</code> so they can be chained.</p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">webview</span><span class="o">.</span><span class="na">maximizeWindow</span><span class="o">();</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">unmaximizeWindow</span><span class="o">();</span>  <span class="c1">// Back to the prior size and position</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">minimizeWindow</span><span class="o">();</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">restoreWindow</span><span class="o">();</span>     <span class="c1">// Restore after minimize</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">fullscreen</span><span class="o">();</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">exitFullscreen</span><span class="o">();</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">focusWindow</span><span class="o">();</span>       <span class="c1">// Bring to front, restoring first if minimized</span>
+
+<span class="kt">boolean</span> <span class="n">maximized</span> <span class="o">=</span> <span class="n">webview</span><span class="o">.</span><span class="na">isMaximized</span><span class="o">();</span>
+<span class="kt">boolean</span> <span class="n">minimized</span> <span class="o">=</span> <span class="n">webview</span><span class="o">.</span><span class="na">isMinimized</span><span class="o">();</span>
+<span class="kt">boolean</span> <span class="n">fullscreen</span> <span class="o">=</span> <span class="n">webview</span><span class="o">.</span><span class="na">isFullscreen</span><span class="o">();</span>
+<span class="n">WindowSize</span> <span class="n">size</span> <span class="o">=</span> <span class="n">webview</span><span class="o">.</span><span class="na">getSize</span><span class="o">();</span> <span class="c1">// Content area size in logical pixels</span>
+</pre></div>
+</div>
+
+  <ul>
+    <li><code>focusWindow()</code>: operating systems don't let applications steal focus freely.
+      If another application is in use, the window may only flash in the taskbar or bounce in the dock.</li>
+    <li><code>isMinimized()</code> may always return <code>false</code> on Linux, because many
+      Wayland compositors don't tell applications when they are minimized.</li>
+    <li><code>WindowSize</code> excludes the title bar and borders, except on Linux when GTK draws
+      the title bar itself.</li>
+  </ul>
+
+  <h3 id="hide-show">Hiding and Showing</h3>
+  <p>
+    By default the window shows itself once the first page has loaded, which avoids a flash of
+    blank content. Pass <code>showOnFirstLoad(false)</code> to keep it hidden until you call
+    <code>showWindow()</code>, for example to finish some setup first:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Webview</span> <span class="n">webview</span> <span class="o">=</span> <span class="n">Webview</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">showOnFirstLoad</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">navigate</span><span class="o">(</span><span class="s">&quot;http://localhost:8080&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="n">webview</span><span class="o">.</span><span class="na">onPageLoaded</span><span class="o">(</span><span class="n">_</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">webview</span><span class="o">.</span><span class="na">eval</span><span class="o">(</span><span class="s">&quot;initApp()&quot;</span><span class="o">);</span>
+    <span class="n">webview</span><span class="o">.</span><span class="na">showWindow</span><span class="o">();</span>
+<span class="o">});</span>
+
+<span class="n">webview</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+</pre></div>
+</div>
+
+  <p><code>hideWindow()</code> hides the window without closing it. The page keeps running,
+    and <code>showWindow()</code> brings it back.</p>
 
   <h3 id="borderless">Borderless Windows</h3>
   <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Webview</span> <span class="n">webview</span> <span class="o">=</span> <span class="n">Webview</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
@@ -286,7 +403,7 @@
   <ul>
     <li><strong>Windows</strong>: only the title bar area is removed; left/right/bottom borders and the DWM shadow remain.</li>
     <li><strong>macOS</strong>: uses a transparent, hidden title bar so the window shadow/border are retained.</li>
-    <li><strong>Linux</strong>: the outline flag has no effect.</li>
+    <li><strong>Linux</strong>: the title bar is replaced with an empty one, so the window stays decorated and keeps its GTK border and shadow.</li>
   </ul>
 
   <h3 id="transparent">Transparent Windows</h3>
@@ -344,6 +461,100 @@
     a no-op on Linux.
   </p>
 
+  <h3 id="content-protection">Content Protection</h3>
+  <p>Hide the window's contents from screen capture, so screenshots, recordings, and screen
+    shares see a blank area instead:</p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Webview</span> <span class="n">webview</span> <span class="o">=</span> <span class="n">Webview</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">contentProtection</span><span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="c1">// Hidden from capture from the moment it opens</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="c1">// Toggle at runtime</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">setContentProtection</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+</pre></div>
+</div>
+  <p>Supported on Windows and macOS. Does nothing on Linux.</p>
+
+  <h3 id="user-agent">User Agent</h3>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">Webview</span> <span class="n">webview</span> <span class="o">=</span> <span class="n">Webview</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">userAgent</span><span class="o">(</span><span class="s">&quot;MyApp/1.0&quot;</span><span class="o">)</span> <span class="c1">// Defaults to the platform engine&#39;s user agent</span>
+    <span class="o">.</span><span class="na">navigate</span><span class="o">(</span><span class="s">&quot;https://example.com&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+<span class="c1">// Change later, applies from the next page load</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">setUserAgent</span><span class="o">(</span><span class="s">&quot;MyApp/1.1&quot;</span><span class="o">);</span>
+</pre></div>
+</div>
+
+  <h2 id="events">Events and Navigation</h2><hr/>
+
+  <h3 id="window-events">Window Events</h3>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">webview</span><span class="o">.</span><span class="na">onResize</span><span class="o">(</span><span class="n">size</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;now &quot;</span> <span class="o">+</span> <span class="n">size</span><span class="o">.</span><span class="na">width</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;x&quot;</span> <span class="o">+</span> <span class="n">size</span><span class="o">.</span><span class="na">height</span><span class="o">()));</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">onFocusChanged</span><span class="o">(</span><span class="n">focused</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">focused</span> <span class="o">?</span> <span class="s">&quot;focused&quot;</span> <span class="o">:</span> <span class="s">&quot;unfocused&quot;</span><span class="o">));</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">onPageLoaded</span><span class="o">(</span><span class="n">url</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;loaded &quot;</span> <span class="o">+</span> <span class="n">url</span><span class="o">));</span>
+</pre></div>
+</div>
+
+  <p>
+    <code>onPageLoaded</code> fires every time a page finishes loading, whether from
+    <code>navigate</code>, <code>setHTML</code>, or the user following a link. Read the current
+    URL at any time with <code>getPageUrl()</code> (content from <code>setHTML</code> reports
+    <code>about:blank</code>).
+  </p>
+
+  <p>
+    <code>onCloseRequested</code> lets you stop the user from closing the window, for example to
+    ask about unsaved changes first. Calling <code>close()</code> yourself always works, so you
+    can close for real once they confirm:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">webview</span><span class="o">.</span><span class="na">onCloseRequested</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="k">if</span> <span class="o">(!</span><span class="n">hasUnsavedChanges</span><span class="o">())</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="n">webview</span><span class="o">.</span><span class="na">eval</span><span class="o">(</span><span class="s">&quot;askToClose()&quot;</span><span class="o">);</span> <span class="c1">// the page asks, then calls a binding that runs webview.close()</span>
+  <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">});</span>
+</pre></div>
+</div>
+
+  <h3 id="navigation">Navigation Hooks</h3>
+  <p>
+    <code>onNavigate</code> runs before the page goes somewhere else (a link click, a script
+    changing <code>location</code>, a form submission, a redirect, etc.). Return
+    <code>false</code> to stay put. A common use is keeping your app's own pages in the window
+    and sending everything else to the user's browser:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">webview</span><span class="o">.</span><span class="na">onNavigate</span><span class="o">(</span><span class="n">url</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">url</span><span class="o">.</span><span class="na">startsWith</span><span class="o">(</span><span class="s">&quot;https://myapp.example/&quot;</span><span class="o">))</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="n">Webview</span><span class="o">.</span><span class="na">openExternal</span><span class="o">(</span><span class="n">URI</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="n">url</span><span class="o">));</span>
+  <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+<span class="o">});</span>
+</pre></div>
+</div>
+
+  <p>
+    The check runs on the UI thread, so keep it quick. Iframes are checked too, so an allowlist
+    needs to include anything the page embeds. Navigations started in Java with
+    <code>navigate</code> or <code>setHTML</code> are not checked.
+  </p>
+
+  <p>
+    <code>Webview.openExternal(uri)</code> opens an <code>http</code>/<code>https</code> URI in the
+    default browser, or a <code>mailto:</code> URI in the mail client.
+  </p>
+
+  <h3 id="new-window">New Window Requests</h3>
+  <p>
+    The webview never opens popup windows itself. By default, <code>target="_blank"</code> links
+    and <code>window.open</code> open in the default browser or mail client. Adding an
+    <code>onNewWindow</code> listener replaces that default, so you can open the URL in another
+    <code>Webview</code>, in this one, or not at all:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">webview</span><span class="o">.</span><span class="na">onNewWindow</span><span class="o">(</span><span class="n">url</span> <span class="o">-&gt;</span> <span class="n">webview</span><span class="o">.</span><span class="na">navigate</span><span class="o">(</span><span class="n">url</span><span class="o">));</span> <span class="c1">// open in this window instead</span>
+</pre></div>
+</div>
+
   <h2 id="bridge">Java-JavaScript Bridge</h2><hr/>
 
   <h3 id="eval">Executing JavaScript from Java</h3>
@@ -351,12 +562,53 @@
     <span class="o">.</span><span class="na">html</span><span class="o">(</span><span class="s">&quot;&lt;html&gt;&lt;body&gt;&lt;h1 id=&#39;title&#39;&gt;Original&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;&quot;</span><span class="o">)</span>
     <span class="o">.</span><span class="na">build</span><span class="o">();</span>
 
-<span class="c1">// Execute JavaScript in the webview</span>
-<span class="n">webview</span><span class="o">.</span><span class="na">eval</span><span class="o">(</span><span class="s">&quot;document.getElementById(&#39;title&#39;).textContent = &#39;Updated!&#39;;&quot;</span><span class="o">);</span>
+<span class="c1">// Execute JavaScript in the webview once the page has loaded</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">onPageLoaded</span><span class="o">(</span><span class="n">_</span> <span class="o">-&gt;</span> <span class="n">webview</span><span class="o">.</span><span class="na">eval</span><span class="o">(</span><span class="s">&quot;document.getElementById(&#39;title&#39;).textContent = &#39;Updated!&#39;;&quot;</span><span class="o">));</span>
 
 <span class="n">webview</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
 </pre></div>
 </div>
+
+  <p>
+    To run a script on every page load, register it with <code>setInitScript(script)</code>.
+    Use <code>setInitScript(script, true)</code> to inject it into nested iframes as well.
+  </p>
+
+  <h3 id="eval-result">Reading values back from JavaScript</h3>
+  <p>
+    <code>eval</code> doesn't give you anything back. When you need a value from the page, use
+    <code>evalResult</code>, which returns a <code>CompletableFuture</code> holding the result
+    as JSON:
+  </p>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">webview</span><span class="o">.</span><span class="na">evalResult</span><span class="o">(</span><span class="s">&quot;document.getElementById(&#39;name&#39;).value&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">thenAccept</span><span class="o">(</span><span class="n">json</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">json</span><span class="o">));</span> <span class="c1">// &quot;\&quot;Ada\&quot;&quot;</span>
+
+<span class="c1">// await works too, and returned Promises are waited on</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">evalResult</span><span class="o">(</span><span class="s">&quot;await fetch(&#39;/status&#39;).then(r =&gt; r.json())&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">thenAccept</span><span class="o">(</span><span class="n">json</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">json</span><span class="o">));</span>
+
+<span class="c1">// JavaScript errors fail the future with a JavaScriptException</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">evalResult</span><span class="o">(</span><span class="s">&quot;missingFunction()&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">exceptionally</span><span class="o">(</span><span class="n">e</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na field">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span> <span class="c1">// ReferenceError: ...</span>
+        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="o">});</span>
+</pre></div>
+</div>
+
+  <p>
+    The expression must be a single JavaScript expression; wrap several statements in an IIFE.
+    <code>undefined</code> comes back as <code>"null"</code>. The future fails with
+    <code>JavaScriptException</code> when the script has a syntax error, throws, rejects, or
+    returns something that can't be turned into JSON.
+  </p>
+
+  <p>
+    The future completes on the UI thread. From a background thread you can block on it with
+    <code>get()</code> or <code>join()</code>. On the UI thread, such as inside a binding,
+    blocking would freeze the window forever, so those calls throw
+    <code>IllegalStateException</code>. Use <code>thenAccept</code> and friends there.
+  </p>
 
   <h3 id="bind">Calling Java from JavaScript</h3>
   <p>Bind Java functions as async <code>window</code> globals that return Promises:</p>
@@ -394,11 +646,16 @@
 
   <p>
     Binding callbacks receive arguments as a JSON array string and must return a valid JSON
-    string. The JavaScript side receives the return value as the resolved Promise value.
+    string. The JavaScript side receives the return value as the resolved Promise value. Bindings
+    persist across page navigations; remove one with <code>unbind(name)</code>. The examples below
+    use <a href="/jsonb">avaje-jsonb</a>, but any JSON library works.
   </p>
 
   <h3 id="complex-data">Complex Data Exchange</h3>
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="n">record</span> <span class="nf">User</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{}</span>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="nd">@Json</span>
+<span class="n">record</span> <span class="nf">User</span><span class="o">(</span><span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{}</span>
+
+<span class="nd">@Json</span>
 <span class="n">record</span> <span class="nf">UserRequest</span><span class="o">(</span><span class="n">String</span> <span class="n">action</span><span class="o">,</span> <span class="n">String</span> <span class="n">userId</span><span class="o">)</span> <span class="o">{}</span>
 
 <span class="n">Webview</span> <span class="n">webview</span> <span class="o">=</span> <span class="n">Webview</span><span class="o">.</span><span class="na">builder</span><span class="o">()</span>
@@ -418,7 +675,7 @@
     <span class="k">return</span> <span class="n">Jsonb</span><span class="o">.</span><span class="na">instance</span><span class="o">().</span><span class="na">toJson</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
 <span class="o">});</span>
 
-<span class="n">webview</span><span class="o">.</span><span class="na">eval</span><span class="o">(</span><span class="s">&quot;getUser();&quot;</span><span class="o">);</span>
+<span class="n">webview</span><span class="o">.</span><span class="na">onPageLoaded</span><span class="o">(</span><span class="n">_</span> <span class="o">-&gt;</span> <span class="n">webview</span><span class="o">.</span><span class="na">eval</span><span class="o">(</span><span class="s">&quot;getUser();&quot;</span><span class="o">));</span>
 <span class="n">webview</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
 </pre></div>
 </div>
@@ -429,11 +686,10 @@
     Multiple windows are supported on all platforms. Additional windows can be created from any
     thread once the first window's event loop is running.
   </p>
-  <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">try</span> <span class="o">(</span><span class="k">var</span> <span class="n">w1</span> <span class="o">=</span> <span class="n">Webview</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="kc">false</span><span class="o">))</span> <span class="o">{</span>
+  <div class="syntax java"><div class="highlight"><pre><span></span><span class="k">try</span> <span class="o">(</span><span class="k">var</span> <span class="n">w1</span> <span class="o">=</span> <span class="n">Webview</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
     <span class="n">w1</span><span class="o">.</span><span class="na">bind</span><span class="o">(</span><span class="s">&quot;openSecond&quot;</span><span class="o">,</span> <span class="n">_</span> <span class="o">-&gt;</span> <span class="o">{</span>
         <span class="n">Thread</span><span class="o">.</span><span class="na">ofPlatform</span><span class="o">().</span><span class="na">start</span><span class="o">(()</span> <span class="o">-&gt;</span> <span class="o">{</span>
-            <span class="k">try</span> <span class="o">(</span><span class="k">var</span> <span class="n">w2</span> <span class="o">=</span> <span class="n">Webview</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="kc">false</span><span class="o">))</span> <span class="o">{</span>
-                <span class="n">w2</span><span class="o">.</span><span class="na">setHTML</span><span class="o">(</span><span class="s">&quot;&lt;h1&gt;Window 2&lt;/h1&gt;&quot;</span><span class="o">);</span>
+            <span class="k">try</span> <span class="o">(</span><span class="k">var</span> <span class="n">w2</span> <span class="o">=</span> <span class="n">Webview</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">html</span><span class="o">(</span><span class="s">&quot;&lt;h1&gt;Window 2&lt;/h1&gt;&quot;</span><span class="o">).</span><span class="na">build</span><span class="o">())</span> <span class="o">{</span>
                 <span class="n">w2</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
             <span class="o">}</span>
         <span class="o">});</span>
@@ -454,6 +710,10 @@
     <strong>Linux constraint:</strong> the first <code>Webview</code> must be created on the
     thread that will call <code>run()</code>. All subsequent windows dispatch their init to that
     thread automatically.
+  </p>
+  <p>
+    To touch a webview from a background thread, schedule the work on its event thread with
+    <code>webview.dispatch(() -> ...)</code>.
   </p>
 
   <h2 id="console">Console output</h2><hr/>
